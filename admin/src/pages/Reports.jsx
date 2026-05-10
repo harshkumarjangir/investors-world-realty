@@ -1,0 +1,192 @@
+import { useState, useEffect } from 'react';
+import { Download } from 'lucide-react';
+import api from '../common/api.js';
+import { useI18n } from '../common/i18n.jsx';
+
+const TABS = [
+  { key: 'joining', endpoint: '/admin/reports/joining' },
+  { key: 'activation', endpoint: '/admin/reports/activation' },
+  { key: 'income', endpoint: '/admin/reports/income' },
+  { key: 'withdrawal', endpoint: '/admin/reports/withdrawal' },
+  { key: 'fundTransfer', endpoint: '/admin/reports/fund-transfer' },
+  { key: 'userWise', endpoint: '/admin/reports/user', needsId: true },
+];
+
+export default function Reports() {
+  const { t } = useI18n();
+  const [activeTab, setActiveTab] = useState('joining');
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({ startDate: '', endDate: '', page: 1 });
+  const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    fetchReport();
+  }, [activeTab, filters.page]);
+
+  const fetchReport = async () => {
+    const tab = TABS.find((tb) => tb.key === activeTab);
+    if (tab.needsId) {
+      // User-wise report needs an associateId — skip auto-fetch
+      setLoading(false);
+      setData([]);
+      return;
+    }
+    try {
+      setLoading(true);
+      const res = await api.get(tab.endpoint, { params: filters });
+      setData(res.data?.data || res.data?.reports || []);
+      setTotalPages(res.data?.totalPages || 1);
+    } catch (err) {
+      console.error('Failed to load report', err);
+      setData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFilter = () => {
+    setFilters({ ...filters, page: 1 });
+    fetchReport();
+  };
+
+  const handleExport = () => {
+    alert('Export functionality will be available soon.');
+  };
+
+  const tabLabels = {
+    joining: t('reports.joining'),
+    activation: t('reports.activation'),
+    income: t('reports.income'),
+    withdrawal: t('reports.withdrawal'),
+    fundTransfer: t('reports.fundTransfer'),
+    userWise: t('reports.userWise'),
+  };
+
+  return (
+    <div className="p-6 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h1 className="text-2xl font-bold text-gray-800">{t('reports.title')}</h1>
+        <button
+          onClick={handleExport}
+          className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-green-700"
+        >
+          <Download size={16} />
+          {t('reports.export')}
+        </button>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-1 overflow-x-auto border-b border-gray-200">
+        {TABS.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => { setActiveTab(tab.key); setFilters({ ...filters, page: 1 }); }}
+            className={`whitespace-nowrap px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === tab.key
+                ? 'border-indigo-600 text-indigo-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {tabLabels[tab.key]}
+          </button>
+        ))}
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-wrap gap-3 items-end">
+        <div>
+          <label className="block text-xs text-gray-500 mb-1">Start Date</label>
+          <input
+            type="date"
+            value={filters.startDate}
+            onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
+            className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-gray-500 mb-1">End Date</label>
+          <input
+            type="date"
+            value={filters.endDate}
+            onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
+            className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+          />
+        </div>
+        <button
+          onClick={handleFilter}
+          className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+        >
+          Apply
+        </button>
+      </div>
+
+      {/* Table */}
+      <div className="rounded-xl bg-white shadow-sm border border-gray-100 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-4 py-3 text-left font-medium text-gray-600">Date</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-600">Associate</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-600">Details</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-600">Amount</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-600">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan={5} className="py-8 text-center text-gray-400">{t('common.loading')}</td></tr>
+              ) : data.length === 0 ? (
+                <tr><td colSpan={5} className="py-8 text-center text-gray-400">{t('common.noData')}</td></tr>
+              ) : (
+                data.map((row, idx) => (
+                  <tr key={row.id || idx} className="border-b border-gray-50 even:bg-gray-50">
+                    <td className="px-4 py-3 text-gray-700">
+                      {new Date(row.date || row.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">{row.associateName || row.userId || '-'}</td>
+                    <td className="px-4 py-3 text-gray-600">{row.details || row.type || row.packageName || '-'}</td>
+                    <td className="px-4 py-3 font-medium text-gray-800">
+                      {row.amount ? `₹${Number(row.amount).toLocaleString()}` : '-'}
+                    </td>
+                    <td className="px-4 py-3">
+                      {row.status && (
+                        <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                          row.status === 'COMPLETED' || row.status === 'ACTIVE' ? 'bg-green-100 text-green-700' :
+                          row.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>{row.status}</span>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-gray-500">Page {filters.page} of {totalPages}</p>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setFilters({ ...filters, page: Math.max(1, filters.page - 1) })}
+            disabled={filters.page === 1}
+            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+          >
+            Previous
+          </button>
+          <button
+            onClick={() => setFilters({ ...filters, page: Math.min(totalPages, filters.page + 1) })}
+            disabled={filters.page === totalPages}
+            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
