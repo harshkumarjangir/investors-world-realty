@@ -1,0 +1,575 @@
+// Investors World Realty — Prisma Schema
+// Database: PostgreSQL (Neon in dev, local VPS in production)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum AssociateStatus {
+  INACTIVE
+  ACTIVE
+  SUSPENDED
+  RED
+}
+
+enum LegPosition {
+  LEFT
+  RIGHT
+}
+
+enum TransactionType {
+  DIRECT_INCOME
+  LEVEL_INCOME
+  MATCHING_INCOME
+  REWARD_INCOME
+  FUND_TRANSFER_IN
+  FUND_TRANSFER_OUT
+  WITHDRAWAL
+  ADMIN_CREDIT
+  ADMIN_DEBIT
+  PACKAGE_PURCHASE
+  BOOKING_PAYMENT
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REVERSED
+}
+
+enum IncomeType {
+  DIRECT
+  LEVEL
+  MATCHING
+  REWARD
+}
+
+enum IncomeStatus {
+  PENDING
+  APPROVED
+  PAID
+  REJECTED
+}
+
+enum PayoutStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PAID
+}
+
+enum PropertyStatus {
+  AVAILABLE
+  BOOKED
+  SOLD
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum KYCType {
+  PAN
+  AADHAAR
+  BANK
+}
+
+enum KYCStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum NotificationType {
+  PAYOUT
+  REGISTRATION
+  PROPERTY
+  ANNOUNCEMENT
+  INCOME
+  KYC
+  BOOKING
+  SYSTEM
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum WithdrawalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PAID
+}
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+
+model Associate {
+  id             String          @id @default(uuid())
+  userId         String          @unique // IW100001 format
+  name           String
+  email          String          @unique
+  phone          String          @unique
+  password       String // bcrypt hashed
+  dateOfBirth    DateTime?
+  address        String?
+  city           String?
+  state          String?
+  pincode        String?
+  panNumber      String?
+  profilePhoto   String? // file path
+
+  sponsorId      String?
+  sponsor        Associate?      @relation("Sponsorship", fields: [sponsorId], references: [id])
+  sponsored      Associate[]     @relation("Sponsorship")
+
+  packageId      String?
+  package        Package?        @relation(fields: [packageId], references: [id])
+
+  status         AssociateStatus @default(INACTIVE)
+  joiningDate    DateTime        @default(now())
+  activationDate DateTime?
+
+  // Preferences
+  theme          String          @default("light")
+  language       String          @default("en")
+
+  // Security
+  failedAttempts Int             @default(0)
+  lockedUntil    DateTime?
+
+  // Soft delete
+  deletedAt      DateTime?
+
+  // Relations
+  wallet         Wallet?
+  treeNode       TreeNode?
+  kycDocuments   KYCDocument[]
+  deviceTokens   DeviceToken[]
+  notifications  Notification[]
+  incomeRecords  IncomeRecord[]
+  supportTickets SupportTicket[]
+  bookings       Booking[]
+
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([sponsorId])
+  @@index([status])
+  @@index([deletedAt])
+}
+
+model TreeNode {
+  id          String      @id @default(uuid())
+  associateId String      @unique
+  associate   Associate   @relation(fields: [associateId], references: [id])
+
+  parentId    String?
+  parent      TreeNode?   @relation("TreeHierarchy", fields: [parentId], references: [id])
+  children    TreeNode[]  @relation("TreeHierarchy")
+
+  position    LegPosition // LEFT or RIGHT under parent
+  level       Int // depth in tree (root = 0)
+
+  leftChildId  String?    @unique
+  rightChildId String?    @unique
+
+  // Business volume tracking
+  leftVolume   Decimal    @default(0)
+  rightVolume  Decimal    @default(0)
+  carryForward Decimal    @default(0)
+
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([parentId])
+  @@index([level])
+}
+
+model Wallet {
+  id           String        @id @default(uuid())
+  associateId  String        @unique
+  associate    Associate     @relation(fields: [associateId], references: [id])
+
+  balance      Decimal       @default(0)
+  totalCredits Decimal       @default(0)
+  totalDebits  Decimal       @default(0)
+
+  transactions Transaction[]
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Transaction {
+  id           String            @id @default(uuid())
+  walletId     String
+  wallet       Wallet            @relation(fields: [walletId], references: [id])
+
+  type         TransactionType
+  amount       Decimal
+  balanceAfter Decimal
+  description  String
+  reference    String? // counterparty userId or system reference
+
+  status       TransactionStatus @default(COMPLETED)
+
+  // For admin-initiated transactions
+  adminId      String?
+  adminReason  String?
+
+  createdAt    DateTime          @default(now())
+
+  @@index([walletId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model Package {
+  id            String      @id @default(uuid())
+  name          String
+  price         Decimal
+  benefits      Json // array of benefit descriptions
+  directPercent Decimal // direct income percentage
+  isActive      Boolean     @default(true)
+
+  associates    Associate[]
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model IncomePlan {
+  id            String     @id @default(uuid())
+  type          IncomeType
+  level         Int? // for level income (1-N)
+  percentage    Decimal
+  minPairVolume Decimal? // for matching income
+  milestone     Decimal? // for reward income
+  rewardAmount  Decimal? // for reward income
+  isActive      Boolean    @default(true)
+
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+model IncomeRecord {
+  id          String       @id @default(uuid())
+  associateId String
+  associate   Associate    @relation(fields: [associateId], references: [id])
+
+  type        IncomeType
+  amount      Decimal
+  sourceId    String? // associate who triggered this income
+  payoutId    String?
+  payout      Payout?      @relation(fields: [payoutId], references: [id])
+
+  status      IncomeStatus @default(PENDING)
+
+  createdAt   DateTime     @default(now())
+
+  @@index([associateId])
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Payout {
+  id             String        @id @default(uuid())
+  totalAmount    Decimal
+  status         PayoutStatus  @default(PENDING)
+  approvedBy     String?
+  rejectedReason String?
+
+  incomeRecords  IncomeRecord[]
+
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model Property {
+  id          String          @id @default(uuid())
+  name        String
+  description String
+  location    String
+  city        String
+  state       String
+  area        Decimal // in sq ft
+  price       Decimal
+  type        String // villa, plot, apartment, etc.
+  amenities   Json // array of amenity strings
+  status      PropertyStatus  @default(AVAILABLE)
+  isFeatured  Boolean         @default(false)
+
+  images      PropertyImage[]
+  videos      PropertyVideo[]
+  inquiries   PropertyInquiry[]
+  bookings    Booking[]
+
+  deletedAt   DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([status])
+  @@index([city])
+  @@index([type])
+  @@index([deletedAt])
+}
+
+model PropertyImage {
+  id         String   @id @default(uuid())
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id])
+  url        String
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  @@index([propertyId])
+}
+
+model PropertyVideo {
+  id         String   @id @default(uuid())
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id])
+  url        String
+  format     String   @default("mp4")
+  createdAt  DateTime @default(now())
+
+  @@index([propertyId])
+}
+
+model Booking {
+  id          String        @id @default(uuid())
+  associateId String
+  associate   Associate     @relation(fields: [associateId], references: [id])
+  propertyId  String
+  property    Property      @relation(fields: [propertyId], references: [id])
+
+  amount      Decimal
+  status      BookingStatus @default(PENDING)
+  receiptUrl  String?
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([associateId])
+  @@index([propertyId])
+  @@index([status])
+}
+
+model KYCDocument {
+  id              String    @id @default(uuid())
+  associateId     String
+  associate       Associate @relation(fields: [associateId], references: [id])
+
+  type            KYCType
+  documentNumber  String
+  documentUrl     String // file path
+  status          KYCStatus @default(PENDING)
+  rejectionReason String?
+  verifiedBy      String?
+  verifiedAt      DateTime?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([associateId, type])
+  @@index([status])
+}
+
+model DeviceToken {
+  id          String    @id @default(uuid())
+  associateId String
+  associate   Associate @relation(fields: [associateId], references: [id])
+
+  token       String    @unique
+  platform    String // android, ios, web
+
+  createdAt   DateTime  @default(now())
+
+  @@index([associateId])
+}
+
+model Notification {
+  id          String           @id @default(uuid())
+  associateId String
+  associate   Associate        @relation(fields: [associateId], references: [id])
+
+  title       String
+  message     String
+  type        NotificationType
+  isRead      Boolean          @default(false)
+  data        Json? // additional payload
+
+  createdAt   DateTime         @default(now())
+
+  @@index([associateId, isRead])
+  @@index([createdAt])
+}
+
+model SupportTicket {
+  id           String        @id @default(uuid())
+  ticketNumber String        @unique // auto-generated e.g. TKT-000001
+  associateId  String
+  associate    Associate     @relation(fields: [associateId], references: [id])
+
+  subject      String
+  status       TicketStatus  @default(OPEN)
+
+  messages     TicketMessage[]
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([associateId])
+  @@index([status])
+}
+
+model TicketMessage {
+  id         String        @id @default(uuid())
+  ticketId   String
+  ticket     SupportTicket @relation(fields: [ticketId], references: [id])
+
+  senderId   String // associate or admin ID
+  senderType String // "associate" or "admin"
+  message    String
+
+  createdAt  DateTime      @default(now())
+
+  @@index([ticketId])
+}
+
+model Admin {
+  id        String          @id @default(uuid())
+  name      String
+  email     String          @unique
+  phone     String          @unique
+  password  String // bcrypt hashed
+  roleId    String
+  role      AdminRole       @relation(fields: [roleId], references: [id])
+
+  isActive  Boolean         @default(true)
+
+  auditLogs AdminAuditLog[]
+
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+}
+
+model AdminRole {
+  id          String   @id @default(uuid())
+  name        String   @unique // Super Admin, Manager, Support, Accounts
+  permissions Json // array of permission strings
+
+  admins      Admin[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AdminAuditLog {
+  id        String   @id @default(uuid())
+  adminId   String
+  admin     Admin    @relation(fields: [adminId], references: [id])
+
+  action    String
+  entity    String
+  entityId  String?
+  details   Json?
+  ipAddress String?
+
+  createdAt DateTime @default(now())
+
+  @@index([adminId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
+
+model WithdrawalRequest {
+  id              String           @id @default(uuid())
+  associateId     String
+  amount          Decimal
+  status          WithdrawalStatus @default(PENDING)
+  transactionRef  String?
+  processedBy     String?
+  processedAt     DateTime?
+  rejectionReason String?
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([associateId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model PropertyInquiry {
+  id          String   @id @default(uuid())
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id])
+  associateId String
+  message     String
+
+  createdAt   DateTime @default(now())
+
+  @@index([propertyId])
+}
+
+model ContactInquiry {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  phone     String?
+  message   String
+
+  createdAt DateTime @default(now())
+}
+
+model AppVersion {
+  id            String   @id @default(uuid())
+  platform      String // android, ios
+  minVersion    String
+  latestVersion String
+  storeUrl      String
+  forceUpdate   Boolean  @default(false)
+
+  updatedAt     DateTime @updatedAt
+}
+
+model BrandingAsset {
+  id        String   @id @default(uuid())
+  key       String   @unique // logo, splash, etc.
+  url       String
+
+  updatedAt DateTime @updatedAt
+}
+
+model MasterState {
+  id   String @id @default(uuid())
+  name String @unique
+}
+
+model MasterCity {
+  id      String @id @default(uuid())
+  name    String
+  stateId String
+
+  @@index([stateId])
+}
+
+model PropertyCategory {
+  id   String @id @default(uuid())
+  name String @unique
+}

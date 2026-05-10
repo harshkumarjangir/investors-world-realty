@@ -1,0 +1,34 @@
+import { Router } from 'express';
+import { authenticateAdmin } from '../../middleware/auth.js';
+import dashboardRoutes from './dashboard.js';
+import associateRoutes from './associates.js';
+import genealogyRoutes from './genealogy.js';
+import payoutRoutes from './payouts.js';
+import reportRoutes from './reports.js';
+import fundRoutes from './funds.js';
+import propertyRoutes from './properties.js';
+import notificationRoutes from './notifications.js';
+import kycRoutes from './kyc.js';
+import configRoutes from './config.js';
+import transactionRoutes from './transactions.js';
+import appVersionRoutes from './appVersion.js';
+import contactRoutes from './contact.js';
+
+const router = Router();
+
+router.use(authenticateAdmin);
+router.use('/dashboard', dashboardRoutes);
+router.use('/associates', associateRoutes);
+router.use('/genealogy', genealogyRoutes);
+router.use('/payouts', payoutRoutes);
+router.use('/reports', reportRoutes);
+router.use('/funds', fundRoutes);
+router.use('/properties', propertyRoutes);
+router.use('/notifications', notificationRoutes);
+router.use('/kyc', kycRoutes);
+router.use('/config', configRoutes);
+router.use('/transactions', transactionRoutes);
+router.use('/app-version', appVersionRoutes);
+router.use('/contact', contactRoutes);
+
+export default router;

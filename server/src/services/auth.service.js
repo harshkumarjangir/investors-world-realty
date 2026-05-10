@@ -1,0 +1,299 @@
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import config from '../config/index.js';
+import prisma from '../utils/prisma.js';
+import { getRedisClient, keys, TTL } from '../utils/redis.js';
+
+// ─── Token Helpers ────────────────────────────────────────────────────────────
+function generateAccessToken(payload) {
+  return jwt.sign(payload, config.JWT_SECRET, { expiresIn: config.JWT_EXPIRES_IN });
+}
+
+function generateRefreshToken(payload) {
+  return jwt.sign(payload, config.JWT_REFRESH_SECRET, { expiresIn: config.JWT_REFRESH_EXPIRES_IN });
+}
+
+// ─── Associate Auth ───────────────────────────────────────────────────────────
+export async function loginAssociate(userId, password, deviceToken = null) {
+  const redis = getRedisClient();
+
+  // Check account lock
+  const lockKey = keys.accountLock(userId);
+  const locked = await redis.get(lockKey);
+  if (locked) {
+    const ttl = await redis.ttl(lockKey);
+    const minutes = Math.ceil(ttl / 60);
+    throw Object.assign(new Error(`Account locked. Try again in ${minutes} minute(s)`), { statusCode: 423 });
+  }
+
+  const associate = await prisma.associate.findUnique({
+    where: { userId, deletedAt: null },
+    include: { package: true },
+  });
+
+  if (!associate) {
+    throw Object.assign(new Error('Invalid credentials'), { statusCode: 401 });
+  }
+
+  if (associate.status === 'SUSPENDED') {
+    throw Object.assign(new Error('Account suspended. Contact support'), { statusCode: 403 });
+  }
+
+  const passwordMatch = await bcrypt.compare(password, associate.password);
+
+  if (!passwordMatch) {
+    // Increment failed attempts
+    const attempts = associate.failedAttempts + 1;
+    const update = { failedAttempts: attempts };
+
+    if (attempts >= 5) {
+      update.failedAttempts = 0;
+      await redis.set(lockKey, '1', 'EX', TTL.ACCOUNT_LOCK);
+    }
+
+    await prisma.associate.update({ where: { id: associate.id }, data: update });
+    throw Object.assign(new Error('Invalid credentials'), { statusCode: 401 });
+  }
+
+  // Reset failed attempts on success
+  if (associate.failedAttempts > 0) {
+    await prisma.associate.update({ where: { id: associate.id }, data: { failedAttempts: 0 } });
+  }
+
+  const tokenPayload = {
+    id: associate.id,
+    userId: associate.userId,
+    type: 'associate',
+  };
+
+  const accessToken = generateAccessToken(tokenPayload);
+  const refreshToken = generateRefreshToken(tokenPayload);
+
+  // Store refresh token in Redis
+  await redis.set(keys.refreshSession(refreshToken), associate.id, 'EX', TTL.REFRESH_TOKEN);
+
+  // Store device token if provided
+  if (deviceToken) {
+    await upsertDeviceToken(associate.id, deviceToken);
+  }
+
+  return {
+    accessToken,
+    refreshToken,
+    associate: {
+      id: associate.id,
+      userId: associate.userId,
+      name: associate.name,
+      email: associate.email,
+      phone: associate.phone,
+      status: associate.status,
+      theme: associate.theme,
+      language: associate.language,
+      package: associate.package ? { id: associate.package.id, name: associate.package.name } : null,
+    },
+  };
+}
+
+export async function refreshAssociateToken(refreshToken) {
+  const redis = getRedisClient();
+
+  let decoded;
+  try {
+    decoded = jwt.verify(refreshToken, config.JWT_REFRESH_SECRET);
+  } catch {
+    throw Object.assign(new Error('Invalid or expired refresh token'), { statusCode: 401 });
+  }
+
+  const stored = await redis.get(keys.refreshSession(refreshToken));
+  if (!stored) {
+    throw Object.assign(new Error('Refresh token not found or expired'), { statusCode: 401 });
+  }
+
+  const accessToken = generateAccessToken({
+    id: decoded.id,
+    userId: decoded.userId,
+    type: 'associate',
+  });
+
+  return { accessToken };
+}
+
+export async function logoutAssociate(accessToken, refreshToken, deviceToken = null) {
+  const redis = getRedisClient();
+
+  // Blacklist access token
+  try {
+    const decoded = jwt.decode(accessToken);
+    if (decoded?.exp) {
+      const ttl = decoded.exp - Math.floor(Date.now() / 1000);
+      if (ttl > 0) {
+        await redis.set(keys.authBlacklist(accessToken), '1', 'EX', ttl);
+      }
+    }
+  } catch { /* ignore */ }
+
+  // Remove refresh token
+  if (refreshToken) {
+    await redis.del(keys.refreshSession(refreshToken));
+  }
+
+  // Remove device token
+  if (deviceToken) {
+    await prisma.deviceToken.deleteMany({ where: { token: deviceToken } });
+  }
+}
+
+// ─── OTP ──────────────────────────────────────────────────────────────────────
+export async function sendOtp(identifier) {
+  const redis = getRedisClient();
+  const otp = crypto.randomInt(100000, 999999).toString();
+  await redis.set(keys.otp(identifier), otp, 'EX', TTL.OTP);
+
+  // TODO: integrate SMS/email gateway
+  // For development, log the OTP
+  if (config.NODE_ENV !== 'production') {
+    console.log(`[OTP] ${identifier} → ${otp}`);
+  }
+
+  return otp;
+}
+
+export async function verifyOtp(identifier, otp) {
+  const redis = getRedisClient();
+  const stored = await redis.get(keys.otp(identifier));
+  if (!stored || stored !== otp) return false;
+  await redis.del(keys.otp(identifier));
+  return true;
+}
+
+// ─── Password ─────────────────────────────────────────────────────────────────
+const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
+
+export function validatePasswordStrength(password) {
+  return PASSWORD_REGEX.test(password);
+}
+
+export async function resetPassword(identifier, otp, newPassword) {
+  const valid = await verifyOtp(identifier, otp);
+  if (!valid) {
+    throw Object.assign(new Error('Invalid or expired OTP'), { statusCode: 400 });
+  }
+
+  if (!validatePasswordStrength(newPassword)) {
+    throw Object.assign(
+      new Error('Password must be at least 8 characters with 1 uppercase, 1 number, and 1 special character'),
+      { statusCode: 400 },
+    );
+  }
+
+  const hashed = await bcrypt.hash(newPassword, 12);
+
+  // Find by phone or email
+  const associate = await prisma.associate.findFirst({
+    where: {
+      OR: [{ phone: identifier }, { email: identifier }],
+      deletedAt: null,
+    },
+  });
+
+  if (!associate) {
+    throw Object.assign(new Error('Associate not found'), { statusCode: 404 });
+  }
+
+  await prisma.associate.update({
+    where: { id: associate.id },
+    data: { password: hashed, failedAttempts: 0 },
+  });
+}
+
+export async function changePassword(associateId, currentPassword, newPassword) {
+  const associate = await prisma.associate.findUnique({ where: { id: associateId } });
+
+  const match = await bcrypt.compare(currentPassword, associate.password);
+  if (!match) {
+    throw Object.assign(new Error('Current password is incorrect'), { statusCode: 400 });
+  }
+
+  if (!validatePasswordStrength(newPassword)) {
+    throw Object.assign(
+      new Error('Password must be at least 8 characters with 1 uppercase, 1 number, and 1 special character'),
+      { statusCode: 400 },
+    );
+  }
+
+  const hashed = await bcrypt.hash(newPassword, 12);
+  await prisma.associate.update({ where: { id: associateId }, data: { password: hashed } });
+}
+
+// ─── Admin Auth ───────────────────────────────────────────────────────────────
+export async function loginAdmin(email, password) {
+  const admin = await prisma.admin.findUnique({
+    where: { email },
+    include: { role: true },
+  });
+
+  if (!admin || !admin.isActive) {
+    throw Object.assign(new Error('Invalid credentials'), { statusCode: 401 });
+  }
+
+  const match = await bcrypt.compare(password, admin.password);
+  if (!match) {
+    throw Object.assign(new Error('Invalid credentials'), { statusCode: 401 });
+  }
+
+  // Send OTP for 2FA
+  await sendOtp(admin.email);
+
+  return { message: 'OTP sent to registered email', adminId: admin.id };
+}
+
+export async function verifyAdminOtp(adminId, otp) {
+  const admin = await prisma.admin.findUnique({
+    where: { id: adminId },
+    include: { role: true },
+  });
+
+  if (!admin) {
+    throw Object.assign(new Error('Admin not found'), { statusCode: 404 });
+  }
+
+  const valid = await verifyOtp(admin.email, otp);
+  if (!valid) {
+    throw Object.assign(new Error('Invalid or expired OTP'), { statusCode: 400 });
+  }
+
+  const tokenPayload = {
+    id: admin.id,
+    email: admin.email,
+    type: 'admin',
+    permissions: admin.role.permissions,
+  };
+
+  const accessToken = generateAccessToken(tokenPayload);
+  const refreshToken = generateRefreshToken(tokenPayload);
+
+  const redis = getRedisClient();
+  await redis.set(keys.refreshSession(refreshToken), admin.id, 'EX', TTL.REFRESH_TOKEN);
+
+  return {
+    accessToken,
+    refreshToken,
+    admin: {
+      id: admin.id,
+      name: admin.name,
+      email: admin.email,
+      role: admin.role.name,
+      permissions: admin.role.permissions,
+    },
+  };
+}
+
+// ─── Device Token ─────────────────────────────────────────────────────────────
+async function upsertDeviceToken(associateId, token, platform = 'unknown') {
+  await prisma.deviceToken.upsert({
+    where: { token },
+    update: { associateId },
+    create: { associateId, token, platform },
+  });
+}
