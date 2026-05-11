@@ -383,24 +383,24 @@
 ## Phase 12: Landing Site (Next.js) (Requirement 24)
 
 ### Task 51: Landing Site Setup & Layout
-- [ ] Set up Next.js + Tailwind CSS project with responsive layout
-- [ ] Implement header/footer with navigation
-- [ ] Implement dark mode / light mode toggle
-- [ ] Ensure full responsiveness (mobile, tablet, desktop)
+- [x] Set up Next.js + Tailwind CSS project with responsive layout
+- [x] Implement header/footer with navigation
+- [x] Implement dark mode / light mode toggle
+- [x] Ensure full responsiveness (mobile, tablet, desktop)
 
 ### Task 52: Landing Site Pages
-- [ ] Build homepage: company overview, featured properties, income plan highlights, registration CTA
-- [ ] Build about page: company history, mission, vision, team
-- [ ] Build properties page: property listings from API with filters
-- [ ] Build property detail page: images, details, amenities, video player (play/pause/fullscreen)
-- [ ] Build contact page: office address, phone, email, contact form submission
-- [ ] Build EMI calculator tool on properties section (no auth required)
-- [ ] Build commission calculator on income plan page (no auth required)
-- [ ] Display WhatsApp number, phone, email for direct support
+- [x] Build homepage: company overview, featured properties, income plan highlights, registration CTA
+- [x] Build about page: company history, mission, vision, team
+- [x] Build properties page: property listings from API with filters
+- [x] Build property detail page: images, details, amenities, video player (play/pause/fullscreen)
+- [x] Build contact page: office address, phone, email, contact form submission
+- [x] Build EMI calculator tool on properties section (no auth required)
+- [x] Build commission calculator on income plan page (no auth required)
+- [x] Display WhatsApp number, phone, email for direct support
 
 ### Task 53: Landing Site i18n
-- [ ] Implement language switching between English and Hindi
-- [ ] Translate all static content
+- [x] Implement language switching between English and Hindi
+- [x] Translate all static content
 
 ---
 
