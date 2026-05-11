@@ -20,7 +20,7 @@ export default function AssociateDetail() {
     try {
       setLoading(true);
       const res = await api.get(`/admin/associates/${id}`);
-      setAssociate(res.data);
+      setAssociate(res.data?.data || res.data);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load associate details');
     } finally {
@@ -57,10 +57,10 @@ export default function AssociateDetail() {
   if (!associate) return null;
 
   const incomeSummary = [
-    { label: 'Direct Income', value: associate.directIncome || 0 },
-    { label: 'Level Income', value: associate.levelIncome || 0 },
-    { label: 'Binary Income', value: associate.binaryIncome || 0 },
-    { label: 'Total Income', value: associate.totalIncome || 0 },
+    { label: 'Direct Income', value: associate.incomeSummary?.DIRECT || associate.directIncome || 0 },
+    { label: 'Level Income', value: associate.incomeSummary?.LEVEL || associate.levelIncome || 0 },
+    { label: 'Matching Income', value: associate.incomeSummary?.MATCHING || associate.binaryIncome || 0 },
+    { label: 'Total Income', value: Object.values(associate.incomeSummary || {}).reduce((s, v) => s + Number(v || 0), 0) || associate.totalIncome || 0 },
   ];
 
   return (
@@ -108,7 +108,7 @@ export default function AssociateDetail() {
             <InfoRow icon={Phone} label="Phone" value={associate.phone} />
             <InfoRow icon={MapPin} label="Address" value={`${associate.city || ''} ${associate.state || ''}`} />
             <InfoRow icon={Calendar} label="Joining Date" value={associate.joiningDate ? new Date(associate.joiningDate).toLocaleDateString() : '-'} />
-            <InfoRow icon={Wallet} label="Package" value={associate.packageName || associate.package || '-'} />
+            <InfoRow icon={Wallet} label="Package" value={associate.packageName || associate.package?.name || '-'} />
             <div className="flex items-center gap-3">
               <span className="text-sm text-gray-500">Status:</span>
               <StatusBadge status={associate.status} />
@@ -127,7 +127,7 @@ export default function AssociateDetail() {
           <div className="mt-4 pt-4 border-t border-gray-100">
             <p className="text-sm text-gray-500">Wallet Balance</p>
             <p className="text-2xl font-bold text-indigo-600">
-              ₹{Number(associate.walletBalance || 0).toLocaleString()}
+              ₹{Number(associate.wallet?.balance || associate.walletBalance || 0).toLocaleString()}
             </p>
           </div>
         </div>
@@ -149,10 +149,10 @@ export default function AssociateDetail() {
       <div className="rounded-xl bg-white p-6 shadow-sm border border-gray-100">
         <h2 className="text-lg font-semibold text-gray-800 mb-4">Team Statistics</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard label="Left Count" value={associate.leftCount || 0} />
-          <StatCard label="Right Count" value={associate.rightCount || 0} />
-          <StatCard label="Left Volume" value={`₹${Number(associate.leftVolume || 0).toLocaleString()}`} />
-          <StatCard label="Right Volume" value={`₹${Number(associate.rightVolume || 0).toLocaleString()}`} />
+          <StatCard label="Left Count" value={associate.teamStats?.leftCount || associate.leftCount || 0} />
+          <StatCard label="Right Count" value={associate.teamStats?.rightCount || associate.rightCount || 0} />
+          <StatCard label="Left Volume" value={`₹${Number(associate.teamStats?.leftVolume || associate.leftVolume || 0).toLocaleString()}`} />
+          <StatCard label="Right Volume" value={`₹${Number(associate.teamStats?.rightVolume || associate.rightVolume || 0).toLocaleString()}`} />
         </div>
       </div>
     </div>

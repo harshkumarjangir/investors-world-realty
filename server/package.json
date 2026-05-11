@@ -13,6 +13,7 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:seed": "node prisma/seed.js",
+    "db:seed:dummy": "node prisma/seed-dummy.js",
     "db:studio": "prisma studio"
   },
   "license": "UNLICENSED",

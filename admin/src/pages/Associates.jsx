@@ -15,6 +15,7 @@ export default function Associates() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingAssociate, setEditingAssociate] = useState(null);
 
   useEffect(() => {
     fetchAssociates();
@@ -26,8 +27,8 @@ export default function Associates() {
       const res = await api.get('/admin/associates', {
         params: { search, status: statusFilter, page, pageSize: 15 },
       });
-      setAssociates(res.data?.associates || res.data?.data || []);
-      setTotalPages(res.data?.totalPages || 1);
+      setAssociates(res.data?.data || res.data?.associates || []);
+      setTotalPages(res.data?.totalPages || Math.ceil((res.data?.totalItems || 0) / 15) || 1);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load associates');
     } finally {
@@ -50,7 +51,7 @@ export default function Associates() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-gray-800">{t('associates.title')}</h1>
         <button
-          onClick={() => setShowAddModal(true)}
+          onClick={() => { setEditingAssociate(null); setShowAddModal(true); }}
           className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 transition-colors"
         >
           <Plus size={16} />
@@ -133,7 +134,7 @@ export default function Associates() {
                           <Eye size={15} />
                         </button>
                         <button
-                          onClick={() => navigate(`/associates/${a.id}`)}
+                          onClick={() => { setEditingAssociate(a); setShowAddModal(true); }}
                           className="rounded p-1.5 text-gray-600 hover:bg-gray-100"
                           title="Edit"
                         >
@@ -191,8 +192,9 @@ export default function Associates() {
       {/* Add Associate Modal */}
       {showAddModal && (
         <AddAssociateModal
-          onClose={() => setShowAddModal(false)}
-          onSuccess={() => { setShowAddModal(false); fetchAssociates(); }}
+          associate={editingAssociate}
+          onClose={() => { setShowAddModal(false); setEditingAssociate(null); }}
+          onSuccess={() => { setShowAddModal(false); setEditingAssociate(null); fetchAssociates(); }}
         />
       )}
     </div>
@@ -213,12 +215,14 @@ function StatusBadge({ status }) {
   );
 }
 
-function AddAssociateModal({ onClose, onSuccess }) {
+function AddAssociateModal({ associate, onClose, onSuccess }) {
   const { t } = useI18n();
   const [form, setForm] = useState({
-    name: '', phone: '', email: '', address: '', city: '', state: '',
-    pincode: '', panNumber: '', sponsorId: '', placement: 'LEFT',
-    packageId: '', password: '',
+    name: associate?.name || '', phone: associate?.phone || '', email: associate?.email || '',
+    address: associate?.address || '', city: associate?.city || '', state: associate?.state || '',
+    pincode: associate?.pincode || '', panNumber: associate?.panNumber || '',
+    sponsorId: associate?.sponsorId || '', placement: associate?.placement || 'LEFT',
+    packageId: associate?.packageId || '', password: '',
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -232,10 +236,16 @@ function AddAssociateModal({ onClose, onSuccess }) {
     try {
       setSubmitting(true);
       setError('');
-      await api.post('/admin/associates', form);
+      if (associate?.id) {
+        // Edit mode — PATCH
+        await api.patch(`/admin/associates/${associate.id}`, form);
+      } else {
+        // Add mode — POST
+        await api.post('/admin/associates', form);
+      }
       onSuccess();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to add associate');
+      setError(err.response?.data?.message || 'Failed to save associate');
     } finally {
       setSubmitting(false);
     }
@@ -247,7 +257,7 @@ function AddAssociateModal({ onClose, onSuccess }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-800">{t('associates.add')}</h2>
+          <h2 className="text-lg font-semibold text-gray-800">{associate ? t('associates.edit') : t('associates.add')}</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
             <X size={20} />
           </button>

@@ -1,1 +1,12 @@
 @import "tailwindcss";
+
+/* Force light mode for admin panel — disable dark mode */
+@custom-variant dark (&:where(.force-dark, .force-dark *));
+
+html {
+  color-scheme: light;
+}
+
+body {
+  background-color: #f1f5f9;
+}
