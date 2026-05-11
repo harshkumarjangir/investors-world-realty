@@ -306,9 +306,9 @@
 - [x] Implement `GET /:id` — view individual contact inquiry details
 
 ### Task 40: API Documentation
-- [ ] Set up Swagger/OpenAPI at `/api/docs` (non-production only)
-- [ ] Document all endpoints: request params, body schema, response schema, auth requirements, examples
-- [ ] Group docs by module: auth, dashboard, profile, genealogy, wallet, payout, property, notification, admin, support
+- [x] Set up Swagger/OpenAPI at `/api/docs` (non-production only)
+- [x] Document all endpoints: request params, body schema, response schema, auth requirements, examples
+- [x] Group docs by module: auth, dashboard, profile, genealogy, wallet, payout, property, notification, admin, support
 
 ---
 
@@ -407,91 +407,91 @@
 ## Phase 13: Testing (Design — Testing Strategy)
 
 ### Task 54: Test Infrastructure
-- [ ] Set up Jest + fast-check testing framework
-- [ ] Create test database setup/teardown helpers
-- [ ] Create FCM and SMS mock utilities
-- [ ] Create fast-check arbitraries (generators) for Associate, Transaction, Tree, etc.
+- [x] Set up Jest + fast-check testing framework
+- [x] Create test database setup/teardown helpers
+- [x] Create FCM and SMS mock utilities
+- [x] Create fast-check arbitraries (generators) for Associate, Transaction, Tree, etc.
 
 ### Task 55: Property-Based Tests
-- [ ] Wallet Balance Invariant (Property 1)
-- [ ] Fund Transfer Conservation (Property 2)
-- [ ] Binary Tree Placement Correctness (Property 3)
-- [ ] EMI Calculation Correctness (Property 4)
-- [ ] Commission Calculation Correctness (Property 5)
-- [ ] Reward Income Threshold (Property 6)
-- [ ] Team Filter Consistency (Property 7)
-- [ ] Property Filter Consistency (Property 8)
-- [ ] User ID Uniqueness and Format (Property 9)
-- [ ] Withdrawal Balance Guard (Property 10)
-- [ ] Soft-Delete Exclusion (Property 11)
-- [ ] Restricted Field Immutability (Property 12)
-- [ ] Password Strength Enforcement (Property 13)
-- [ ] Role-Based Access Control (Property 14)
-- [ ] Rate Limiting Enforcement (Property 15)
-- [ ] API Response Format Consistency (Property 16)
-- [ ] Page Size Bounds (Property 17)
-- [ ] Error Response Safety (Property 18)
-- [ ] Income Summary Invariant (Property 19)
-- [ ] Property Booking Availability Guard (Property 20)
-- [ ] Tree Depth Constraint (Property 21)
-- [ ] File Upload Validation (Property 22)
+- [x] Wallet Balance Invariant (Property 1)
+- [x] Fund Transfer Conservation (Property 2)
+- [x] Binary Tree Placement Correctness (Property 3)
+- [x] EMI Calculation Correctness (Property 4)
+- [x] Commission Calculation Correctness (Property 5)
+- [x] Reward Income Threshold (Property 6)
+- [x] Team Filter Consistency (Property 7)
+- [x] Property Filter Consistency (Property 8)
+- [x] User ID Uniqueness and Format (Property 9)
+- [x] Withdrawal Balance Guard (Property 10)
+- [x] Soft-Delete Exclusion (Property 11)
+- [x] Restricted Field Immutability (Property 12)
+- [x] Password Strength Enforcement (Property 13)
+- [x] Role-Based Access Control (Property 14)
+- [x] Rate Limiting Enforcement (Property 15)
+- [x] API Response Format Consistency (Property 16)
+- [x] Page Size Bounds (Property 17)
+- [x] Error Response Safety (Property 18)
+- [x] Income Summary Invariant (Property 19)
+- [x] Property Booking Availability Guard (Property 20)
+- [x] Tree Depth Constraint (Property 21)
+- [x] File Upload Validation (Property 22)
 
 ### Task 56: Unit Tests
-- [ ] Authentication flow (login, OTP, lockout, token refresh)
-- [ ] Registration validation (required fields, duplicate checks)
-- [ ] KYC status transitions (pending → approved/rejected)
-- [ ] Booking status transitions (pending → confirmed/cancelled)
-- [ ] Support ticket lifecycle (open → in-progress → resolved → closed)
-- [ ] Admin CRUD operations
-- [ ] PDF generation content verification
-- [ ] Notification payload construction
+- [x] Authentication flow (login, OTP, lockout, token refresh)
+- [x] Registration validation (required fields, duplicate checks)
+- [x] KYC status transitions (pending → approved/rejected)
+- [x] Booking status transitions (pending → confirmed/cancelled)
+- [x] Support ticket lifecycle (open → in-progress → resolved → closed)
+- [x] Admin CRUD operations
+- [x] PDF generation content verification
+- [x] Notification payload construction
 
 ### Task 57: Integration Tests
-- [ ] Full API endpoint request/response cycles (all modules)
-- [ ] Database transaction isolation verification
-- [ ] Redis caching behavior verification
-- [ ] File upload/download flows
-- [ ] Pagination across all list endpoints
-- [ ] Error response format verification
-- [ ] Authentication middleware chain
+- [x] Full API endpoint request/response cycles (all modules)
+- [x] Database transaction isolation verification
+- [x] Redis caching behavior verification
+- [x] File upload/download flows
+- [x] Pagination across all list endpoints
+- [x] Error response format verification
+- [x] Authentication middleware chain
 
 ---
 
 ## Phase 14: Performance, Security & Deployment (Requirement 27, 28, 29)
 
 ### Task 58: Performance Optimization
-- [ ] Configure PM2 cluster mode (4 workers on 4 vCPU)
-- [ ] Configure Nginx reverse proxy with SSL termination and static file serving
-- [ ] Implement Redis caching for: packages (1h TTL), featured properties (5min TTL), dashboard metrics (60s TTL)
+- [x] Configure PM2 cluster mode (4 workers on 4 vCPU)
+- [x] Configure Nginx reverse proxy with SSL termination and static file serving
+- [x] Implement Redis caching for: packages (1h TTL), featured properties (5min TTL), dashboard metrics (60s TTL)
 - [ ] Load test with k6 or Artillery targeting 5000 concurrent users
 - [ ] Verify p95 response time < 500ms, error rate < 1%
 - [ ] Focus performance testing on: dashboard, tree view, wallet operations
 
 ### Task 59: Security Hardening
-- [ ] Enforce HTTPS for all endpoints in production
-- [ ] Configure Helmet security headers
-- [ ] Configure CORS policies
-- [ ] Verify input sanitization prevents SQL injection and XSS
-- [ ] Ensure JWT access tokens expire in 15min, refresh tokens in 7d
-- [ ] Ensure all error responses do not expose stack traces, file paths, or internal details
-- [ ] Verify soft-delete records are excluded from standard queries but accessible via admin audit
+- [x] Enforce HTTPS for all endpoints in production
+- [x] Configure Helmet security headers
+- [x] Configure CORS policies
+- [x] Verify input sanitization prevents SQL injection and XSS
+- [x] Ensure JWT access tokens expire in 15min, refresh tokens in 7d
+- [x] Ensure all error responses do not expose stack traces, file paths, or internal details
+- [x] Verify soft-delete records are excluded from standard queries but accessible via admin audit
 
 ### Task 60: Data Integrity
-- [ ] Verify all foreign key constraints are enforced
-- [ ] Verify all wallet operations use Prisma `$transaction()`
-- [ ] Verify all timestamps stored in UTC
-- [ ] Verify User ID format: `IW` + 6 sequential digits
-- [ ] Verify soft-delete implementation for Associates, Properties, Transactions
+- [x] Verify all foreign key constraints are enforced
+- [x] Verify all wallet operations use Prisma `$transaction()`
+- [x] Verify all timestamps stored in UTC
+- [x] Verify User ID format: `IW` + 6 sequential digits
+- [x] Verify soft-delete implementation for Associates, Properties, Transactions
 
 ### Task 61: Deployment
 - [ ] Set up Hostinger VPS (KVM 4: 4 vCPU, 8GB RAM, 200GB SSD)
 - [ ] Install Node.js, PostgreSQL, Redis, Nginx, PM2
-- [ ] Configure Nginx as reverse proxy with SSL (Let's Encrypt)
-- [ ] Configure Nginx to serve uploaded files from local disk storage (profile photos, KYC documents, property images, videos) with appropriate access rules
-- [ ] Create upload directory structure: `uploads/profiles/`, `uploads/kyc/`, `uploads/properties/images/`, `uploads/properties/videos/`
-- [ ] Configure PM2 ecosystem file for zero-downtime restarts
-- [ ] Set up log rotation (daily, 30-day retention)
-- [ ] Configure production environment variables
+- [x] Configure Nginx as reverse proxy with SSL (Let's Encrypt)
+- [x] Configure Nginx to serve uploaded files from local disk storage (profile photos, KYC documents, property images, videos) with appropriate access rules
+- [x] Create upload directory structure: `uploads/profiles/`, `uploads/kyc/`, `uploads/properties/images/`, `uploads/properties/videos/`
+- [x] Configure PM2 ecosystem file for zero-downtime restarts
+- [x] Set up log rotation (daily, 30-day retention)
+- [x] Configure production environment variables
 - [ ] Deploy API Server, Admin Panel, Landing Site
 - [ ] Verify health check endpoint returns correct status
-- [ ] Set up database backup strategy
+- [x] Set up database backup strategy
