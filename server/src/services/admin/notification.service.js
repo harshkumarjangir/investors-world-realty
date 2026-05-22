@@ -20,7 +20,28 @@ export async function adminSendNotification(title, message, target, targetIds, a
   let result;
 
   if (target === 'all') {
-    result = await sendNotificationToAll(title, message, 'ANNOUNCEMENT', {});
+    // Send via FCM topic AND create DB records for all active associates
+    await sendNotificationToAll(title, message, 'ANNOUNCEMENT', {});
+    
+    // Also create DB notification records so associates can see them in history
+    const allAssociates = await prisma.associate.findMany({
+      where: { deletedAt: null, status: 'ACTIVE' },
+      select: { id: true },
+    });
+    
+    if (allAssociates.length > 0) {
+      await prisma.notification.createMany({
+        data: allAssociates.map((a) => ({
+          associateId: a.id,
+          title,
+          message,
+          type: 'ANNOUNCEMENT',
+          isRead: false,
+        })),
+      });
+    }
+    
+    result = { succeeded: allAssociates.length, failed: 0, total: allAssociates.length };
   } else if (target === 'specific') {
     if (!targetIds || targetIds.length === 0) {
       throw Object.assign(new Error('targetIds is required for specific target'), { statusCode: 400 });

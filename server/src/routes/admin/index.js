@@ -13,6 +13,7 @@ import configRoutes from './config.js';
 import transactionRoutes from './transactions.js';
 import appVersionRoutes from './appVersion.js';
 import contactRoutes from './contact.js';
+import commissionRoutes from './commissions.js';
 
 const router = Router();
 
@@ -30,5 +31,6 @@ router.use('/config', configRoutes);
 router.use('/transactions', transactionRoutes);
 router.use('/app-version', appVersionRoutes);
 router.use('/contact', contactRoutes);
+router.use('/commissions', commissionRoutes);
 
 export default router;

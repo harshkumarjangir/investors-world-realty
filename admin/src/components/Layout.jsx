@@ -28,6 +28,7 @@ const navItems = [
   { key: 'nav.funds', icon: DollarSign, path: '/funds', permission: 'funds:read' },
   { key: 'nav.properties', icon: Building, path: '/properties', permission: 'properties:read' },
   { key: 'nav.notifications', icon: Bell, path: '/notifications', permission: 'notifications:read' },
+  { key: 'Commissions', icon: DollarSign, path: '/commissions', permission: 'payouts:read' },
   { key: 'nav.kyc', icon: Shield, path: '/kyc', permission: 'kyc:read' },
   { key: 'nav.config', icon: Settings, path: '/config', permission: 'config:read' },
   { key: 'nav.transactions', icon: ArrowLeftRight, path: '/transactions', permission: 'transactions:read' },

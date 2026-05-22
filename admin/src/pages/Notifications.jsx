@@ -46,7 +46,7 @@ export default function Notifications() {
         target: form.target,
         targetIds: form.target === 'specific' ? form.targetIds.split(',').map((s) => s.trim()) : undefined,
       };
-      await api.post('/admin/notifications/send', payload);
+      await api.post('/admin/notifications', payload);
       setSuccess('Notification sent successfully');
       setForm({ title: '', message: '', target: 'all', targetIds: '' });
       fetchHistory();

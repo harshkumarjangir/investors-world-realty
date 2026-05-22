@@ -1,5 +1,6 @@
 import prisma from '../utils/prisma.js';
 import { sendToDevices } from '../utils/firebase.js';
+import { calculatePropertySaleCommission } from './propertyCommission.service.js';
 
 // ─── createBooking ────────────────────────────────────────────────────────────
 
@@ -143,6 +144,29 @@ export async function adminApproveBooking(bookingId, adminId) {
       }
     } catch (err) {
       console.error('[BOOKING] Push notification failed:', err.message);
+    }
+  })();
+
+  // ─── Property Sale Commission (10-level upline chain) ──────────────────────
+  (async () => {
+    try {
+      // Get full property details for area
+      const property = await prisma.property.findUnique({
+        where: { id: booking.propertyId },
+        select: { price: true, area: true },
+      });
+
+      if (property) {
+        await calculatePropertySaleCommission(
+          booking.associateId,       // seller
+          booking.propertyId,        // property
+          bookingId,                 // booking
+          Number(property.price),    // price
+          Number(property.area),     // area in gaj
+        );
+      }
+    } catch (err) {
+      console.error('[COMMISSION] Property sale commission failed:', err.message);
     }
   })();
 

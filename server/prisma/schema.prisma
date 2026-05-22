@@ -573,3 +573,54 @@ model PropertyCategory {
   id   String @id @default(uuid())
   name String @unique
 }
+
+// ─── Property Commission Slabs ────────────────────────────────────────────────
+// Commission rates based on property area (in gaj/sq yards)
+// Each slab defines: area range, seller commission %, and per-level upline %
+
+model PropertyCommissionSlab {
+  id            String   @id @default(uuid())
+  minArea       Int      // minimum area in gaj (inclusive)
+  maxArea       Int      // maximum area in gaj (inclusive, use 999999 for unlimited)
+  sellerPercent Decimal  // commission % for the selling associate
+  level1Percent Decimal  // direct sponsor gets this %
+  level2Percent Decimal
+  level3Percent Decimal
+  level4Percent Decimal
+  level5Percent Decimal
+  level6Percent Decimal
+  level7Percent Decimal
+  level8Percent Decimal
+  level9Percent Decimal
+  level10Percent Decimal
+  isActive      Boolean  @default(true)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([minArea, maxArea])
+}
+
+// ─── Property Sale Commission Record ──────────────────────────────────────────
+// Tracks commission earned from a property sale for each beneficiary
+
+model PropertySaleCommission {
+  id            String   @id @default(uuid())
+  propertyId    String
+  bookingId     String
+  associateId   String   // who earns this commission
+  sellerAssociateId String // who sold the property
+  level         Int      // 0 = seller, 1 = direct sponsor, 2-10 = upline
+  percentage    Decimal
+  propertyPrice Decimal
+  propertyArea  Int      // area in gaj
+  commissionAmount Decimal
+  status        String   @default("PENDING") // PENDING, APPROVED, PAID
+
+  createdAt     DateTime @default(now())
+
+  @@index([propertyId])
+  @@index([associateId])
+  @@index([bookingId])
+  @@index([status])
+}
