@@ -15,7 +15,6 @@
     "db:seed": "node prisma/seed.js",
     "db:seed:dummy": "node prisma/seed-dummy.js",
     "db:seed:slabs": "node prisma/seed-commission-slabs.js",
-    "db:seed:slabs": "node prisma/seed-commission-slabs.js",
     "db:studio": "prisma studio"
   },
   "license": "UNLICENSED",
@@ -26,6 +25,7 @@
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
+    "exceljs": "^4.4.0",
     "express": "^5.2.1",
     "express-validator": "^7.3.2",
     "firebase-admin": "^13.9.0",

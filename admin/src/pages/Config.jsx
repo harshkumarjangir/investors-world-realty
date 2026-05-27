@@ -7,7 +7,7 @@ const CONFIG_TABS = [
   { key: 'packages', endpoint: '/admin/config/packages' },
   { key: 'incomePlans', endpoint: '/admin/config/income-plans' },
   { key: 'categories', endpoint: '/admin/config/categories' },
-  { key: 'geography', endpoint: '/admin/config/geography' },
+  { key: 'geography', endpoint: '/admin/config/states' },
   { key: 'roles', endpoint: '/admin/config/roles' },
 ];
 
@@ -18,18 +18,21 @@ export default function Config() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     fetchItems();
-  }, [activeTab]);
+  }, [activeTab, page]);
 
   const currentTab = CONFIG_TABS.find((tb) => tb.key === activeTab);
 
   const fetchItems = async () => {
     try {
       setLoading(true);
-      const res = await api.get(currentTab.endpoint);
+      const res = await api.get(currentTab.endpoint, { params: { page, pageSize: 20 } });
       setItems(res.data?.data || res.data?.items || res.data || []);
+      setTotalPages(res.data?.totalPages || 1);
     } catch (err) {
       console.error('Failed to load config', err);
       setItems([]);
@@ -78,7 +81,7 @@ export default function Config() {
         {CONFIG_TABS.map((tab) => (
           <button
             key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
+            onClick={() => { setActiveTab(tab.key); setPage(1); }}
             className={`whitespace-nowrap px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
               activeTab === tab.key
                 ? 'border-indigo-600 text-indigo-600'
@@ -172,6 +175,29 @@ export default function Config() {
           </table>
         </div>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-gray-500">Page {page} of {totalPages}</p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -209,7 +235,7 @@ function ConfigForm({ tab, endpoint, item, onClose, onSuccess }) {
       setSubmitting(true);
       setError('');
       if (item?.id) {
-        await api.put(`${endpoint}/${item.id}`, form);
+        await api.patch(`${endpoint}/${item.id}`, form);
       } else {
         await api.post(endpoint, form);
       }

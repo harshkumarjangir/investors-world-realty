@@ -125,12 +125,12 @@ export default function Layout() {
 
           <div className="flex items-center gap-4">
             {/* Language toggle */}
-            <button
+            {/* <button
               onClick={toggleLang}
               className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
             >
               {t('lang.switch')}
-            </button>
+            </button> */}
 
             {/* Admin name */}
             <span className="text-sm font-medium text-gray-700">

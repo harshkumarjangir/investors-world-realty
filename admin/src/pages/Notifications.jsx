@@ -13,16 +13,19 @@ export default function Notifications() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     fetchHistory();
-  }, []);
+  }, [page]);
 
   const fetchHistory = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/admin/notifications/history');
-      setHistory(res.data?.notifications || res.data?.data || res.data || []);
+      const res = await api.get('/admin/notifications/history', { params: { page, pageSize: 20 } });
+      setHistory(res.data?.data || res.data?.notifications || []);
+      setTotalPages(res.data?.totalPages || 1);
     } catch (err) {
       console.error('Failed to load notification history', err);
     } finally {
@@ -170,6 +173,27 @@ export default function Notifications() {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+          <p className="text-sm text-gray-500">Page {page} of {totalPages}</p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -31,7 +31,7 @@ export default function AssociateDetail() {
   const handleAction = async (action) => {
     if (!confirm(t('common.confirm'))) return;
     try {
-      await api.patch(`/admin/associates/${id}/${action}`);
+      await api.post(`/admin/associates/${id}/${action}`);
       fetchAssociate();
     } catch (err) {
       alert(err.response?.data?.message || 'Action failed');

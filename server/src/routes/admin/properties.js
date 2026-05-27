@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authenticateAdmin, requirePermission } from '../../middleware/auth.js';
 import { uploadPropertyImages, uploadPropertyVideo } from '../../utils/multer.js';
 import {
+  listPropertiesAdminHandler,
   createPropertyHandler,
   uploadPropertyImagesHandler,
   uploadPropertyVideoHandler,
@@ -15,6 +16,9 @@ const router = Router();
 
 // All routes require admin authentication
 router.use(authenticateAdmin);
+
+// GET /api/v1/admin/properties
+router.get('/', requirePermission('properties:read'), listPropertiesAdminHandler);
 
 // POST /api/v1/admin/properties
 router.post('/', requirePermission('properties:write'), createPropertyHandler);

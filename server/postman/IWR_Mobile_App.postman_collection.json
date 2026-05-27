@@ -1,0 +1,572 @@
+{
+  "info": {
+    "name": "IWR Mobile App API",
+    "description": "Investors World Realty - Mobile App API Collection for Flutter Development",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000/api/v1" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.data && json.data.accessToken) {",
+                  "  pm.collectionVariables.set('accessToken', json.data.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', json.data.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"IW100001\",\n  \"password\": \"Test@1234\",\n  \"deviceToken\": \"test_fcm_token\",\n  \"platform\": \"android\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/refresh", "host": ["{{baseUrl}}"], "path": ["auth", "refresh"] }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\",\n  \"deviceToken\": \"test_fcm_token\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/logout", "host": ["{{baseUrl}}"], "path": ["auth", "logout"] }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"identifier\": \"9999900001\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/forgot-password", "host": ["{{baseUrl}}"], "path": ["auth", "forgot-password"] }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"identifier\": \"9999900001\",\n  \"otp\": \"123456\",\n  \"newPassword\": \"NewPass@123\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/reset-password", "host": ["{{baseUrl}}"], "path": ["auth", "reset-password"] }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"currentPassword\": \"Test@1234\",\n  \"newPassword\": \"NewPass@456\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/change-password", "host": ["{{baseUrl}}"], "path": ["auth", "change-password"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 Dashboard",
+      "item": [
+        {
+          "name": "Get Dashboard",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/associate/dashboard", "host": ["{{baseUrl}}"], "path": ["associate", "dashboard"] }
+          }
+        },
+        {
+          "name": "Advance Payment Status",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/associate/advance-payment", "host": ["{{baseUrl}}"], "path": ["associate", "advance-payment"] }
+          }
+        },
+        {
+          "name": "Get Referral Link",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/associate/referral-link", "host": ["{{baseUrl}}"], "path": ["associate", "referral-link"] }
+          }
+        },
+        {
+          "name": "Get Referral QR",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/associate/referral-qr", "host": ["{{baseUrl}}"], "path": ["associate", "referral-qr"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "👤 Profile",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/associate/profile", "host": ["{{baseUrl}}"], "path": ["associate", "profile"] }
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"9876543211\",\n  \"email\": \"newemail@example.com\",\n  \"address\": \"456 New Street\",\n  \"city\": \"Delhi\",\n  \"state\": \"Delhi\",\n  \"pincode\": \"110001\"\n}" },
+            "url": { "raw": "{{baseUrl}}/associate/profile", "host": ["{{baseUrl}}"], "path": ["associate", "profile"] }
+          }
+        },
+        {
+          "name": "Upload Profile Photo",
+          "request": {
+            "method": "POST",
+            "body": { "mode": "formdata", "formdata": [{ "key": "photo", "type": "file", "src": "" }] },
+            "url": { "raw": "{{baseUrl}}/associate/profile/photo", "host": ["{{baseUrl}}"], "path": ["associate", "profile", "photo"] }
+          }
+        },
+        {
+          "name": "Upload PAN KYC",
+          "request": {
+            "method": "POST",
+            "body": { "mode": "formdata", "formdata": [{ "key": "document", "type": "file", "src": "" }, { "key": "documentNumber", "value": "ABCDE1234F", "type": "text" }] },
+            "url": { "raw": "{{baseUrl}}/associate/kyc/pan", "host": ["{{baseUrl}}"], "path": ["associate", "kyc", "pan"] }
+          }
+        },
+        {
+          "name": "Upload Aadhaar KYC",
+          "request": {
+            "method": "POST",
+            "body": { "mode": "formdata", "formdata": [{ "key": "document", "type": "file", "src": "" }, { "key": "documentNumber", "value": "123456789012", "type": "text" }] },
+            "url": { "raw": "{{baseUrl}}/associate/kyc/aadhaar", "host": ["{{baseUrl}}"], "path": ["associate", "kyc", "aadhaar"] }
+          }
+        },
+        {
+          "name": "Update Bank Details",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"accountNumber\": \"1234567890\",\n  \"ifsc\": \"SBIN0001234\",\n  \"bankName\": \"State Bank of India\",\n  \"branch\": \"Main Branch\"\n}" },
+            "url": { "raw": "{{baseUrl}}/associate/kyc/bank", "host": ["{{baseUrl}}"], "path": ["associate", "kyc", "bank"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "⚙️ Settings",
+      "item": [
+        {
+          "name": "Get Settings",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/associate/settings", "host": ["{{baseUrl}}"], "path": ["associate", "settings"] }
+          }
+        },
+        {
+          "name": "Update Settings",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"theme\": \"dark\",\n  \"language\": \"hi\"\n}" },
+            "url": { "raw": "{{baseUrl}}/associate/settings", "host": ["{{baseUrl}}"], "path": ["associate", "settings"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🌳 Genealogy",
+      "item": [
+        {
+          "name": "Get Binary Tree",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/genealogy/tree?depth=5", "host": ["{{baseUrl}}"], "path": ["genealogy", "tree"], "query": [{ "key": "depth", "value": "5" }] }
+          }
+        },
+        {
+          "name": "Get Downline",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/genealogy/downline?status=ACTIVE&leg=left&page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["genealogy", "downline"], "query": [{ "key": "status", "value": "ACTIVE" }, { "key": "leg", "value": "left" }, { "key": "page", "value": "1" }, { "key": "pageSize", "value": "20" }] }
+          }
+        },
+        {
+          "name": "Get Sponsor",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/genealogy/sponsor", "host": ["{{baseUrl}}"], "path": ["genealogy", "sponsor"] }
+          }
+        },
+        {
+          "name": "Get Team Summary",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/genealogy/team-summary", "host": ["{{baseUrl}}"], "path": ["genealogy", "team-summary"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "💰 Income",
+      "item": [
+        {
+          "name": "Income Summary",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/income/summary", "host": ["{{baseUrl}}"], "path": ["income", "summary"] }
+          }
+        },
+        {
+          "name": "Income History",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/income/history?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["income", "history"], "query": [{ "key": "page", "value": "1" }, { "key": "pageSize", "value": "20" }] }
+          }
+        },
+        {
+          "name": "Commission Calculator",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"referrals\": 5,\n  \"depth\": 3,\n  \"packageId\": \"default-package-001\"\n}" },
+            "url": { "raw": "{{baseUrl}}/income/calculator", "host": ["{{baseUrl}}"], "path": ["income", "calculator"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "👛 Wallet",
+      "item": [
+        {
+          "name": "Get Balance",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/wallet/balance", "host": ["{{baseUrl}}"], "path": ["wallet", "balance"] }
+          }
+        },
+        {
+          "name": "Fund Transfer",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"recipientUserId\": \"IW100002\",\n  \"amount\": 1000,\n  \"description\": \"Fund transfer\"\n}" },
+            "url": { "raw": "{{baseUrl}}/wallet/transfer", "host": ["{{baseUrl}}"], "path": ["wallet", "transfer"] }
+          }
+        },
+        {
+          "name": "Transaction History",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/wallet/transactions?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["wallet", "transactions"], "query": [{ "key": "page", "value": "1" }, { "key": "pageSize", "value": "20" }] }
+          }
+        },
+        {
+          "name": "Request Withdrawal",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"amount\": 5000\n}" },
+            "url": { "raw": "{{baseUrl}}/wallet/withdraw", "host": ["{{baseUrl}}"], "path": ["wallet", "withdraw"] }
+          }
+        },
+        {
+          "name": "Withdrawal History",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/wallet/withdrawals?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["wallet", "withdrawals"], "query": [{ "key": "page", "value": "1" }, { "key": "pageSize", "value": "20" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏠 Properties",
+      "item": [
+        {
+          "name": "List Properties",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/properties?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["properties"], "query": [{ "key": "page", "value": "1" }, { "key": "pageSize", "value": "20" }] }
+          }
+        },
+        {
+          "name": "Property Detail",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/properties/:id", "host": ["{{baseUrl}}"], "path": ["properties", ":id"], "variable": [{ "key": "id", "value": "property-uuid-here" }] }
+          }
+        },
+        {
+          "name": "Property Inquiry",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"message\": \"I am interested in this property.\"\n}" },
+            "url": { "raw": "{{baseUrl}}/properties/:id/inquiry", "host": ["{{baseUrl}}"], "path": ["properties", ":id", "inquiry"], "variable": [{ "key": "id", "value": "property-uuid-here" }] }
+          }
+        },
+        {
+          "name": "Book Property",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"amount\": 500000\n}" },
+            "url": { "raw": "{{baseUrl}}/properties/:id/book", "host": ["{{baseUrl}}"], "path": ["properties", ":id", "book"], "variable": [{ "key": "id", "value": "property-uuid-here" }] }
+          }
+        },
+        {
+          "name": "My Bookings",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/properties/bookings", "host": ["{{baseUrl}}"], "path": ["properties", "bookings"] }
+          }
+        },
+        {
+          "name": "EMI Calculator",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"principal\": 5000000,\n  \"annualRate\": 8.5,\n  \"tenureMonths\": 240\n}" },
+            "url": { "raw": "{{baseUrl}}/properties/emi-calculator", "host": ["{{baseUrl}}"], "path": ["properties", "emi-calculator"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📋 Registration",
+      "item": [
+        {
+          "name": "Validate Sponsor",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/registration/validate-sponsor?sponsorId=IW100001", "host": ["{{baseUrl}}"], "path": ["registration", "validate-sponsor"], "query": [{ "key": "sponsorId", "value": "IW100001" }] }
+          }
+        },
+        {
+          "name": "Register New Associate",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"John Doe\",\n  \"phone\": \"9876543210\",\n  \"email\": \"john@example.com\",\n  \"address\": \"123 Main Street\",\n  \"city\": \"Mumbai\",\n  \"state\": \"Maharashtra\",\n  \"pincode\": \"400001\",\n  \"panNumber\": \"ABCDE1234F\",\n  \"sponsorId\": \"IW100001\",\n  \"placement\": \"LEFT\",\n  \"packageId\": \"default-package-001\",\n  \"password\": \"John@1234\",\n  \"dateOfBirth\": \"1990-05-15\"\n}" },
+            "url": { "raw": "{{baseUrl}}/registration/register", "host": ["{{baseUrl}}"], "path": ["registration", "register"] }
+          }
+        },
+        {
+          "name": "Activate Associate",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"associateId\": \"uuid-of-associate\",\n  \"packageId\": \"default-package-001\"\n}" },
+            "url": { "raw": "{{baseUrl}}/registration/activate", "host": ["{{baseUrl}}"], "path": ["registration", "activate"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔔 Notifications",
+      "item": [
+        {
+          "name": "Register Device Token",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"token\": \"fcm_device_token_string\",\n  \"platform\": \"android\"\n}" },
+            "url": { "raw": "{{baseUrl}}/notifications/device-token", "host": ["{{baseUrl}}"], "path": ["notifications", "device-token"] }
+          }
+        },
+        {
+          "name": "Remove Device Token",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"token\": \"fcm_device_token_string\"\n}" },
+            "url": { "raw": "{{baseUrl}}/notifications/device-token", "host": ["{{baseUrl}}"], "path": ["notifications", "device-token"] }
+          }
+        },
+        {
+          "name": "Get Notifications",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/notifications?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["notifications"], "query": [{ "key": "page", "value": "1" }, { "key": "pageSize", "value": "20" }] }
+          }
+        },
+        {
+          "name": "Mark as Read",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/notifications/:id/read", "host": ["{{baseUrl}}"], "path": ["notifications", ":id", "read"], "variable": [{ "key": "id", "value": "notification-uuid" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📄 Documents",
+      "item": [
+        {
+          "name": "Download Welcome Letter",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/documents/welcome-letter", "host": ["{{baseUrl}}"], "path": ["documents", "welcome-letter"] }
+          }
+        },
+        {
+          "name": "Download Receipt",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/documents/receipt/:transactionId", "host": ["{{baseUrl}}"], "path": ["documents", "receipt", ":transactionId"], "variable": [{ "key": "transactionId", "value": "transaction-uuid" }] }
+          }
+        },
+        {
+          "name": "Download Agreement",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/documents/agreement", "host": ["{{baseUrl}}"], "path": ["documents", "agreement"] }
+          }
+        },
+        {
+          "name": "Get KYC Documents",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/documents/kyc", "host": ["{{baseUrl}}"], "path": ["documents", "kyc"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🎫 Support",
+      "item": [
+        {
+          "name": "List Tickets",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/support/tickets?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["support", "tickets"], "query": [{ "key": "page", "value": "1" }, { "key": "pageSize", "value": "20" }] }
+          }
+        },
+        {
+          "name": "Create Ticket",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"subject\": \"Cannot login to my account\",\n  \"description\": \"I am getting invalid credentials error.\"\n}" },
+            "url": { "raw": "{{baseUrl}}/support/tickets", "host": ["{{baseUrl}}"], "path": ["support", "tickets"] }
+          }
+        },
+        {
+          "name": "Get Ticket Detail",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/support/tickets/:id", "host": ["{{baseUrl}}"], "path": ["support", "tickets", ":id"], "variable": [{ "key": "id", "value": "ticket-uuid" }] }
+          }
+        },
+        {
+          "name": "Reply to Ticket",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"message\": \"I have tried resetting my password but still facing the issue.\"\n}" },
+            "url": { "raw": "{{baseUrl}}/support/tickets/:id/reply", "host": ["{{baseUrl}}"], "path": ["support", "tickets", ":id", "reply"], "variable": [{ "key": "id", "value": "ticket-uuid" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🌐 Public (No Auth)",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/public/health", "host": ["{{baseUrl}}"], "path": ["public", "health"] }
+          }
+        },
+        {
+          "name": "Public Properties",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/public/properties?location=Mumbai", "host": ["{{baseUrl}}"], "path": ["public", "properties"], "query": [{ "key": "location", "value": "Mumbai" }] }
+          }
+        },
+        {
+          "name": "App Version Check",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/public/app-version?platform=android&version=1.0.0", "host": ["{{baseUrl}}"], "path": ["public", "app-version"], "query": [{ "key": "platform", "value": "android" }, { "key": "version", "value": "1.0.0" }] }
+          }
+        },
+        {
+          "name": "Branding Assets",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/public/branding", "host": ["{{baseUrl}}"], "path": ["public", "branding"] }
+          }
+        },
+        {
+          "name": "Contact Form",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Visitor\",\n  \"email\": \"visitor@gmail.com\",\n  \"phone\": \"9876543210\",\n  \"message\": \"I want to know more about your plans.\"\n}" },
+            "url": { "raw": "{{baseUrl}}/public/contact", "host": ["{{baseUrl}}"], "path": ["public", "contact"] }
+          }
+        },
+        {
+          "name": "Public EMI Calculator",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"principal\": 3000000,\n  \"annualRate\": 9.0,\n  \"tenureMonths\": 180\n}" },
+            "url": { "raw": "{{baseUrl}}/public/emi-calculator", "host": ["{{baseUrl}}"], "path": ["public", "emi-calculator"] }
+          }
+        },
+        {
+          "name": "Commission Calculator",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"referrals\": 5,\n  \"depth\": 3,\n  \"packageId\": \"default-package-001\"\n}" },
+            "url": { "raw": "{{baseUrl}}/public/commission-calculator", "host": ["{{baseUrl}}"], "path": ["public", "commission-calculator"] }
+          }
+        }
+      ]
+    }
+  ]
+}

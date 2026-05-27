@@ -49,13 +49,13 @@ export default function Dashboard() {
   }
 
   const metricCards = metrics ? [
-    { label: t('dashboard.totalAssociates'), value: metrics.totalAssociates || 0, icon: Users, bg: 'bg-blue-500', change: '+12%' },
-    { label: t('dashboard.activeAssociates'), value: metrics.activeAssociates || 0, icon: UserCheck, bg: 'bg-emerald-500', change: '+8%' },
-    { label: t('dashboard.inactiveAssociates'), value: metrics.inactiveAssociates || 0, icon: UserX, bg: 'bg-amber-500', change: '-2%' },
-    { label: t('dashboard.todayRegistrations'), value: metrics.todayRegistrations || 0, icon: UserPlus, bg: 'bg-purple-500', change: '+5' },
-    { label: t('dashboard.businessVolume'), value: `₹${Number(metrics.totalBusinessVolume || 0).toLocaleString('en-IN')}`, icon: TrendingUp, bg: 'bg-indigo-500', change: '+15%' },
+    { label: t('dashboard.totalAssociates'), value: metrics.totalAssociates || 0, icon: Users, bg: 'bg-blue-500', change: '' },
+    { label: t('dashboard.activeAssociates'), value: metrics.activeAssociates || 0, icon: UserCheck, bg: 'bg-emerald-500', change: metrics.changes?.registrations || '' },
+    { label: t('dashboard.inactiveAssociates'), value: metrics.inactiveAssociates || 0, icon: UserX, bg: 'bg-amber-500', change: '' },
+    { label: t('dashboard.todayRegistrations'), value: metrics.todayRegistrations || 0, icon: UserPlus, bg: 'bg-purple-500', change: metrics.changes?.thisWeekRegistrations ? `+${metrics.changes.thisWeekRegistrations} this week` : '' },
+    { label: t('dashboard.businessVolume'), value: `₹${Number(metrics.totalBusinessVolume || 0).toLocaleString('en-IN')}`, icon: TrendingUp, bg: 'bg-indigo-500', change: '' },
     { label: t('dashboard.pendingWithdrawals'), value: `₹${Number(metrics.pendingWithdrawals || 0).toLocaleString('en-IN')}`, icon: Clock, bg: 'bg-orange-500', change: '' },
-    { label: t('dashboard.totalPayouts'), value: `₹${Number(metrics.totalPayoutDisbursed || 0).toLocaleString('en-IN')}`, icon: DollarSign, bg: 'bg-teal-500', change: '+22%' },
+    { label: t('dashboard.totalPayouts'), value: `₹${Number(metrics.totalPayoutDisbursed || 0).toLocaleString('en-IN')}`, icon: DollarSign, bg: 'bg-teal-500', change: metrics.changes?.payouts || '' },
   ] : [];
 
   // Chart data
@@ -66,16 +66,8 @@ export default function Dashboard() {
     { name: 'Red', value: metrics.redAssociates || 0 },
   ].filter(d => d.value > 0) : [];
 
-  // Mock weekly data for area chart (since we don't have historical API yet)
-  const weeklyData = [
-    { day: 'Mon', registrations: 3, income: 12000 },
-    { day: 'Tue', registrations: 5, income: 18000 },
-    { day: 'Wed', registrations: 2, income: 8000 },
-    { day: 'Thu', registrations: 7, income: 25000 },
-    { day: 'Fri', registrations: 4, income: 15000 },
-    { day: 'Sat', registrations: 6, income: 22000 },
-    { day: 'Sun', registrations: 1, income: 5000 },
-  ];
+  // Use real weekly data from API
+  const weeklyData = metrics?.weeklyData || [];
 
   // Transaction type distribution for bar chart
   const txTypeCount = {};

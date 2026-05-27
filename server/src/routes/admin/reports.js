@@ -8,6 +8,10 @@ import {
   getFundTransferReportHandler,
   getUserWiseReportHandler,
 } from '../../controllers/admin/report.controller.js';
+import {
+  exportExcelHandler,
+  exportPdfHandler,
+} from '../../controllers/admin/reportExport.controller.js';
 
 const router = Router();
 
@@ -31,5 +35,12 @@ router.get('/fund-transfer', requirePermission('reports:read'), getFundTransferR
 
 // GET /api/v1/admin/reports/user/:associateId
 router.get('/user/:associateId', requirePermission('reports:read'), getUserWiseReportHandler);
+
+// ─── Export Endpoints ─────────────────────────────────────────────────────────
+// GET /api/v1/admin/reports/export/excel/:reportType
+router.get('/export/excel/:reportType', requirePermission('reports:read'), exportExcelHandler);
+
+// GET /api/v1/admin/reports/export/pdf/:reportType
+router.get('/export/pdf/:reportType', requirePermission('reports:read'), exportPdfHandler);
 
 export default router;

@@ -7,7 +7,53 @@ import {
   adminSoftDeleteProperty,
   adminGetPropertyInquiries,
 } from '../../services/admin/property.service.js';
+import prisma from '../../utils/prisma.js';
 import { successResponse, createdResponse, paginatedResponse, parsePagination } from '../../utils/response.js';
+
+export async function listPropertiesAdminHandler(req, res, next) {
+  try {
+    const { location, type, status } = req.query;
+    const pagination = parsePagination(req.query);
+
+    const where = {};
+    if (location) where.city = { contains: location, mode: 'insensitive' };
+    if (type) where.type = type;
+    if (status) where.status = status;
+    // Admin sees all properties including soft-deleted
+
+    const [totalItems, properties] = await Promise.all([
+      prisma.property.count({ where }),
+      prisma.property.findMany({
+        where,
+        skip: pagination.skip,
+        take: pagination.take,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          images: { take: 1, orderBy: { sortOrder: 'asc' } },
+        },
+      }),
+    ]);
+
+    const items = properties.map((p) => ({
+      id: p.id,
+      name: p.name,
+      location: p.location,
+      city: p.city,
+      state: p.state,
+      area: Number(p.area),
+      price: Number(p.price),
+      type: p.type,
+      status: p.status,
+      isFeatured: p.isFeatured,
+      thumbnail: p.images[0]?.url || null,
+      createdAt: p.createdAt,
+    }));
+
+    return paginatedResponse(res, items, totalItems, pagination.page, pagination.pageSize, 'Properties fetched');
+  } catch (err) {
+    return next(err);
+  }
+}
 
 export async function createPropertyHandler(req, res, next) {
   try {

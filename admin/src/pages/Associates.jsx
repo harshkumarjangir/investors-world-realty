@@ -39,7 +39,7 @@ export default function Associates() {
   const handleStatusAction = async (id, action) => {
     if (!confirm(t('common.confirm'))) return;
     try {
-      await api.patch(`/admin/associates/${id}/${action}`);
+      await api.post(`/admin/associates/${id}/${action}`);
       fetchAssociates();
     } catch (err) {
       alert(err.response?.data?.message || 'Action failed');

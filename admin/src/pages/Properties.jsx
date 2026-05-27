@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import { Plus, Edit, Image, Video, Trash2, X, ChevronDown, ChevronUp } from 'lucide-react';
 import api from '../common/api.js';
 import { useI18n } from '../common/i18n.jsx';
@@ -12,16 +12,19 @@ export default function Properties() {
   const [imageModal, setImageModal] = useState(null);
   const [videoModal, setVideoModal] = useState(null);
   const [expandedInquiry, setExpandedInquiry] = useState(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     fetchProperties();
-  }, []);
+  }, [page]);
 
   const fetchProperties = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/admin/properties');
-      setProperties(res.data?.properties || res.data?.data || res.data || []);
+      const res = await api.get('/admin/properties', { params: { page, pageSize: 15 } });
+      setProperties(res.data?.data || res.data?.properties || []);
+      setTotalPages(res.data?.totalPages || 1);
     } catch (err) {
       console.error('Failed to load properties', err);
     } finally {
@@ -109,8 +112,8 @@ export default function Properties() {
                 <tr><td colSpan={6} className="py-8 text-center text-gray-400">{t('common.noData')}</td></tr>
               ) : (
                 properties.map((p) => (
-                  <>
-                    <tr key={p.id} className="border-b border-gray-50 even:bg-gray-50 hover:bg-gray-100">
+                  <Fragment key={p.id}>
+                    <tr className="border-b border-gray-50 even:bg-gray-50 hover:bg-gray-100">
                       <td className="px-4 py-3 font-medium text-gray-800">{p.name}</td>
                       <td className="px-4 py-3 text-gray-600">{p.location || `${p.city || ''}, ${p.state || ''}`}</td>
                       <td className="px-4 py-3 font-medium text-gray-800">₹{Number(p.price || 0).toLocaleString()}</td>
@@ -145,17 +148,38 @@ export default function Properties() {
                       </td>
                     </tr>
                     {expandedInquiry === p.id && (
-                      <tr key={`inq-${p.id}`}>
+                      <tr>
                         <td colSpan={6} className="px-4 py-3 bg-gray-50">
                           <InquiriesSection propertyId={p.id} />
                         </td>
                       </tr>
                     )}
-                  </>
+                  </Fragment>
                 ))
               )}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-gray-500">Page {page} of {totalPages}</p>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+          >
+            Previous
+          </button>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>
@@ -188,7 +212,7 @@ function PropertyForm({ property, onClose, onSuccess }) {
       setSubmitting(true);
       setError('');
       if (property?.id) {
-        await api.put(`/admin/properties/${property.id}`, form);
+        await api.patch(`/admin/properties/${property.id}`, form);
       } else {
         await api.post('/admin/properties', form);
       }
@@ -365,7 +389,8 @@ function InquiriesSection({ propertyId }) {
   const fetchInquiries = async () => {
     try {
       const res = await api.get(`/admin/properties/${propertyId}/inquiries`);
-      setInquiries(res.data?.inquiries || res.data || []);
+      const data = res.data?.data || res.data?.inquiries || res.data;
+      setInquiries(Array.isArray(data) ? data : []);
     } catch {
       setInquiries([]);
     } finally {

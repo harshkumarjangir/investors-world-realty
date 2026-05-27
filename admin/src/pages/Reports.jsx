@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Download } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Download, FileSpreadsheet, FileText } from 'lucide-react';
 import api from '../common/api.js';
 import { useI18n } from '../common/i18n.jsx';
 
@@ -8,7 +8,7 @@ const TABS = [
   { key: 'activation', endpoint: '/admin/reports/activation' },
   { key: 'income', endpoint: '/admin/reports/income' },
   { key: 'withdrawal', endpoint: '/admin/reports/withdrawal' },
-  { key: 'fundTransfer', endpoint: '/admin/reports/fund-transfer' },
+  { key: 'fundTransfer', endpoint: '/admin/reports/fund-transfer', exportKey: 'fund-transfer' },
   { key: 'userWise', endpoint: '/admin/reports/user', needsId: true },
 ];
 
@@ -19,15 +19,28 @@ export default function Reports() {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ startDate: '', endDate: '', page: 1 });
   const [totalPages, setTotalPages] = useState(1);
+  const [exporting, setExporting] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const exportRef = useRef(null);
 
   useEffect(() => {
     fetchReport();
   }, [activeTab, filters.page]);
 
+  // Close export menu on outside click
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (exportRef.current && !exportRef.current.contains(e.target)) {
+        setShowExportMenu(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const fetchReport = async () => {
     const tab = TABS.find((tb) => tb.key === activeTab);
     if (tab.needsId) {
-      // User-wise report needs an associateId — skip auto-fetch
       setLoading(false);
       setData([]);
       return;
@@ -50,8 +63,42 @@ export default function Reports() {
     fetchReport();
   };
 
-  const handleExport = () => {
-    alert('Export functionality will be available soon.');
+  const handleExport = async (format) => {
+    const tab = TABS.find((tb) => tb.key === activeTab);
+    if (tab.needsId) {
+      alert('User-wise report export is not supported. Please select another report.');
+      return;
+    }
+
+    const reportKey = tab.exportKey || tab.key;
+    setExporting(true);
+    setShowExportMenu(false);
+
+    try {
+      const params = { startDate: filters.startDate, endDate: filters.endDate };
+      const res = await api.get(`/admin/reports/export/${format}/${reportKey}`, {
+        params,
+        responseType: 'blob',
+      });
+
+      // Create download link
+      const blob = new Blob([res.data]);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+
+      const ext = format === 'excel' ? 'xlsx' : 'pdf';
+      link.download = `${reportKey}-report-${new Date().toISOString().slice(0, 10)}.${ext}`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Export failed', err);
+      alert('Export failed. Please try again.');
+    } finally {
+      setExporting(false);
+    }
   };
 
   const tabLabels = {
@@ -67,13 +114,37 @@ export default function Reports() {
     <div className="p-6 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-gray-800">{t('reports.title')}</h1>
-        <button
-          onClick={handleExport}
-          className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-green-700"
-        >
-          <Download size={16} />
-          {t('reports.export')}
-        </button>
+
+        {/* Export Dropdown */}
+        <div className="relative" ref={exportRef}>
+          <button
+            onClick={() => setShowExportMenu(!showExportMenu)}
+            disabled={exporting || TABS.find((tb) => tb.key === activeTab)?.needsId}
+            className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Download size={16} />
+            {exporting ? 'Exporting...' : t('reports.export')}
+          </button>
+
+          {showExportMenu && (
+            <div className="absolute right-0 mt-2 w-48 rounded-lg bg-white shadow-lg border border-gray-200 z-50">
+              <button
+                onClick={() => handleExport('excel')}
+                className="flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg"
+              >
+                <FileSpreadsheet size={18} className="text-green-600" />
+                Export as Excel
+              </button>
+              <button
+                onClick={() => handleExport('pdf')}
+                className="flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-b-lg border-t border-gray-100"
+              >
+                <FileText size={18} className="text-red-600" />
+                Export as PDF
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Tabs */}
@@ -143,18 +214,19 @@ export default function Reports() {
                 data.map((row, idx) => (
                   <tr key={row.id || idx} className="border-b border-gray-50 even:bg-gray-50">
                     <td className="px-4 py-3 text-gray-700">
-                      {new Date(row.date || row.createdAt).toLocaleDateString()}
+                      {new Date(row.date || row.createdAt || row.joiningDate || row.activationDate).toLocaleDateString()}
                     </td>
-                    <td className="px-4 py-3 text-gray-700">{row.associateName || row.userId || '-'}</td>
-                    <td className="px-4 py-3 text-gray-600">{row.details || row.type || row.packageName || '-'}</td>
+                    <td className="px-4 py-3 text-gray-700">{row.name || row.userId || '-'}</td>
+                    <td className="px-4 py-3 text-gray-600">{row.details || row.type || row.packageName || row.description || '-'}</td>
                     <td className="px-4 py-3 font-medium text-gray-800">
                       {row.amount ? `₹${Number(row.amount).toLocaleString()}` : '-'}
                     </td>
                     <td className="px-4 py-3">
                       {row.status && (
                         <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          row.status === 'COMPLETED' || row.status === 'ACTIVE' ? 'bg-green-100 text-green-700' :
+                          row.status === 'COMPLETED' || row.status === 'ACTIVE' || row.status === 'APPROVED' || row.status === 'PAID' ? 'bg-green-100 text-green-700' :
                           row.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' :
+                          row.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
                           'bg-gray-100 text-gray-700'
                         }`}>{row.status}</span>
                       )}
