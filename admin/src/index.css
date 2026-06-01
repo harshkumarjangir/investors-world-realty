@@ -3,6 +3,19 @@
 /* Force light mode for admin panel — disable dark mode */
 @custom-variant dark (&:where(.force-dark, .force-dark *));
 
+@theme {
+  --color-gold-50: #fdf8ed;
+  --color-gold-100: #f9eccc;
+  --color-gold-200: #f3d894;
+  --color-gold-300: #ecc25c;
+  --color-gold-400: #e5ab34;
+  --color-gold-500: #d49428;
+  --color-gold-600: #b8731e;
+  --color-gold-700: #99541b;
+  --color-gold-800: #7d431c;
+  --color-gold-900: #67381b;
+}
+
 html {
   color-scheme: light;
 }

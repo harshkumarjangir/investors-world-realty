@@ -51,7 +51,7 @@ export default function Login() {
       <div className="w-full max-w-md">
         {/* Logo / Brand */}
         <div className="mb-8 text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-600">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gold-500">
             <Lock className="text-white" size={28} />
           </div>
           <h1 className="mt-4 text-2xl font-bold text-white">
@@ -88,7 +88,7 @@ export default function Login() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="admin@example.com"
-                      className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+                      className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-gold-400 focus:outline-none focus:ring-2 focus:ring-gold-200"
                     />
                   </div>
                 </div>
@@ -113,7 +113,7 @@ export default function Login() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+                      className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-gold-400 focus:outline-none focus:ring-2 focus:ring-gold-200"
                     />
                   </div>
                 </div>
@@ -127,7 +127,7 @@ export default function Login() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full rounded-lg bg-amber-600 py-2.5 text-sm font-semibold text-white hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="w-full rounded-lg bg-gold-500 py-2.5 text-sm font-semibold text-white hover:bg-gold-600 focus:outline-none focus:ring-2 focus:ring-amber-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {loading ? 'Signing in...' : 'Sign In'}
                 </button>
@@ -158,7 +158,7 @@ export default function Login() {
                     value={otp}
                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                     placeholder="000000"
-                    className="w-full rounded-lg border border-gray-300 py-2.5 px-4 text-center text-lg tracking-widest focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+                    className="w-full rounded-lg border border-gray-300 py-2.5 px-4 text-center text-lg tracking-widest focus:border-gold-400 focus:outline-none focus:ring-2 focus:ring-gold-200"
                   />
                 </div>
 
@@ -171,7 +171,7 @@ export default function Login() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full rounded-lg bg-amber-600 py-2.5 text-sm font-semibold text-white hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="w-full rounded-lg bg-gold-500 py-2.5 text-sm font-semibold text-white hover:bg-gold-600 focus:outline-none focus:ring-2 focus:ring-amber-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {loading ? 'Verifying...' : 'Verify & Login'}
                 </button>

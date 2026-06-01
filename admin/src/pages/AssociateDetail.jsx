@@ -126,7 +126,7 @@ export default function AssociateDetail() {
           </div>
           <div className="mt-4 pt-4 border-t border-gray-100">
             <p className="text-sm text-gray-500">Wallet Balance</p>
-            <p className="text-2xl font-bold text-amber-600">
+            <p className="text-2xl font-bold text-gold-500">
               ₹{Number(associate.wallet?.balance || associate.walletBalance || 0).toLocaleString()}
             </p>
           </div>

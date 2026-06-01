@@ -155,7 +155,7 @@ export default function Reports() {
             onClick={() => { setActiveTab(tab.key); setFilters({ ...filters, page: 1 }); }}
             className={`whitespace-nowrap px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
               activeTab === tab.key
-                ? 'border-amber-600 text-amber-600'
+                ? 'border-gold-500 text-gold-500'
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
           >
@@ -172,7 +172,7 @@ export default function Reports() {
             type="date"
             value={filters.startDate}
             onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200"
+            className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold-400 focus:ring-2 focus:ring-gold-200"
           />
         </div>
         <div>
@@ -181,12 +181,12 @@ export default function Reports() {
             type="date"
             value={filters.endDate}
             onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200"
+            className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold-400 focus:ring-2 focus:ring-gold-200"
           />
         </div>
         <button
           onClick={handleFilter}
-          className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700"
+          className="rounded-lg bg-gold-500 px-4 py-2 text-sm font-medium text-white hover:bg-gold-600"
         >
           Apply
         </button>

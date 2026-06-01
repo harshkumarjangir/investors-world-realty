@@ -21,7 +21,7 @@ const RANK_COLORS = [
   'bg-gray-100 text-gray-700',
   'bg-blue-100 text-blue-700',
   'bg-purple-100 text-purple-700',
-  'bg-amber-100 text-amber-700',
+  'bg-gold-100 text-gold-600',
   'bg-orange-100 text-orange-700',
   'bg-red-100 text-red-700',
   'bg-pink-100 text-pink-700',
@@ -73,7 +73,7 @@ export default function Promotions() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center gap-3">
-        <Award size={24} className="text-amber-600" />
+        <Award size={24} className="text-gold-500" />
         <h1 className="text-2xl font-bold text-gray-800">Promotions & Ranks</h1>
       </div>
 
@@ -100,7 +100,7 @@ export default function Promotions() {
           placeholder="Search by name or user ID..."
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          className="w-full rounded-lg border border-gray-300 pl-9 pr-3 py-2 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200"
+          className="w-full rounded-lg border border-gray-300 pl-9 pr-3 py-2 text-sm focus:border-gold-400 focus:ring-2 focus:ring-gold-200"
         />
       </div>
 
@@ -141,7 +141,7 @@ export default function Promotions() {
                         {rank < 10 && (
                           <button
                             onClick={() => handlePromote(a.id, rank)}
-                            className="inline-flex items-center gap-1 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-700"
+                            className="inline-flex items-center gap-1 rounded-lg bg-gold-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-gold-600"
                           >
                             <ChevronUp size={12} />
                             Promote

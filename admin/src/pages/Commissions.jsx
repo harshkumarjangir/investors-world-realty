@@ -71,13 +71,13 @@ export default function Commissions() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <DollarSign size={24} className="text-amber-600" />
+          <DollarSign size={24} className="text-gold-500" />
           <h1 className="text-2xl font-bold text-gray-800">Property Commissions</h1>
         </div>
         {activeTab === 'slabs' && (
           <button
             onClick={() => { setEditingSlab(null); setShowSlabForm(true); }}
-            className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-amber-700"
+            className="inline-flex items-center gap-2 rounded-lg bg-gold-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-gold-600"
           >
             <Plus size={16} /> Add Slab
           </button>
@@ -91,7 +91,7 @@ export default function Commissions() {
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === tab.key ? 'border-amber-600 text-amber-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+              activeTab === tab.key ? 'border-gold-500 text-gold-500' : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
           >
             {tab.label}
@@ -272,7 +272,7 @@ function SlabForm({ slab, onClose, onSuccess }) {
     finally { setSubmitting(false); }
   };
 
-  const inputCls = 'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200';
+  const inputCls = 'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold-400 focus:ring-2 focus:ring-gold-200';
 
   return (
     <div className="rounded-xl bg-white p-6 shadow-sm border border-gray-100">
@@ -309,7 +309,7 @@ function SlabForm({ slab, onClose, onSuccess }) {
         </div>
         <div className="flex justify-end gap-3">
           <button type="button" onClick={onClose} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
-          <button type="submit" disabled={submitting} className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50">
+          <button type="submit" disabled={submitting} className="rounded-lg bg-gold-500 px-4 py-2 text-sm font-medium text-white hover:bg-gold-600 disabled:opacity-50">
             {submitting ? 'Saving...' : 'Save'}
           </button>
         </div>
