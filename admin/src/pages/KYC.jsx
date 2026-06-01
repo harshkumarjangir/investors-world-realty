@@ -81,7 +81,7 @@ export default function KYC() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center gap-3">
-        <Shield size={24} className="text-indigo-600" />
+        <Shield size={24} className="text-amber-600" />
         <h1 className="text-2xl font-bold text-gray-800">{t('kyc.title')}</h1>
       </div>
 
@@ -112,7 +112,7 @@ export default function KYC() {
                       <p className="text-xs text-gray-500">{kyc.userId || kyc.associateId}</p>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="rounded-full bg-indigo-100 text-indigo-700 px-2.5 py-0.5 text-xs font-medium">
+                      <span className="rounded-full bg-amber-100 text-amber-700 px-2.5 py-0.5 text-xs font-medium">
                         {kyc.type || kyc.documentType}
                       </span>
                     </td>

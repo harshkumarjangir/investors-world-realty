@@ -150,8 +150,15 @@ export async function sendOtp(identifier) {
   const otp = crypto.randomInt(100000, 999999).toString();
   await redis.set(keys.otp(identifier), otp, 'EX', TTL.OTP);
 
-  // TODO: integrate SMS/email gateway
-  // For development, log the OTP
+  // Send OTP via email
+  try {
+    const { sendOtpEmail } = await import('../utils/email.js');
+    await sendOtpEmail(identifier, otp);
+  } catch (err) {
+    console.error('[OTP] Email send failed:', err.message);
+  }
+
+  // Also log in dev mode for debugging
   if (config.NODE_ENV !== 'production') {
     console.log(`[OTP] ${identifier} → ${otp}`);
   }

@@ -59,7 +59,7 @@ export default function Properties() {
         <h1 className="text-2xl font-bold text-gray-800">{t('properties.title')}</h1>
         <button
           onClick={() => { setEditingProperty(null); setShowForm(true); }}
-          className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700"
+          className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-amber-700"
         >
           <Plus size={16} />
           {t('properties.add')}
@@ -224,7 +224,7 @@ function PropertyForm({ property, onClose, onSuccess }) {
     }
   };
 
-  const inputCls = 'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200';
+  const inputCls = 'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -258,7 +258,7 @@ function PropertyForm({ property, onClose, onSuccess }) {
             <button type="button" onClick={onClose} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
               {t('common.cancel')}
             </button>
-            <button type="submit" disabled={submitting} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50">
+            <button type="submit" disabled={submitting} className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50">
               {submitting ? t('common.loading') : t('common.save')}
             </button>
           </div>
@@ -308,14 +308,14 @@ function ImageUploadModal({ propertyId, onClose }) {
             accept="image/*"
             multiple
             onChange={(e) => setFiles(e.target.files)}
-            className="w-full text-sm text-gray-600 file:mr-4 file:rounded-lg file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-indigo-700 hover:file:bg-indigo-100"
+            className="w-full text-sm text-gray-600 file:mr-4 file:rounded-lg file:border-0 file:bg-amber-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-amber-700 hover:file:bg-amber-100"
           />
           <p className="text-xs text-gray-500">Max 10 images. Supported: JPG, PNG, WebP</p>
           <div className="flex justify-end gap-3">
             <button onClick={onClose} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
               {t('common.cancel')}
             </button>
-            <button onClick={handleUpload} disabled={uploading || !files} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50">
+            <button onClick={handleUpload} disabled={uploading || !files} className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50">
               {uploading ? t('common.loading') : 'Upload'}
             </button>
           </div>
@@ -360,14 +360,14 @@ function VideoUploadModal({ propertyId, onClose }) {
             type="file"
             accept="video/*"
             onChange={(e) => setFile(e.target.files?.[0] || null)}
-            className="w-full text-sm text-gray-600 file:mr-4 file:rounded-lg file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-indigo-700 hover:file:bg-indigo-100"
+            className="w-full text-sm text-gray-600 file:mr-4 file:rounded-lg file:border-0 file:bg-amber-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-amber-700 hover:file:bg-amber-100"
           />
           <p className="text-xs text-gray-500">Single video file. Supported: MP4, WebM</p>
           <div className="flex justify-end gap-3">
             <button onClick={onClose} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
               {t('common.cancel')}
             </button>
-            <button onClick={handleUpload} disabled={uploading || !file} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50">
+            <button onClick={handleUpload} disabled={uploading || !file} className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50">
               {uploading ? t('common.loading') : 'Upload'}
             </button>
           </div>

@@ -29,6 +29,7 @@ const navItems = [
   { key: 'nav.properties', icon: Building, path: '/properties', permission: 'properties:read' },
   { key: 'nav.notifications', icon: Bell, path: '/notifications', permission: 'notifications:read' },
   { key: 'Commissions', icon: DollarSign, path: '/commissions', permission: 'payouts:read' },
+  { key: 'Promotions', icon: Users, path: '/promotions', permission: 'associates:read' },
   { key: 'nav.kyc', icon: Shield, path: '/kyc', permission: 'kyc:read' },
   { key: 'nav.config', icon: Settings, path: '/config', permission: 'config:read' },
   { key: 'nav.transactions', icon: ArrowLeftRight, path: '/transactions', permission: 'transactions:read' },
@@ -95,7 +96,7 @@ export default function Layout() {
                     className={({ isActive }) =>
                       `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                         isActive
-                          ? 'bg-indigo-600 text-white'
+                          ? 'bg-amber-600 text-white'
                           : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                       }`
                     }

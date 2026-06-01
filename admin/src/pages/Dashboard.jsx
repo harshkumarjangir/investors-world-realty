@@ -4,7 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import api from '../common/api.js';
 import { useI18n } from '../common/i18n.jsx';
 
-const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+const COLORS = ['#d97706', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
 
 export default function Dashboard() {
   const { t } = useI18n();
@@ -37,7 +37,7 @@ export default function Dashboard() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-amber-600 border-t-transparent rounded-full animate-spin" />
           <p className="text-gray-500">{t('common.loading')}</p>
         </div>
       </div>
@@ -53,7 +53,7 @@ export default function Dashboard() {
     { label: t('dashboard.activeAssociates'), value: metrics.activeAssociates || 0, icon: UserCheck, bg: 'bg-emerald-500', change: metrics.changes?.registrations || '' },
     { label: t('dashboard.inactiveAssociates'), value: metrics.inactiveAssociates || 0, icon: UserX, bg: 'bg-amber-500', change: '' },
     { label: t('dashboard.todayRegistrations'), value: metrics.todayRegistrations || 0, icon: UserPlus, bg: 'bg-purple-500', change: metrics.changes?.thisWeekRegistrations ? `+${metrics.changes.thisWeekRegistrations} this week` : '' },
-    { label: t('dashboard.businessVolume'), value: `₹${Number(metrics.totalBusinessVolume || 0).toLocaleString('en-IN')}`, icon: TrendingUp, bg: 'bg-indigo-500', change: '' },
+    { label: t('dashboard.businessVolume'), value: `₹${Number(metrics.totalBusinessVolume || 0).toLocaleString('en-IN')}`, icon: TrendingUp, bg: 'bg-amber-500', change: '' },
     { label: t('dashboard.pendingWithdrawals'), value: `₹${Number(metrics.pendingWithdrawals || 0).toLocaleString('en-IN')}`, icon: Clock, bg: 'bg-orange-500', change: '' },
     { label: t('dashboard.totalPayouts'), value: `₹${Number(metrics.totalPayoutDisbursed || 0).toLocaleString('en-IN')}`, icon: DollarSign, bg: 'bg-teal-500', change: metrics.changes?.payouts || '' },
   ] : [];
@@ -121,8 +121,8 @@ export default function Dashboard() {
             <AreaChart data={weeklyData}>
               <defs>
                 <linearGradient id="colorReg" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#d97706" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#d97706" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
@@ -134,7 +134,7 @@ export default function Dashboard() {
               <YAxis yAxisId="left" tick={{ fontSize: 12 }} stroke="#9ca3af" />
               <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12 }} stroke="#9ca3af" />
               <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }} />
-              <Area yAxisId="left" type="monotone" dataKey="registrations" stroke="#6366f1" fill="url(#colorReg)" strokeWidth={2} name="Registrations" />
+              <Area yAxisId="left" type="monotone" dataKey="registrations" stroke="#d97706" fill="url(#colorReg)" strokeWidth={2} name="Registrations" />
               <Area yAxisId="right" type="monotone" dataKey="income" stroke="#10b981" fill="url(#colorIncome)" strokeWidth={2} name="Income (₹)" />
             </AreaChart>
           </ResponsiveContainer>
@@ -186,7 +186,7 @@ export default function Dashboard() {
               <XAxis dataKey="name" tick={{ fontSize: 10 }} stroke="#9ca3af" />
               <YAxis tick={{ fontSize: 12 }} stroke="#9ca3af" />
               <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }} />
-              <Bar dataKey="count" fill="#6366f1" radius={[4, 4, 0, 0]} name="Count" />
+              <Bar dataKey="count" fill="#d97706" radius={[4, 4, 0, 0]} name="Count" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -216,7 +216,7 @@ export default function Dashboard() {
                   <tr key={tx.id || idx} className="border-b border-gray-50 hover:bg-gray-50">
                     <td className="py-3 text-gray-700">{new Date(tx.date || tx.createdAt).toLocaleDateString()}</td>
                     <td className="py-3">
-                      <span className="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 text-xs font-medium">
+                      <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 text-xs font-medium">
                         {(tx.type || '').replace(/_/g, ' ')}
                       </span>
                     </td>

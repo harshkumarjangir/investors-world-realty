@@ -142,6 +142,10 @@ model Associate {
   joiningDate    DateTime        @default(now())
   activationDate DateTime?
 
+  // Rank & Promotion
+  rank           Int             @default(1) // 1=Business Associate, 2=Adviser, ..., 10=President Club
+  totalAreaSold  Int             @default(0) // total gaj sold personally (for promotion tracking)
+
   // Preferences
   theme          String          @default("light")
   language       String          @default("en")

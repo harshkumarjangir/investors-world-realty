@@ -71,13 +71,13 @@ export default function Commissions() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <DollarSign size={24} className="text-indigo-600" />
+          <DollarSign size={24} className="text-amber-600" />
           <h1 className="text-2xl font-bold text-gray-800">Property Commissions</h1>
         </div>
         {activeTab === 'slabs' && (
           <button
             onClick={() => { setEditingSlab(null); setShowSlabForm(true); }}
-            className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700"
+            className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-amber-700"
           >
             <Plus size={16} /> Add Slab
           </button>
@@ -91,7 +91,7 @@ export default function Commissions() {
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === tab.key ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+              activeTab === tab.key ? 'border-amber-600 text-amber-600' : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
           >
             {tab.label}
@@ -115,31 +115,39 @@ export default function Commissions() {
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="px-4 py-3 text-left font-medium text-gray-600">Area Range (gaj)</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-600">Seller %</th>
                     <th className="px-4 py-3 text-left font-medium text-gray-600">L1 %</th>
                     <th className="px-4 py-3 text-left font-medium text-gray-600">L2 %</th>
                     <th className="px-4 py-3 text-left font-medium text-gray-600">L3 %</th>
                     <th className="px-4 py-3 text-left font-medium text-gray-600">L4 %</th>
                     <th className="px-4 py-3 text-left font-medium text-gray-600">L5 %</th>
+                    <th className="px-4 py-3 text-left font-medium text-gray-600">L6 %</th>
+                    <th className="px-4 py-3 text-left font-medium text-gray-600">L7 %</th>
+                    <th className="px-4 py-3 text-left font-medium text-gray-600">L8 %</th>
+                    <th className="px-4 py-3 text-left font-medium text-gray-600">L9 %</th>
+                    <th className="px-4 py-3 text-left font-medium text-gray-600">L10 %</th>
                     <th className="px-4 py-3 text-left font-medium text-gray-600">Active</th>
                     <th className="px-4 py-3 text-left font-medium text-gray-600">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {loading ? (
-                    <tr><td colSpan={9} className="py-8 text-center text-gray-400">Loading...</td></tr>
+                    <tr><td colSpan={13} className="py-8 text-center text-gray-400">Loading...</td></tr>
                   ) : slabs.length === 0 ? (
-                    <tr><td colSpan={9} className="py-8 text-center text-gray-400">No slabs configured</td></tr>
+                    <tr><td colSpan={13} className="py-8 text-center text-gray-400">No slabs configured</td></tr>
                   ) : (
                     slabs.map((slab) => (
                       <tr key={slab.id} className="border-b border-gray-50 even:bg-gray-50">
                         <td className="px-4 py-3 font-medium text-gray-800">{Number(slab.minArea).toLocaleString()} - {Number(slab.maxArea).toLocaleString()}</td>
-                        <td className="px-4 py-3 text-green-700 font-semibold">{slab.sellerPercent}%</td>
-                        <td className="px-4 py-3">{slab.level1Percent}%</td>
-                        <td className="px-4 py-3">{slab.level2Percent}%</td>
-                        <td className="px-4 py-3">{slab.level3Percent}%</td>
-                        <td className="px-4 py-3">{slab.level4Percent}%</td>
-                        <td className="px-4 py-3">{slab.level5Percent}%</td>
+                        <td className="px-4 py-3">{Number(slab.sellerPercent).toFixed(1)}%</td>
+                        <td className="px-4 py-3">{Number(slab.level1Percent).toFixed(1)}%</td>
+                        <td className="px-4 py-3">{Number(slab.level2Percent).toFixed(1)}%</td>
+                        <td className="px-4 py-3">{Number(slab.level3Percent).toFixed(1)}%</td>
+                        <td className="px-4 py-3">{Number(slab.level4Percent).toFixed(1)}%</td>
+                        <td className="px-4 py-3">{Number(slab.level5Percent).toFixed(1)}%</td>
+                        <td className="px-4 py-3">{Number(slab.level6Percent).toFixed(1)}%</td>
+                        <td className="px-4 py-3">{Number(slab.level7Percent).toFixed(1)}%</td>
+                        <td className="px-4 py-3">{Number(slab.level8Percent).toFixed(1)}%</td>
+                        <td className="px-4 py-3">{Number(slab.level9Percent).toFixed(1)}%</td>
                         <td className="px-4 py-3">
                           <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${slab.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
                             {slab.isActive ? 'Yes' : 'No'}
@@ -264,7 +272,7 @@ function SlabForm({ slab, onClose, onSuccess }) {
     finally { setSubmitting(false); }
   };
 
-  const inputCls = 'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200';
+  const inputCls = 'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200';
 
   return (
     <div className="rounded-xl bg-white p-6 shadow-sm border border-gray-100">
@@ -301,7 +309,7 @@ function SlabForm({ slab, onClose, onSuccess }) {
         </div>
         <div className="flex justify-end gap-3">
           <button type="button" onClick={onClose} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
-          <button type="submit" disabled={submitting} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50">
+          <button type="submit" disabled={submitting} className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50">
             {submitting ? 'Saving...' : 'Save'}
           </button>
         </div>

@@ -86,18 +86,18 @@ async function main() {
   // ─── Default Super Admin ──────────────────────────────────────────────────────
   const hashedPassword = await bcrypt.hash('Admin@123456', 12);
   await prisma.admin.upsert({
-    where: { email: 'admin@investorsworld.com' },
+    where: { email: 'notespoint2023@gmail.com' },
     update: {},
     create: {
       name: 'Super Admin',
-      email: 'admin@investorsworld.com',
+      email: 'notespoint2023@gmail.com',
       phone: '9999999999',
       password: hashedPassword,
       roleId: superAdminRole.id,
     },
   });
 
-  console.log('✅ Default super admin seeded (email: admin@investorsworld.com, password: Admin@123456)');
+  console.log('✅ Default super admin seeded (email: notespoint2023@gmail.com, password: Admin@123456)');
 
   // ─── Default Package ──────────────────────────────────────────────────────────
   await prisma.package.upsert({

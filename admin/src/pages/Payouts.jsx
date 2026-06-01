@@ -94,7 +94,7 @@ export default function Payouts() {
         <button
           onClick={handleGenerate}
           disabled={generating}
-          className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50"
         >
           <DollarSign size={16} />
           {generating ? t('common.loading') : t('payouts.generate')}
@@ -109,7 +109,7 @@ export default function Payouts() {
             onClick={() => setActiveTab(tab.key)}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
               activeTab === tab.key
-                ? 'border-indigo-600 text-indigo-600'
+                ? 'border-amber-600 text-amber-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
           >
@@ -186,18 +186,18 @@ export default function Payouts() {
               type="date"
               value={reportFilters.startDate}
               onChange={(e) => setReportFilters({ ...reportFilters, startDate: e.target.value, page: 1 })}
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+              className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200"
             />
             <input
               type="date"
               value={reportFilters.endDate}
               onChange={(e) => setReportFilters({ ...reportFilters, endDate: e.target.value, page: 1 })}
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+              className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200"
             />
             <select
               value={reportFilters.incomeType}
               onChange={(e) => setReportFilters({ ...reportFilters, incomeType: e.target.value, page: 1 })}
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+              className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200"
             >
               <option value="">All Income Types</option>
               <option value="DIRECT">Direct</option>
@@ -207,7 +207,7 @@ export default function Payouts() {
             </select>
             <button
               onClick={fetchReports}
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+              className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700"
             >
               Filter
             </button>

@@ -17,6 +17,7 @@ import KYC from './pages/KYC.jsx';
 import Notifications from './pages/Notifications.jsx';
 import Config from './pages/Config.jsx';
 import Commissions from './pages/Commissions.jsx';
+import Promotions from './pages/Promotions.jsx';
 
 export default function App() {
   return (
@@ -44,6 +45,7 @@ export default function App() {
               <Route path="kyc" element={<KYC />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="commissions" element={<Commissions />} />
+              <Route path="promotions" element={<Promotions />} />
               <Route path="config" element={<Config />} />
             </Route>
             <Route path="*" element={<Navigate to="/" />} />

@@ -929,30 +929,43 @@ Rejects the commission (no wallet credit).
 
 ---
 
-## 📊 Commission Structure (IWR Plan)
+## 📊 Commission Structure (IWR Plan — Gap Commission Model)
 
-When a property is sold, commissions distribute as follows:
+When a property is sold, commissions distribute using the **GAP method**. Total pool is always 16% of property price.
 
-| Position | Level Title | Role |
-|----------|-------------|------|
-| Seller | Business Associate | The person who sold the property |
-| 1st ancestor | Business Adviser | Seller's direct sponsor |
-| 2nd ancestor | Business Head | Sponsor's sponsor |
-| 3rd ancestor | Dist. Business Head | 3rd up the chain |
-| 4th ancestor | State Business Head | 4th up |
-| 5th ancestor | Regional Business Head | 5th up |
-| 6th ancestor | National Business Head | 6th up |
-| 7th ancestor | Vice President Sales | 7th up |
-| 8th ancestor | President Sales | 8th up |
-| 9th ancestor | President Club | 9th up (flat 2%) |
+**Any rank can sell.** Seller gets their rank's full slab %. Uplines get the gap.
 
-**Area Slabs:** 0-6000, 6001-10000, 10001-15000, 15001-20000, 20001-25000, 25001-30000, 30001-35000 gaj
+| Level | Title | 0-6000 gaj | Gap (0-6000) |
+|-------|-------|------------|--------------|
+| 1 | Business Associate | 4% | 4% (seller) |
+| 2 | Business Adviser | 6% | 2% |
+| 3 | Business Head | 7.5% | 1.5% |
+| 4 | Dist. Business Head | 9% | 1.5% |
+| 5 | State Business Head | 10% | 1% |
+| 6 | Regional Business Head | 11% | 1% |
+| 7 | National Business Head | 12% | 1% |
+| 8 | Vice President Sales | 13% | 1% |
+| 9 | President Sales | 14% | 1% |
+| 10 | President Club | +2% | 2% (flat, always) |
+
+**Total: 16%**
+
+**Area Slabs:** 0-6000, 6001-10000, 10001-15000, 15001-20000, 20001-25000, 25001-30000, 30001-35000 gaj  
+(Percentages decrease as area increases — see `COMMISSION_AND_PROMOTION_PLAN.md` for full table)
 
 **Rules:**
+- Seller gets their rank's full slab % (e.g., if Business Head sells, they get 7.5%)
+- Uplines above seller get the GAP (difference between consecutive levels)
+- President Club always gets flat 2% on every sale
+- If President Club sells directly, they get 14% + 2% = 16% total
 - Only ACTIVE associates earn commission
-- Downline gets NOTHING — only upline earns
 - Commission triggers when admin approves a property booking
-- Each commission must be individually approved by admin to credit wallet
+
+**Promotion System:**
+- First promotion (Associate → Adviser): Sell 500 gaj personally
+- After promotion: Can add 3 Business Associates under them
+- Subsequent promotions: All 3 downlines achieve 500 gaj each
+- President Club can add anyone directly (no criteria)
 
 ---
 

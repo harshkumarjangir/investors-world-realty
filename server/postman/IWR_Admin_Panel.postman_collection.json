@@ -517,38 +517,6 @@
       "name": "⚙️ Configuration",
       "item": [
         {
-          "name": "Get Packages",
-          "request": {
-            "method": "GET",
-            "url": { "raw": "{{baseUrl}}/admin/config/packages", "host": ["{{baseUrl}}"], "path": ["admin", "config", "packages"] }
-          }
-        },
-        {
-          "name": "Create Package",
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Gold Package\",\n  \"price\": 10000,\n  \"benefits\": [\"All features\", \"Priority support\"],\n  \"directPercent\": 12\n}" },
-            "url": { "raw": "{{baseUrl}}/admin/config/packages", "host": ["{{baseUrl}}"], "path": ["admin", "config", "packages"] }
-          }
-        },
-        {
-          "name": "Update Package",
-          "request": {
-            "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Gold Package Updated\",\n  \"price\": 12000\n}" },
-            "url": { "raw": "{{baseUrl}}/admin/config/packages/:id", "host": ["{{baseUrl}}"], "path": ["admin", "config", "packages", ":id"], "variable": [{ "key": "id", "value": "package-uuid" }] }
-          }
-        },
-        {
-          "name": "Delete Package",
-          "request": {
-            "method": "DELETE",
-            "url": { "raw": "{{baseUrl}}/admin/config/packages/:id", "host": ["{{baseUrl}}"], "path": ["admin", "config", "packages", ":id"], "variable": [{ "key": "id", "value": "package-uuid" }] }
-          }
-        },
-        {
           "name": "Get Income Plans",
           "request": {
             "method": "GET",

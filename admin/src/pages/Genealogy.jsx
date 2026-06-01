@@ -57,12 +57,12 @@ export default function Genealogy() {
             placeholder={t('genealogy.search') + ' (User ID or Name)'}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 pl-9 pr-3 py-2 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+            className="w-full rounded-lg border border-gray-300 pl-9 pr-3 py-2 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200"
           />
         </div>
         <button
           type="submit"
-          className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+          className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700"
         >
           Search
         </button>
@@ -119,11 +119,11 @@ export default function Genealogy() {
             placeholder="Enter Associate ID"
             value={selectedAssociate}
             onChange={(e) => setSelectedAssociate(e.target.value)}
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+            className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200"
           />
           <button
             onClick={fetchBusiness}
-            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+            className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700"
           >
             Track
           </button>
@@ -142,9 +142,9 @@ export default function Genealogy() {
               <p className="text-sm text-gray-600">Carry Forward</p>
               <p className="text-lg font-bold text-purple-700">₹{Number(businessData.carryForward || 0).toLocaleString()}</p>
             </div>
-            <div className="rounded-lg bg-indigo-50 p-4">
+            <div className="rounded-lg bg-amber-50 p-4">
               <p className="text-sm text-gray-600">Paired Volume</p>
-              <p className="text-lg font-bold text-indigo-700">₹{Number(businessData.pairedVolume || 0).toLocaleString()}</p>
+              <p className="text-lg font-bold text-amber-700">₹{Number(businessData.pairedVolume || 0).toLocaleString()}</p>
             </div>
           </div>
         )}

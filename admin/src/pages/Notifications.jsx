@@ -60,12 +60,12 @@ export default function Notifications() {
     }
   };
 
-  const inputCls = 'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200';
+  const inputCls = 'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200';
 
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center gap-3">
-        <Bell size={24} className="text-indigo-600" />
+        <Bell size={24} className="text-amber-600" />
         <h1 className="text-2xl font-bold text-gray-800">{t('notifications.title')}</h1>
       </div>
 
@@ -128,7 +128,7 @@ export default function Notifications() {
             <button
               type="submit"
               disabled={sending}
-              className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50"
             >
               <Send size={16} />
               {sending ? t('common.loading') : 'Send'}
@@ -163,7 +163,7 @@ export default function Notifications() {
                     </td>
                     <td className="py-3 text-gray-800 font-medium">{n.title}</td>
                     <td className="py-3">
-                      <span className="rounded-full bg-indigo-100 text-indigo-700 px-2.5 py-0.5 text-xs font-medium">
+                      <span className="rounded-full bg-amber-100 text-amber-700 px-2.5 py-0.5 text-xs font-medium">
                         {n.target || 'all'}
                       </span>
                     </td>

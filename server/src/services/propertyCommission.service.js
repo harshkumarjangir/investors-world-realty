@@ -1,13 +1,16 @@
 import prisma from '../utils/prisma.js';
 
 /**
- * Property Sale Commission Engine
+ * Property Sale Commission Engine — GAP Commission Model
  * 
  * When a property is sold/booked:
  * 1. Find the commission slab based on property area (gaj)
- * 2. Give seller their commission %
- * 3. Walk UP the tree (up to 10 levels) and give each ancestor their level %
+ * 2. Give seller their direct commission % (e.g., 4%)
+ * 3. Walk UP the tree (up to 9 levels) and give each ancestor the GAP %
+ *    GAP = (their level slab %) - (previous level slab %)
+ *    Example: Level 1 (6%) - Level 0 (4%) = 2% gap commission
  * 4. Downline gets nothing — only upline earns
+ * 5. Total distributed = highest level % (e.g., 16% for President Club)
  */
 
 // ─── Get Commission Slab ──────────────────────────────────────────────────────
@@ -58,8 +61,35 @@ export async function calculatePropertySaleCommission(
   const commissions = [];
   let totalDistributed = 0;
 
-  // 2. Seller commission (level 0)
-  const sellerPercent = Number(slab.sellerPercent);
+  // All slab percentages by rank (index 0 = rank 1 Business Associate, index 8 = rank 9 President Sales)
+  const rankSlabPercents = [
+    Number(slab.sellerPercent),   // Rank 1: Business Associate
+    Number(slab.level1Percent),   // Rank 2: Business Adviser
+    Number(slab.level2Percent),   // Rank 3: Business Head
+    Number(slab.level3Percent),   // Rank 4: Dist. Business Head
+    Number(slab.level4Percent),   // Rank 5: State Business Head
+    Number(slab.level5Percent),   // Rank 6: Regional Business Head
+    Number(slab.level6Percent),   // Rank 7: National Business Head
+    Number(slab.level7Percent),   // Rank 8: Vice President Sales
+    Number(slab.level8Percent),   // Rank 9: President Sales
+  ];
+  const presidentClubFlat = Number(slab.level9Percent) || 2; // Rank 10: President Club (flat %)
+
+  // 2. Get seller's rank to determine their commission %
+  const sellerAssociate = await prisma.associate.findUnique({
+    where: { id: sellerAssociateId },
+    select: { rank: true },
+  });
+  const sellerRank = sellerAssociate?.rank || 1;
+
+  // Seller gets their rank's full slab %
+  // If President Club (rank 10) sells, they get rank 9's % + flat 2% = full pool
+  let sellerPercent;
+  if (sellerRank >= 10) {
+    sellerPercent = rankSlabPercents[8] + presidentClubFlat; // President Sales % + flat 2%
+  } else {
+    sellerPercent = rankSlabPercents[sellerRank - 1] || rankSlabPercents[0];
+  }
   const sellerAmount = (propertyPrice * sellerPercent) / 100;
 
   const sellerRecord = await prisma.propertySaleCommission.create({
@@ -79,19 +109,10 @@ export async function calculatePropertySaleCommission(
   commissions.push(sellerRecord);
   totalDistributed += sellerAmount;
 
-  // 3. Walk UP the tree — give commission to each ancestor (up to 10 levels)
-  const levelPercentages = [
-    Number(slab.level1Percent),
-    Number(slab.level2Percent),
-    Number(slab.level3Percent),
-    Number(slab.level4Percent),
-    Number(slab.level5Percent),
-    Number(slab.level6Percent),
-    Number(slab.level7Percent),
-    Number(slab.level8Percent),
-    Number(slab.level9Percent),
-    Number(slab.level10Percent),
-  ];
+  // 3. Walk UP the tree — give GAP commission to each ancestor
+  // GAP method: each upline gets (their rank's slab % - previous rank's slab %)
+  // Level percentages represent CUMULATIVE slabs, gap is the difference
+  const slabPercentages = rankSlabPercents; // [4%, 6%, 7.5%, 9%, 10%, 11%, 12%, 13%, 14%]
 
   // Get seller's tree node
   const sellerNode = await prisma.treeNode.findUnique({
@@ -104,36 +125,53 @@ export async function calculatePropertySaleCommission(
 
   let currentNode = sellerNode;
   const uplineCommissions = [];
+  let lastPaidRank = sellerRank; // Track the last rank that received commission
 
   for (let level = 1; level <= 10; level++) {
-    if (!currentNode.parentId) break; // reached the top of the tree
+    if (!currentNode.parentId) break;
 
-    // Get parent node
     const parentNode = await prisma.treeNode.findUnique({
       where: { id: currentNode.parentId },
     });
-
     if (!parentNode) break;
 
-    // Check if the ancestor associate is ACTIVE
+    // Check if the ancestor associate is ACTIVE and get their rank
     const ancestor = await prisma.associate.findUnique({
       where: { id: parentNode.associateId },
-      select: { id: true, status: true },
+      select: { id: true, status: true, rank: true },
     });
 
     if (!ancestor || ancestor.status !== 'ACTIVE') {
-      // Skip inactive ancestors but continue walking up
       currentNode = parentNode;
       continue;
     }
 
-    const levelPercent = levelPercentages[level - 1] || 0;
-    if (levelPercent <= 0) {
+    const ancestorRank = ancestor.rank || 1;
+
+    // Skip if ancestor's rank is not higher than last paid rank (no gap to earn)
+    if (ancestorRank <= lastPaidRank && ancestorRank < 10) {
       currentNode = parentNode;
       continue;
     }
 
-    const commissionAmount = (propertyPrice * levelPercent) / 100;
+    let gapPercent = 0;
+
+    if (ancestorRank >= 10) {
+      // President Club always gets flat 2%
+      gapPercent = presidentClubFlat;
+    } else {
+      // Gap = ancestor's rank slab % - last paid rank's slab %
+      const ancestorSlabPercent = slabPercentages[ancestorRank - 1] || 0;
+      const lastPaidSlabPercent = slabPercentages[lastPaidRank - 1] || 0;
+      gapPercent = ancestorSlabPercent - lastPaidSlabPercent;
+    }
+
+    if (gapPercent <= 0) {
+      currentNode = parentNode;
+      continue;
+    }
+
+    const commissionAmount = (propertyPrice * gapPercent) / 100;
 
     const record = await prisma.propertySaleCommission.create({
       data: {
@@ -142,7 +180,7 @@ export async function calculatePropertySaleCommission(
         associateId: ancestor.id,
         sellerAssociateId,
         level,
-        percentage: levelPercent,
+        percentage: gapPercent,
         propertyPrice,
         propertyArea: propertyAreaGaj,
         commissionAmount,
@@ -152,10 +190,24 @@ export async function calculatePropertySaleCommission(
 
     uplineCommissions.push(record);
     totalDistributed += commissionAmount;
+
+    // Update last paid rank (President Club doesn't affect this since it's flat)
+    if (ancestorRank < 10) {
+      lastPaidRank = ancestorRank;
+    }
+
     currentNode = parentNode;
   }
 
   console.log(`[COMMISSION] Property sale: ₹${propertyPrice} | Area: ${propertyAreaGaj} gaj | Distributed: ₹${totalDistributed.toFixed(2)} across ${1 + uplineCommissions.length} associates`);
+
+  // 4. Record sale area and check promotion
+  try {
+    const { recordSaleAndCheckPromotion } = await import('./promotion.service.js');
+    await recordSaleAndCheckPromotion(sellerAssociateId, propertyAreaGaj);
+  } catch (err) {
+    console.error('[COMMISSION] Promotion check failed (non-blocking):', err.message);
+  }
 
   return {
     sellerCommission: sellerRecord,
