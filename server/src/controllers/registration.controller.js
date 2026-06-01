@@ -4,6 +4,7 @@ import {
   activateAssociate,
 } from '../services/registration.service.js';
 import { successResponse, createdResponse } from '../utils/response.js';
+import prisma from '../utils/prisma.js';
 
 // ─── GET /validate-sponsor?sponsorId=IW100001 ─────────────────────────────────
 export async function validateSponsorHandler(req, res, next) {
@@ -21,6 +22,7 @@ export async function validateSponsorHandler(req, res, next) {
       userId: sponsor.userId,
       name: sponsor.name,
       status: sponsor.status,
+      rank: sponsor.rank,
     }, 'Sponsor is valid');
   } catch (err) {
     return next(err);
@@ -39,7 +41,8 @@ export async function registerHandler(req, res, next) {
       email: associate.email,
       phone: associate.phone,
       status: associate.status,
-    }, 'Registration successful. Account is pending activation.');
+      sponsorId: req.body.sponsorId,
+    }, 'Registration successful. Your account is pending admin approval.');
   } catch (err) {
     return next(err);
   }
@@ -48,8 +51,8 @@ export async function registerHandler(req, res, next) {
 // ─── POST /activate ───────────────────────────────────────────────────────────
 export async function activateHandler(req, res, next) {
   try {
-    const { associateId, packageId } = req.body;
-    const updated = await activateAssociate(associateId, packageId);
+    const { associateId } = req.body;
+    const updated = await activateAssociate(associateId);
 
     return successResponse(res, {
       id: updated.id,
@@ -57,10 +60,24 @@ export async function activateHandler(req, res, next) {
       name: updated.name,
       status: updated.status,
       activationDate: updated.activationDate,
-      package: updated.package
-        ? { id: updated.package.id, name: updated.package.name }
-        : null,
     }, 'Associate activated successfully');
+  } catch (err) {
+    return next(err);
+  }
+}
+
+// ─── POST /request-delete ─────────────────────────────────────────────────────
+export async function requestDeleteHandler(req, res, next) {
+  try {
+    const associateId = req.associate.id;
+
+    // Mark as pending deletion (admin will approve)
+    await prisma.associate.update({
+      where: { id: associateId },
+      data: { status: 'SUSPENDED' }, // Use SUSPENDED as pending-delete marker
+    });
+
+    return successResponse(res, null, 'Account deletion request submitted. Admin will review and process.');
   } catch (err) {
     return next(err);
   }

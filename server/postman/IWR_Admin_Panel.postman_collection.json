@@ -28,7 +28,7 @@
                   "var json = pm.response.json();",
                   "if (json.data && json.data.adminId) {",
                   "  pm.collectionVariables.set('adminId', json.data.adminId);",
-                  "  console.log('Admin ID saved. Check server console for OTP.');",
+                  "  console.log('Admin ID saved. Check email for OTP.');",
                   "}"
                 ]
               }
@@ -40,7 +40,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@investorsworld.com\",\n  \"password\": \"Admin@123456\"\n}"
+              "raw": "{\n  \"email\": \"notespoint2023@gmail.com\",\n  \"password\": \"Admin@123456\"\n}"
             },
             "url": { "raw": "{{baseUrl}}/admin/auth/login", "host": ["{{baseUrl}}"], "path": ["admin", "auth", "login"] }
           }
@@ -131,7 +131,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"name\": \"New Associate\",\n  \"phone\": \"8765432109\",\n  \"email\": \"new@example.com\",\n  \"address\": \"789 Street\",\n  \"city\": \"Pune\",\n  \"state\": \"Maharashtra\",\n  \"pincode\": \"411001\",\n  \"panNumber\": \"XYZAB5678C\",\n  \"sponsorId\": \"IW100001\",\n  \"placement\": \"RIGHT\",\n  \"packageId\": \"default-package-001\",\n  \"password\": \"NewUser@123\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"New Associate\",\n  \"phone\": \"8765432109\",\n  \"email\": \"new@example.com\",\n  \"address\": \"789 Street\",\n  \"city\": \"Pune\",\n  \"state\": \"Maharashtra\",\n  \"pincode\": \"411001\",\n  \"panNumber\": \"XYZAB5678C\",\n  \"sponsorId\": \"IW100001\",\n  \"password\": \"NewUser@123\"\n}" },
             "url": { "raw": "{{baseUrl}}/admin/associates", "host": ["{{baseUrl}}"], "path": ["admin", "associates"] }
           }
         },
@@ -149,7 +149,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"packageId\": \"default-package-001\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"associateId\": \"{{associateId}}\"\n}" },
             "url": { "raw": "{{baseUrl}}/admin/associates/{{associateId}}/activate", "host": ["{{baseUrl}}"], "path": ["admin", "associates", "{{associateId}}", "activate"] }
           }
         },

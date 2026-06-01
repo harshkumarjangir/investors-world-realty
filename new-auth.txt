@@ -1,0 +1,41 @@
+Updated Associate Registration & Deletion Flow
+Registration (Public — via referral link)
+
+POST /api/v1/registration/register
+Body: {
+  "name": "John Doe",
+  "phone": "9876543210",
+  "email": "john@example.com",
+  "sponsorId": "IW100001",    ← referral/sponsor ID (required)
+  "password": "John@1234",
+  "address": "123 Street",    ← optional
+  "city": "Mumbai",           ← optional
+  "state": "Maharashtra",     ← optional
+  "pincode": "400001",        ← optional
+  "panNumber": "ABCDE1234F",  ← optional
+  "dateOfBirth": "1990-05-15" ← optional
+}
+
+
+Status: INACTIVE (pending admin approval)
+Checks sponsor's rank — must be rank 2+ to have downlines (or rank 10 for unlimited)
+No package needed, no placement (LEFT/RIGHT) needed
+
+
+Admin Approves → Activate
+POST /api/v1/registration/activate 🔒
+Body: { "associateId": "uuid" }
+Sets status to ACTIVE
+Creates wallet
+Places in tree under sponsor
+
+Delete Request (by associate)
+POST /api/v1/registration/request-delete 🔒
+Sets status to SUSPENDED (pending admin review)
+Admin then deletes via existing DELETE /admin/associates/:id
+
+Who can add associates:
+Anyone can register via referral link (public)
+Rank 2+ sponsors can have up to 3 downlines
+Rank 10 (President Club) can add unlimited
+Admin can add directly (instant activation, no approval needed)

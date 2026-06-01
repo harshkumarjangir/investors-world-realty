@@ -26,7 +26,7 @@ export async function getPendingKYC(pagination) {
         documentUrl: true,
         status: true,
         createdAt: true,
-        associate: { select: { id: true, userId: true, name: true } },
+        associate: { select: { id: true, userId: true, name: true, profilePhoto: true, phone: true } },
       },
     }),
     prisma.kYCDocument.count({ where }),
@@ -41,7 +41,10 @@ export async function getPendingKYC(pagination) {
     createdAt: r.createdAt,
     associateId: r.associate.id,
     userId: r.associate.userId,
+    associateName: r.associate.name,
     name: r.associate.name,
+    profilePhoto: r.associate.profilePhoto,
+    phone: r.associate.phone,
   }));
 
   return { items, totalItems, page, pageSize };

@@ -379,7 +379,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"name\": \"John Doe\",\n  \"phone\": \"9876543210\",\n  \"email\": \"john@example.com\",\n  \"address\": \"123 Main Street\",\n  \"city\": \"Mumbai\",\n  \"state\": \"Maharashtra\",\n  \"pincode\": \"400001\",\n  \"panNumber\": \"ABCDE1234F\",\n  \"sponsorId\": \"IW100001\",\n  \"placement\": \"LEFT\",\n  \"packageId\": \"default-package-001\",\n  \"password\": \"John@1234\",\n  \"dateOfBirth\": \"1990-05-15\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"John Doe\",\n  \"phone\": \"9876543210\",\n  \"email\": \"john@example.com\",\n  \"sponsorId\": \"IW100001\",\n  \"password\": \"John@1234\",\n  \"address\": \"123 Main Street\",\n  \"city\": \"Mumbai\",\n  \"state\": \"Maharashtra\",\n  \"pincode\": \"400001\",\n  \"panNumber\": \"ABCDE1234F\",\n  \"dateOfBirth\": \"1990-05-15\"\n}" },
             "url": { "raw": "{{baseUrl}}/registration/register", "host": ["{{baseUrl}}"], "path": ["registration", "register"] }
           }
         },
@@ -388,7 +388,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"associateId\": \"uuid-of-associate\",\n  \"packageId\": \"default-package-001\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"associateId\": \"uuid-of-associate\"\n}" },
             "url": { "raw": "{{baseUrl}}/registration/activate", "host": ["{{baseUrl}}"], "path": ["registration", "activate"] }
           }
         }

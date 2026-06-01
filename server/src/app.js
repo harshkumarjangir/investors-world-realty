@@ -23,7 +23,9 @@ import adminRoutes from './routes/admin/index.js';
 const app = express();
 
 // ─── Security & Logging ───────────────────────────────────────────────────────
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
 app.use(cors({
   origin: [config.APP_BASE_URL, config.ADMIN_BASE_URL],
   credentials: true,

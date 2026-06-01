@@ -6,7 +6,5 @@ Email:- notespoint2023@gmail.com
 Password:- Admin@123456
 
 Server
-https://investors-world-realty.onrender.com
-https://investors-world-realty.onrender.com/api/v1
-https://investors-world-realty-production.up.railway.app
-https://investors-world-realty-production.up.railway.app/api/v1
+https://serveriwr.harshkumarjangir.in/
+https://serveriwr.harshkumarjangir.in/api/v1

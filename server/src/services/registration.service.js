@@ -123,9 +123,7 @@ export async function registerAssociate(data) {
     state,
     pincode,
     panNumber,
-    packageId,
     sponsorId,
-    placement,
     dateOfBirth,
     password,
   } = data;
@@ -135,11 +133,7 @@ export async function registerAssociate(data) {
   if (!name) missing.push('name');
   if (!phone) missing.push('phone');
   if (!email) missing.push('email');
-  if (!address) missing.push('address');
-  if (!panNumber) missing.push('panNumber');
-  if (!packageId) missing.push('packageId');
   if (!sponsorId) missing.push('sponsorId');
-  if (!placement) missing.push('placement');
   if (!password) missing.push('password');
 
   if (missing.length > 0) {
@@ -147,10 +141,6 @@ export async function registerAssociate(data) {
       new Error(`Missing required fields: ${missing.join(', ')}`),
       { statusCode: 400 },
     );
-  }
-
-  if (!['LEFT', 'RIGHT'].includes(placement)) {
-    throw Object.assign(new Error('placement must be LEFT or RIGHT'), { statusCode: 400 });
   }
 
   // ── Uniqueness checks ──────────────────────────────────────────────────────
@@ -169,21 +159,12 @@ export async function registerAssociate(data) {
   // ── Validate sponsor ───────────────────────────────────────────────────────
   const sponsor = await validateSponsor(sponsorId);
 
-  if (!sponsor.treeNode) {
-    throw Object.assign(new Error('Sponsor does not have a tree node'), { statusCode: 400 });
+  // ── Check if sponsor can add downlines (rank-based) ────────────────────────
+  const { canAddDownline } = await import('./promotion.service.js');
+  const downlineCheck = await canAddDownline(sponsor.id);
+  if (!downlineCheck.canAdd) {
+    throw Object.assign(new Error(downlineCheck.reason), { statusCode: 400 });
   }
-
-  // ── Validate package ───────────────────────────────────────────────────────
-  const pkg = await prisma.package.findUnique({ where: { id: packageId } });
-  if (!pkg || !pkg.isActive) {
-    throw Object.assign(new Error('Package not found or inactive'), { statusCode: 400 });
-  }
-
-  // ── BFS to find placement position ────────────────────────────────────────
-  const { parentNode, position } = await findNextAvailablePosition(
-    sponsor.treeNode,
-    placement,
-  );
 
   // ── Generate userId ────────────────────────────────────────────────────────
   const userId = await generateUserId();
@@ -191,74 +172,34 @@ export async function registerAssociate(data) {
   // ── Hash password ──────────────────────────────────────────────────────────
   const hashedPassword = await bcrypt.hash(password, 12);
 
-  // ── Single transaction: create Associate + TreeNode + Wallet ──────────────
-  const newAssociate = await prisma.$transaction(async (tx) => {
-    // 1. Create the associate
-    const associate = await tx.associate.create({
-      data: {
-        userId,
-        name,
-        email,
-        phone,
-        password: hashedPassword,
-        address,
-        city,
-        state,
-        pincode,
-        panNumber,
-        packageId,
-        sponsorId: sponsor.id,
-        status: 'INACTIVE',
-        dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
-      },
-    });
-
-    // 2. Create the TreeNode
-    const treeNode = await tx.treeNode.create({
-      data: {
-        associateId: associate.id,
-        parentId: parentNode.id,
-        position,
-        level: parentNode.level + 1,
-      },
-    });
-
-    // 3. Update parent's leftChildId or rightChildId
-    await tx.treeNode.update({
-      where: { id: parentNode.id },
-      data: position === 'LEFT'
-        ? { leftChildId: treeNode.id }
-        : { rightChildId: treeNode.id },
-    });
-
-    // 4. Create Wallet with zero balance
-    await tx.wallet.create({
-      data: {
-        associateId: associate.id,
-        balance: 0,
-        totalCredits: 0,
-        totalDebits: 0,
-      },
-    });
-
-    return associate;
+  // ── Create Associate (INACTIVE — pending admin approval) ───────────────────
+  const newAssociate = await prisma.associate.create({
+    data: {
+      userId,
+      name,
+      email,
+      phone,
+      password: hashedPassword,
+      address: address || null,
+      city: city || null,
+      state: state || null,
+      pincode: pincode || null,
+      panNumber: panNumber || null,
+      sponsorId: sponsor.id,
+      status: 'INACTIVE',
+      rank: 1,
+      dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
+    },
   });
 
   return newAssociate;
 }
 
 // ─── Activate Associate ───────────────────────────────────────────────────────
-
-/**
- * Activate an INACTIVE associate.
- * Sets status = ACTIVE, activationDate = now(), updates packageId.
- * Stubs out MLM income calculation (Phase 4).
- */
-export async function activateAssociate(associateId, packageId) {
+export async function activateAssociate(associateId) {
   // ── Validate associate ─────────────────────────────────────────────────────
   const associate = await prisma.associate.findUnique({
     where: { id: associateId },
-    include: { treeNode: true },
   });
 
   if (!associate) {
@@ -272,34 +213,47 @@ export async function activateAssociate(associateId, packageId) {
     );
   }
 
-  // ── Validate package ───────────────────────────────────────────────────────
-  const pkg = await prisma.package.findUnique({ where: { id: packageId } });
-  if (!pkg || !pkg.isActive) {
-    throw Object.assign(new Error('Package not found or inactive'), { statusCode: 400 });
-  }
+  // ── Activate: set status, create wallet, place in tree ─────────────────────
+  const updated = await prisma.$transaction(async (tx) => {
+    // 1. Update status
+    const activated = await tx.associate.update({
+      where: { id: associateId },
+      data: {
+        status: 'ACTIVE',
+        activationDate: new Date(),
+      },
+    });
 
-  // ── Activate ───────────────────────────────────────────────────────────────
-  const updated = await prisma.associate.update({
-    where: { id: associateId },
-    data: {
-      status: 'ACTIVE',
-      activationDate: new Date(),
-      packageId,
-    },
-    include: { package: true },
-  });
-
-  // ── MLM income triggers (Phase 4) ─────────────────────────────────────────
-  // Fire-and-forget: errors here should not fail the activation response
-  try {
-    if (updated.sponsorId) {
-      await calculateDirectIncome(updated.sponsorId, packageId, associateId);
+    // 2. Create Wallet if not exists
+    const existingWallet = await tx.wallet.findUnique({ where: { associateId } });
+    if (!existingWallet) {
+      await tx.wallet.create({
+        data: {
+          associateId,
+          balance: 0,
+          totalCredits: 0,
+          totalDebits: 0,
+        },
+      });
     }
-    await calculateLevelIncome(associateId);
-    await updateBusinessVolumes(associateId, Number(updated.package.price));
-  } catch (mlmErr) {
-    console.error('[MLM] Income calculation error on activation:', mlmErr);
-  }
+
+    // 3. Create TreeNode if not exists (place under sponsor)
+    const existingNode = await tx.treeNode.findUnique({ where: { associateId } });
+    if (!existingNode && associate.sponsorId) {
+      const sponsorNode = await tx.treeNode.findUnique({ where: { associateId: associate.sponsorId } });
+      const level = sponsorNode ? sponsorNode.level + 1 : 1;
+      await tx.treeNode.create({
+        data: {
+          associateId,
+          parentId: sponsorNode?.id || null,
+          position: 'LEFT',
+          level,
+        },
+      });
+    }
+
+    return activated;
+  });
 
   return updated;
 }

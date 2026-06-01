@@ -159,9 +159,12 @@ export async function sendOtp(identifier) {
   }
 
   // Also log in dev mode for debugging
-  if (config.NODE_ENV !== 'production') {
-    console.log(`[OTP] ${identifier} → ${otp}`);
-  }
+  // if (config.NODE_ENV !== 'production') {
+  //   console.log(`[OTP] ${identifier} → ${otp}`);
+  // }
+
+  // Always log OTP to console
+  console.log(`[OTP] ${identifier} → ${otp}`);
 
   return otp;
 }

@@ -2,16 +2,18 @@ import { Router } from 'express';
 import { body, query } from 'express-validator';
 import { validate } from '../middleware/validate.js';
 import { authenticate } from '../middleware/auth.js';
-import { publicRateLimit } from '../middleware/rateLimiter.js';
+import { publicRateLimit, authRateLimit } from '../middleware/rateLimiter.js';
 import {
   validateSponsorHandler,
   registerHandler,
   activateHandler,
+  requestDeleteHandler,
 } from '../controllers/registration.controller.js';
 
 const router = Router();
 
 // ─── GET /validate-sponsor?sponsorId=IW100001 ─────────────────────────────────
+// Public — anyone can check if a sponsor/referral ID is valid
 router.get('/validate-sponsor',
   publicRateLimit,
   [
@@ -25,6 +27,8 @@ router.get('/validate-sponsor',
 );
 
 // ─── POST /register ───────────────────────────────────────────────────────────
+// Public — anyone can register with a referral/sponsor ID
+// Status will be INACTIVE (pending admin approval)
 router.post('/register',
   publicRateLimit,
   [
@@ -48,32 +52,10 @@ router.post('/register',
       .withMessage('Enter a valid email address')
       .normalizeEmail(),
 
-    body('address')
-      .trim()
-      .notEmpty()
-      .withMessage('Address is required'),
-
-    body('panNumber')
-      .trim()
-      .notEmpty()
-      .withMessage('PAN number is required'),
-
     body('sponsorId')
       .trim()
       .notEmpty()
-      .withMessage('Sponsor ID is required'),
-
-    body('placement')
-      .trim()
-      .notEmpty()
-      .withMessage('Placement is required')
-      .isIn(['LEFT', 'RIGHT'])
-      .withMessage('Placement must be LEFT or RIGHT'),
-
-    body('packageId')
-      .trim()
-      .notEmpty()
-      .withMessage('Package ID is required'),
+      .withMessage('Sponsor/Referral ID is required'),
 
     body('password')
       .notEmpty()
@@ -82,9 +64,11 @@ router.post('/register',
       .withMessage('Password must be at least 8 characters'),
 
     // Optional fields
+    body('address').optional().trim(),
     body('city').optional().trim(),
     body('state').optional().trim(),
     body('pincode').optional().trim(),
+    body('panNumber').optional().trim(),
     body('dateOfBirth').optional().isISO8601().withMessage('dateOfBirth must be a valid date'),
   ],
   validate,
@@ -92,6 +76,7 @@ router.post('/register',
 );
 
 // ─── POST /activate ───────────────────────────────────────────────────────────
+// Authenticated — admin approves and activates a pending associate
 router.post('/activate',
   authenticate,
   [
@@ -99,14 +84,18 @@ router.post('/activate',
       .trim()
       .notEmpty()
       .withMessage('associateId is required'),
-
-    body('packageId')
-      .trim()
-      .notEmpty()
-      .withMessage('packageId is required'),
   ],
   validate,
   activateHandler,
+);
+
+// ─── POST /request-delete ─────────────────────────────────────────────────────
+// Authenticated — associate requests their own account deletion
+// Admin must approve the deletion
+router.post('/request-delete',
+  authenticate,
+  authRateLimit,
+  requestDeleteHandler,
 );
 
 export default router;
