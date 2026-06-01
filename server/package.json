@@ -4,8 +4,12 @@
   "description": "Investors World Realty — Backend API Server",
   "main": "src/server.js",
   "type": "module",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "start": "node src/server.js",
+    "build": "npx prisma generate",
     "dev": "nodemon src/server.js",
     "lint": "eslint .",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
