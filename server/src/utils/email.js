@@ -14,6 +14,8 @@ function getTransporter() {
       user: config.SMTP_USER,
       pass: config.SMTP_PASS,
     },
+    // Force IPv4 — some hosts (Railway, Render) don't support IPv6
+    family: 4,
   });
 
   return transporter;
