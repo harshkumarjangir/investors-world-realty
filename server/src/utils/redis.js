@@ -16,44 +16,17 @@ let redisClient = null;
 export function getRedisClient() {
   if (redisClient) return redisClient;
 
-  try {
-    redisClient = new Redis(config.REDIS_URL || 'redis://localhost:6379', {
-      maxRetriesPerRequest: 1,
-      enableReadyCheck: false,
-      lazyConnect: true,
-      connectTimeout: 5000,
-      retryStrategy(times) {
-        if (times > 3) return null; // stop retrying
-        return Math.min(times * 200, 1000);
-      },
-    });
+  redisClient = new Redis(config.REDIS_URL, {
+    maxRetriesPerRequest: 3,
+    enableReadyCheck: true,
+    lazyConnect: false,
+  });
 
-    redisClient.on('error', (err) => {
-      if (!redisClient._errorLogged) {
-        console.warn('[REDIS] Error:', err.message);
-        redisClient._errorLogged = true;
-      }
-    });
-
-    // Try to connect but don't crash if it fails
-    redisClient.connect().catch(() => {});
-  } catch (err) {
-    console.warn('[REDIS] Init failed:', err.message);
-    // Return a mock redis that won't crash the app
-    redisClient = createMockRedis();
-  }
+  redisClient.on('connect', () => console.log('[REDIS] Connected'));
+  redisClient.on('error', (err) => console.error('[REDIS] Error:', err.message));
+  redisClient.on('close', () => console.warn('[REDIS] Connection closed'));
 
   return redisClient;
-}
-
-function createMockRedis() {
-  return {
-    get: async () => null,
-    set: async () => 'OK',
-    del: async () => 1,
-    ping: async () => 'PONG',
-    _errorLogged: true,
-  };
 }
 
 export const keys = {
