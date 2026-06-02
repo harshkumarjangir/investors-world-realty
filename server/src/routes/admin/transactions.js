@@ -10,6 +10,7 @@ import {
 
 const router = Router();
 
+// Wallet transactions
 router.get('/', requirePermission('transactions:read'), listTransactionsHandler);
 router.get('/wallet/:associateId', requirePermission('transactions:read'), getWalletTransactionsHandler);
 router.get('/withdrawals', requirePermission('transactions:read'), listWithdrawalsHandler);

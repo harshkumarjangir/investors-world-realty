@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   Users,
@@ -16,6 +16,9 @@ import {
   Menu,
   X,
   UserCircle,
+  BookOpen,
+  ChevronDown,
+  ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../common/AuthContext.jsx';
 import { useI18n } from '../common/i18n.jsx';
@@ -37,128 +40,96 @@ const navItems = [
   { key: 'nav.transactions', icon: ArrowLeftRight, path: '/transactions', permission: 'transactions:read' },
 ];
 
+const mastersSubItems = [
+  { label: 'Account Master' },
+  { label: 'Scheme' },
+  { label: 'Scheme Image' },
+  { label: 'Plc Charge' },
+  { label: 'Flat/Plot Master' },
+  { label: 'Scheme Details' },
+  { label: 'Plc Charge List' },
+  { label: 'Plot Type List' },
+  { label: 'Plot List' },
+];
+
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mastersOpen, setMastersOpen] = useState(false);
   const { admin, logout, hasPermission } = useAuth();
   const { t, lang, switchLang } = useI18n();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleLogout = async () => {
-    await logout();
-  };
-
-  const toggleLang = () => {
-    switchLang(lang === 'en' ? 'hi' : 'en');
-  };
-
-  const visibleNavItems = navItems.filter(
-    (item) => !item.permission || hasPermission(item.permission)
-  );
+  const handleLogout = async () => { await logout(); };
+  const toggleLang = () => { switchLang(lang === 'en' ? 'hi' : 'en'); };
+  const visibleNavItems = navItems.filter(item => !item.permission || hasPermission(item.permission));
+  const isMastersActive = location.pathname === '/masters';
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* Mobile overlay */}
       {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-20 bg-black/50 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
+        <div className="fixed inset-0 z-20 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Sidebar */}
-      <aside
-        className={`fixed inset-y-0 left-0 z-30 w-64 flex flex-col transform bg-slate-900 transition-transform duration-200 ease-in-out lg:relative lg:translate-x-0 ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
-      >
-        {/* Logo / Brand */}
+      <aside className={`fixed inset-y-0 left-0 z-30 w-64 flex flex-col transform bg-slate-900 transition-transform duration-200 ease-in-out lg:relative lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex h-16 shrink-0 items-center justify-between px-4 border-b border-slate-700">
-          <h1 className="text-lg font-bold text-white truncate">
-            Investors World Realty
-          </h1>
-          <button
-            className="lg:hidden text-white hover:text-gray-300"
-            onClick={() => setSidebarOpen(false)}
-          >
-            <X size={20} />
-          </button>
+          <h1 className="text-lg font-bold text-white truncate">Investors World Realty</h1>
+          <button className="lg:hidden text-white hover:text-gray-300" onClick={() => setSidebarOpen(false)}><X size={20} /></button>
         </div>
 
-        {/* Navigation */}
         <nav className="mt-4 flex-1 overflow-y-auto sidebar-scroll px-3 pb-4">
           <ul className="space-y-1">
             {visibleNavItems.map((item) => {
               const Icon = item.icon;
               return (
                 <li key={item.path}>
-                  <NavLink
-                    to={item.path}
-                    end={item.path === '/'}
-                    onClick={() => setSidebarOpen(false)}
-                    className={({ isActive }) =>
-                      `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-                        isActive
-                          ? 'bg-gold-500 text-white'
-                          : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                      }`
-                    }
-                  >
+                  <NavLink to={item.path} end={item.path === '/'} onClick={() => setSidebarOpen(false)}
+                    className={({ isActive }) => `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${isActive ? 'bg-gold-500 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}>
                     <Icon size={18} />
                     <span>{t(item.key)}</span>
                   </NavLink>
                 </li>
               );
             })}
+
+            {/* Masters collapsible */}
+            <li>
+              <button onClick={() => setMastersOpen(!mastersOpen)}
+                className={`w-full flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${isMastersActive ? 'bg-gold-500 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}>
+                <span className="flex items-center gap-3"><BookOpen size={18} />Masters</span>
+                {mastersOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+              </button>
+              {mastersOpen && (
+                <ul className="mt-1 ml-4 space-y-0.5">
+                  {mastersSubItems.map((sub) => (
+                    <li key={sub.label}>
+                      <NavLink to="/masters" onClick={() => setSidebarOpen(false)}
+                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                        <span className="text-slate-500">•••</span> {sub.label}
+                      </NavLink>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
           </ul>
         </nav>
       </aside>
 
-      {/* Main content area */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Top bar */}
         <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 shadow-sm">
-          <button
-            className="lg:hidden text-gray-600 hover:text-gray-900"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <Menu size={24} />
-          </button>
-
+          <button className="lg:hidden text-gray-600 hover:text-gray-900" onClick={() => setSidebarOpen(true)}><Menu size={24} /></button>
           <div className="hidden lg:block" />
-
           <div className="flex items-center gap-4">
-            {/* Language toggle */}
-            {/* <button
-              onClick={toggleLang}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              {t('lang.switch')}
-            </button> */}
-
-            {/* Admin name — links to Company Details */}
-            <NavLink
-              to="/company"
-              className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gold-50 hover:text-gold-600 transition-colors"
-            >
-              <UserCircle size={20} />
-              {admin?.name || 'Admin'}
+            <NavLink to="/company" className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gold-50 hover:text-gold-600 transition-colors">
+              <UserCircle size={20} />{admin?.name || 'Admin'}
             </NavLink>
-
-            {/* Logout button */}
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-1.5 rounded-md bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-100 transition-colors"
-            >
-              <LogOut size={16} />
-              <span className="hidden sm:inline">{t('nav.logout')}</span>
+            <button onClick={handleLogout} className="flex items-center gap-1.5 rounded-md bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-100 transition-colors">
+              <LogOut size={16} /><span className="hidden sm:inline">{t('nav.logout')}</span>
             </button>
           </div>
         </header>
-
-        {/* Page content */}
-        <main className="flex-1 overflow-y-auto main-scroll">
-          <Outlet />
-        </main>
+        <main className="flex-1 overflow-y-auto main-scroll"><Outlet /></main>
       </div>
     </div>
   );

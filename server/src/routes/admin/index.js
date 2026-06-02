@@ -11,9 +11,11 @@ import notificationRoutes from './notifications.js';
 import kycRoutes from './kyc.js';
 import configRoutes from './config.js';
 import transactionRoutes from './transactions.js';
+import bookingRoutes from './bookings.js';
 import appVersionRoutes from './appVersion.js';
 import contactRoutes from './contact.js';
 import commissionRoutes from './commissions.js';
+import mastersRoutes from './masters.js';
 
 const router = Router();
 
@@ -29,8 +31,10 @@ router.use('/notifications', notificationRoutes);
 router.use('/kyc', kycRoutes);
 router.use('/config', configRoutes);
 router.use('/transactions', transactionRoutes);
+router.use('/bookings', bookingRoutes);
 router.use('/app-version', appVersionRoutes);
 router.use('/contact', contactRoutes);
 router.use('/commissions', commissionRoutes);
+router.use('/masters', mastersRoutes);
 
 export default router;

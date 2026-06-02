@@ -20,6 +20,7 @@ import Commissions from './pages/Commissions.jsx';
 import Promotions from './pages/Promotions.jsx';
 import CompanyDetails from './pages/CompanyDetails.jsx';
 import Downline from './pages/Downline.jsx';
+import Masters from './pages/Masters.jsx';
 
 export default function App() {
   return (
@@ -51,6 +52,7 @@ export default function App() {
               <Route path="promotions" element={<Promotions />} />
               <Route path="company" element={<CompanyDetails />} />
               <Route path="config" element={<Config />} />
+              <Route path="masters" element={<Masters />} />
             </Route>
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>

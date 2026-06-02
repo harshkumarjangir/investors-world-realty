@@ -355,22 +355,51 @@ model PropertyVideo {
 }
 
 model Booking {
-  id          String        @id @default(uuid())
-  associateId String
-  associate   Associate     @relation(fields: [associateId], references: [id])
-  propertyId  String
-  property    Property      @relation(fields: [propertyId], references: [id])
+  id              String        @id @default(uuid())
+  associateId     String
+  associate       Associate     @relation(fields: [associateId], references: [id])
+  propertyId      String
+  property        Property      @relation(fields: [propertyId], references: [id])
 
-  amount      Decimal
-  status      BookingStatus @default(PENDING)
-  receiptUrl  String?
+  // Customer details (buyer — may differ from associate)
+  customerName    String?
+  customerMobile  String?
+  customerAddress String?
 
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  // Plot details
+  plotNo          String?
+  siteNo          String?
+  plotArea        Decimal?       // in gaj/sq yards
+  costPerUnit     Decimal?       // cost per gaj
+  chargeOfPlot    Decimal?       // extra charges
+  discount        Decimal?       @default(0)
+  totalBCV        Decimal?       // total BCV of plot
+  totalCost       Decimal?       // total cost of plot
+
+  // Payment details
+  amount          Decimal        // booking amount
+  modeOfPayment   String?        // Cash, Cheque, Online, etc.
+  chequeNo        String?
+  paymentDate     DateTime?
+  bankName        String?
+  drawnOn         DateTime?      // cheque drawn on date
+
+  // EMI
+  emiMode         String?        // Monthly, Quarterly, etc.
+
+  // Receipt
+  receiptNo       String?        @unique
+  receiptUrl      String?
+
+  status          BookingStatus  @default(PENDING)
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 
   @@index([associateId])
   @@index([propertyId])
   @@index([status])
+  @@index([receiptNo])
 }
 
 model KYCDocument {
@@ -627,5 +656,108 @@ model PropertySaleCommission {
   @@index([propertyId])
   @@index([associateId])
   @@index([bookingId])
+  @@index([status])
+}
+
+// ─── Masters Module ───────────────────────────────────────────────────────────
+
+// Account Master — bank accounts used for receiving payments
+model AccountMaster {
+  id            String   @id @default(uuid())
+  accountName   String
+  underGroup    String   // Bank, Cash, etc.
+  address       String?
+  state         String?
+  city          String?
+  mobileNo      String?
+  emailId       String?
+  phoneNo       String?
+  gstNo         String?
+  bankAccountNo String?
+  branchName    String?
+  bankIfscCode  String?
+  type          String   @default("Dr") // Dr or Cr
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// Scheme — a real estate project/scheme (extends Property concept with more detail)
+model Scheme {
+  id               String   @id @default(uuid())
+  schemeName       String
+  state            String?
+  city             String?
+  address          String
+  pinCode          String?
+  schemeType       String?  // Residential, Commercial, etc.
+  featuredScheme   Boolean  @default(false)
+  googleMap        String?
+  shortDescription String?
+  description      String?
+  isActive         Boolean  @default(true)
+
+  images           SchemeImage[]
+  plots            Plot[]
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+// Scheme Images — up to 6 images per scheme
+model SchemeImage {
+  id        String   @id @default(uuid())
+  schemeId  String
+  scheme    Scheme   @relation(fields: [schemeId], references: [id], onDelete: Cascade)
+  imageUrl  String
+  slot      Int      // 1 to 6
+  createdAt DateTime @default(now())
+
+  @@index([schemeId])
+}
+
+// Plc Charge — extra charge types (Corner Plot, Do Not Flat, etc.)
+model PlcCharge {
+  id          String   @id @default(uuid())
+  plcName     String
+  chargeType  String   // Percentage or Fixed
+  plcCharge   Decimal
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Plot Type (Flat/Plot/Shop Master) — types of units
+model PlotType {
+  id        String   @id @default(uuid())
+  typeName  String   @unique
+
+  plots     Plot[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Plot — individual plot/unit within a scheme
+model Plot {
+  id              String   @id @default(uuid())
+  schemeId        String
+  scheme          Scheme   @relation(fields: [schemeId], references: [id], onDelete: Cascade)
+  plotTypeId      String?
+  plotType        PlotType? @relation(fields: [plotTypeId], references: [id])
+
+  plotSizeUnit    String?  // Square Yards, Square Feet, etc.
+  plotSize        Decimal  // size number
+  totalCost       Decimal  // base cost (size * rate)
+  plotNo          String
+  plcId           String?  // FK to PlcCharge
+  chargeOfPlot    Decimal  @default(0) // calculated plc charge
+  totalCostOfPlot Decimal  // totalCost + chargeOfPlot
+  status          String   @default("Not Used") // Not Used, Booked, Sold
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([schemeId])
   @@index([status])
 }
