@@ -1,6 +1,13 @@
 import prisma from '../utils/prisma.js';
 
+const RANK_NAMES = [
+  '', 'Business Associate', 'Business Adviser', 'Business Head',
+  'Dist. Business Head', 'State Business Head', 'Regional Business Head',
+  'National Business Head', 'Vice President Sales', 'President Sales', 'President Club',
+];
+
 // ─── Get Profile ──────────────────────────────────────────────────────────────
+
 export async function getProfile(associateId) {
   const associate = await prisma.associate.findUnique({
     where: { id: associateId, deletedAt: null },
@@ -11,11 +18,11 @@ export async function getProfile(associateId) {
       treeNode: {
         select: { position: true, level: true },
       },
-      package: {
-        select: { id: true, name: true, price: true },
-      },
       kycDocuments: {
-        select: { type: true, status: true, documentNumber: true, createdAt: true, updatedAt: true },
+        select: {
+          type: true, status: true, documentNumber: true,
+          documentUrl: true, createdAt: true, updatedAt: true,
+        },
       },
     },
   });
@@ -24,70 +31,87 @@ export async function getProfile(associateId) {
     throw Object.assign(new Error('Associate not found'), { statusCode: 404 });
   }
 
-  // Exclude sensitive fields
-  const { password, failedAttempts, lockedUntil, deletedAt, ...safeAssociate } = associate;
+  // Build clean KYC status map
+  const kycStatus = { pan: null, aadhaar: null, bank: null };
+  for (const doc of associate.kycDocuments) {
+    if (doc.type === 'PAN') {
+      kycStatus.pan = { status: doc.status, number: doc.documentNumber, url: doc.documentUrl };
+    } else if (doc.type === 'AADHAAR') {
+      kycStatus.aadhaar = { status: doc.status, number: doc.documentNumber, url: doc.documentUrl };
+    } else if (doc.type === 'BANK') {
+      let bankDetails = {};
+      try { bankDetails = JSON.parse(doc.documentNumber); } catch { bankDetails = {}; }
+      kycStatus.bank = { status: doc.status, ...bankDetails };
+    }
+  }
 
-  return safeAssociate;
+  return {
+    id: associate.id,
+    userId: associate.userId,
+    name: associate.name,
+    email: associate.email,
+    phone: associate.phone,
+    dateOfBirth: associate.dateOfBirth,
+    address: associate.address,
+    city: associate.city,
+    state: associate.state,
+    pincode: associate.pincode,
+    panNumber: associate.panNumber,
+    profilePhoto: associate.profilePhoto || null,
+    status: associate.status,
+    rank: associate.rank,
+    rankName: RANK_NAMES[associate.rank] || 'Unknown',
+    totalAreaSold: associate.totalAreaSold,
+    joiningDate: associate.joiningDate,
+    activationDate: associate.activationDate,
+    theme: associate.theme,
+    language: associate.language,
+    sponsor: associate.sponsor || null,
+    treeNode: associate.treeNode || null,
+    kycStatus,
+  };
 }
 
 // ─── Update Profile ───────────────────────────────────────────────────────────
+
 const ALLOWED_UPDATE_FIELDS = ['phone', 'email', 'address', 'city', 'state', 'pincode'];
 
 export async function updateProfile(associateId, data) {
-  // Silently strip disallowed fields
   const updateData = {};
   for (const field of ALLOWED_UPDATE_FIELDS) {
-    if (data[field] !== undefined) {
-      updateData[field] = data[field];
-    }
+    if (data[field] !== undefined) updateData[field] = data[field];
   }
 
   if (Object.keys(updateData).length === 0) {
     throw Object.assign(new Error('No valid fields to update'), { statusCode: 400 });
   }
 
-  // Validate uniqueness for phone/email if changed
   const current = await prisma.associate.findUnique({
     where: { id: associateId },
     select: { phone: true, email: true },
   });
-
-  if (!current) {
-    throw Object.assign(new Error('Associate not found'), { statusCode: 404 });
-  }
+  if (!current) throw Object.assign(new Error('Associate not found'), { statusCode: 404 });
 
   if (updateData.phone && updateData.phone !== current.phone) {
     const existing = await prisma.associate.findFirst({
       where: { phone: updateData.phone, deletedAt: null, id: { not: associateId } },
     });
-    if (existing) {
-      throw Object.assign(new Error('Phone number already in use'), { statusCode: 409 });
-    }
+    if (existing) throw Object.assign(new Error('Phone number already in use'), { statusCode: 409 });
   }
 
   if (updateData.email && updateData.email !== current.email) {
     const existing = await prisma.associate.findFirst({
       where: { email: updateData.email, deletedAt: null, id: { not: associateId } },
     });
-    if (existing) {
-      throw Object.assign(new Error('Email address already in use'), { statusCode: 409 });
-    }
+    if (existing) throw Object.assign(new Error('Email address already in use'), { statusCode: 409 });
   }
 
   const updated = await prisma.associate.update({
     where: { id: associateId },
     data: updateData,
     select: {
-      id: true,
-      userId: true,
-      name: true,
-      email: true,
-      phone: true,
-      address: true,
-      city: true,
-      state: true,
-      pincode: true,
-      updatedAt: true,
+      id: true, userId: true, name: true, email: true, phone: true,
+      address: true, city: true, state: true, pincode: true, updatedAt: true,
     },
   });
 
@@ -95,27 +119,29 @@ export async function updateProfile(associateId, data) {
 }
 
 // ─── Update Profile Photo ─────────────────────────────────────────────────────
+
 export async function updateProfilePhoto(associateId, filePath) {
   const updated = await prisma.associate.update({
     where: { id: associateId },
     data: { profilePhoto: filePath },
     select: { id: true, profilePhoto: true },
   });
-
   return { profilePhotoUrl: updated.profilePhoto };
 }
 
 // ─── Submit KYC ───────────────────────────────────────────────────────────────
+
 export async function submitKYC(associateId, type, documentNumber, documentUrl) {
   const validTypes = ['PAN', 'AADHAAR', 'BANK'];
   if (!validTypes.includes(type)) {
-    throw Object.assign(new Error(`Invalid KYC type. Must be one of: ${validTypes.join(', ')}`), { statusCode: 400 });
+    throw Object.assign(
+      new Error(`Invalid KYC type. Must be one of: ${validTypes.join(', ')}`),
+      { statusCode: 400 },
+    );
   }
 
   const doc = await prisma.kYCDocument.upsert({
-    where: {
-      associateId_type: { associateId, type },
-    },
+    where: { associateId_type: { associateId, type } },
     update: {
       documentNumber,
       documentUrl,
@@ -124,13 +150,7 @@ export async function submitKYC(associateId, type, documentNumber, documentUrl) 
       verifiedBy: null,
       verifiedAt: null,
     },
-    create: {
-      associateId,
-      type,
-      documentNumber,
-      documentUrl,
-      status: 'PENDING',
-    },
+    create: { associateId, type, documentNumber, documentUrl, status: 'PENDING' },
   });
 
   return doc;

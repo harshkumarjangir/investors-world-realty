@@ -206,6 +206,49 @@ POST /auth/change-password
 ```
 GET /associate/dashboard
 ```
+**Response:**
+```json
+{
+  "data": {
+    "cards": {
+      "lastPayment": 5000,
+      "totalPayment": 25000,
+      "selfAmount": 10000,
+      "totalAmount": 50000
+    },
+    "userDetails": {
+      "userId": "IW100001",
+      "name": "Rajesh Kumar",
+      "joiningDate": "2024-01-15T00:00:00.000Z",
+      "activationDate": "2024-01-16T00:00:00.000Z",
+      "panNumber": "XXXXX234F",
+      "totalActivations": 3,
+      "rank": 2,
+      "rankName": "Business Adviser",
+      "totalAreaSold": 1200,
+      "profilePhoto": "/uploads/profiles/uuid.jpg",
+      "status": "ACTIVE"
+    },
+    "advancePayment": {
+      "credit": 30000,
+      "debit": 5000,
+      "balance": 25000
+    },
+    "referral": {
+      "referralLink": "https://app.investorsworld.com/register?ref=IW100001",
+      "userId": "IW100001"
+    }
+  }
+}
+```
+
+**Card fields:**
+- `lastPayment` — amount of the most recent completed transaction
+- `totalPayment` — sum of all income-type credits (direct + level + matching + reward)
+- `selfAmount` — sum of direct income commissions earned personally
+- `totalAmount` — sum of all wallet credits
+
+---
 
 ### 2.2 Get Advance Payment Status
 ```
@@ -245,6 +288,7 @@ GET /associate/profile
 ```json
 {
   "data": {
+    "id": "uuid",
     "userId": "IW100001",
     "name": "Rajesh Kumar",
     "email": "rajesh@example.com",
@@ -262,10 +306,19 @@ GET /associate/profile
     "totalAreaSold": 1200,
     "joiningDate": "2024-01-15T00:00:00.000Z",
     "activationDate": "2024-01-16T00:00:00.000Z",
+    "theme": "light",
+    "language": "en",
+    "sponsor": {
+      "userId": "IW100000",
+      "name": "Sponsor Name",
+      "phone": "9999900000",
+      "email": "sponsor@example.com"
+    },
+    "treeNode": { "position": "LEFT", "level": 1 },
     "kycStatus": {
-      "pan": "APPROVED",
-      "aadhaar": "PENDING",
-      "bank": "APPROVED"
+      "pan":     { "status": "APPROVED", "number": "ABCDE1234F", "url": "/uploads/kyc/pan.jpg" },
+      "aadhaar": { "status": "PENDING",  "number": "123456789012", "url": "/uploads/kyc/aadhar.jpg" },
+      "bank":    { "status": "APPROVED", "accountNumber": "1234567890", "ifsc": "SBIN0001234", "bankName": "SBI", "branch": "Main Branch" }
     }
   }
 }
