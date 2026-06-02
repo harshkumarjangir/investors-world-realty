@@ -5,7 +5,7 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:5001/api/v1" },
+    { "key": "baseUrl", "value": "http://localhost:5000/api/v1" },
     { "key": "adminToken", "value": "" },
     { "key": "adminId", "value": "" },
     { "key": "associateId", "value": "4b319a06-82cf-4d3f-9a7b-cfbe787dde3b" }
@@ -716,6 +716,275 @@
             "method": "GET",
             "url": { "raw": "{{baseUrl}}/admin/contact/:id", "host": ["{{baseUrl}}"], "path": ["admin", "contact", ":id"], "variable": [{ "key": "id", "value": "inquiry-uuid" }] }
           }
+        }
+      ]
+    },
+    {
+      "name": "🏗️ Plot Bookings",
+      "item": [
+        {
+          "name": "Create Plot Booking",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"associateId\": \"IW100001\",\n  \"propertyId\": \"prop-001\",\n  \"customerName\": \"Ramesh Gupta\",\n  \"customerMobile\": \"9876543210\",\n  \"customerAddress\": \"12, Civil Lines, Jaipur\",\n  \"plotType\": \"Residential\",\n  \"plotNo\": \"46\",\n  \"siteNo\": \"A-12\",\n  \"plotArea\": 200,\n  \"costPerUnit\": 2500,\n  \"chargeOfPlot\": 5000,\n  \"discount\": 0,\n  \"totalBCV\": 500000,\n  \"totalCost\": 505000,\n  \"amount\": 100000,\n  \"amountPaid\": 100000,\n  \"modeOfPayment\": \"Online\",\n  \"chequeNo\": null,\n  \"paymentDate\": \"2025-06-02\",\n  \"bankName\": \"HDFC Bank\",\n  \"drawnOn\": null,\n  \"emiMode\": \"Monthly\"\n}" },
+            "url": { "raw": "{{baseUrl}}/admin/bookings", "host": ["{{baseUrl}}"], "path": ["admin", "bookings"] }
+          }
+        },
+        {
+          "name": "List Unapproved Bookings",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/admin/bookings/unapproved?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["admin", "bookings", "unapproved"], "query": [{ "key": "page", "value": "1" }, { "key": "pageSize", "value": "20" }] }
+          }
+        },
+        {
+          "name": "Approve Booking",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/admin/bookings/:id/approve", "host": ["{{baseUrl}}"], "path": ["admin", "bookings", ":id", "approve"], "variable": [{ "key": "id", "value": "booking-uuid" }] }
+          }
+        },
+        {
+          "name": "Reject (Un-approve) Booking",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/admin/bookings/:id/unapprove", "host": ["{{baseUrl}}"], "path": ["admin", "bookings", ":id", "unapprove"], "variable": [{ "key": "id", "value": "booking-uuid" }] }
+          }
+        },
+        {
+          "name": "List All Bookings (with filters)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/admin/bookings?startDate=2025-01-01&endDate=2025-12-31&associateCode=IW100001&page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["admin", "bookings"], "query": [{ "key": "startDate", "value": "2025-01-01" }, { "key": "endDate", "value": "2025-12-31" }, { "key": "associateCode", "value": "IW100001" }, { "key": "page", "value": "1" }, { "key": "pageSize", "value": "20" }] }
+          }
+        },
+        {
+          "name": "List Receipts",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/admin/bookings/receipts?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["admin", "bookings", "receipts"], "query": [{ "key": "page", "value": "1" }, { "key": "pageSize", "value": "20" }] }
+          }
+        },
+        {
+          "name": "Get Receipt by Booking ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/admin/bookings/receipts/:id", "host": ["{{baseUrl}}"], "path": ["admin", "bookings", "receipts", ":id"], "variable": [{ "key": "id", "value": "booking-uuid" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🗂️ Masters",
+      "item": [
+        {
+          "name": "── Account Master ──",
+          "item": [
+            {
+              "name": "List Account Masters",
+              "request": {
+                "method": "GET",
+                "url": { "raw": "{{baseUrl}}/admin/masters/accounts?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["admin", "masters", "accounts"], "query": [{ "key": "page", "value": "1" }, { "key": "pageSize", "value": "20" }] }
+              }
+            },
+            {
+              "name": "Create Account Master",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"accountName\": \"HDFC Bank - Main\",\n  \"underGroup\": \"Bank\",\n  \"address\": \"123 MG Road\",\n  \"state\": \"Rajasthan\",\n  \"city\": \"Jaipur\",\n  \"mobileNo\": \"9999999999\",\n  \"emailId\": \"bank@example.com\",\n  \"phoneNo\": \"01412345678\",\n  \"gstNo\": \"27AAPFU0939F1ZV\",\n  \"bankAccountNo\": \"1234567890123\",\n  \"branchName\": \"Malviya Nagar Branch\",\n  \"bankIfscCode\": \"HDFC0001234\",\n  \"type\": \"Dr\"\n}" },
+                "url": { "raw": "{{baseUrl}}/admin/masters/accounts", "host": ["{{baseUrl}}"], "path": ["admin", "masters", "accounts"] }
+              }
+            },
+            {
+              "name": "Update Account Master",
+              "request": {
+                "method": "PUT",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"accountName\": \"HDFC Bank - Updated\",\n  \"underGroup\": \"Bank\",\n  \"type\": \"Cr\"\n}" },
+                "url": { "raw": "{{baseUrl}}/admin/masters/accounts/:id", "host": ["{{baseUrl}}"], "path": ["admin", "masters", "accounts", ":id"], "variable": [{ "key": "id", "value": "account-uuid" }] }
+              }
+            },
+            {
+              "name": "Delete Account Master",
+              "request": {
+                "method": "DELETE",
+                "url": { "raw": "{{baseUrl}}/admin/masters/accounts/:id", "host": ["{{baseUrl}}"], "path": ["admin", "masters", "accounts", ":id"], "variable": [{ "key": "id", "value": "account-uuid" }] }
+              }
+            }
+          ]
+        },
+        {
+          "name": "── Schemes ──",
+          "item": [
+            {
+              "name": "List Schemes",
+              "request": {
+                "method": "GET",
+                "url": { "raw": "{{baseUrl}}/admin/masters/schemes?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["admin", "masters", "schemes"], "query": [{ "key": "page", "value": "1" }, { "key": "pageSize", "value": "20" }] }
+              }
+            },
+            {
+              "name": "Get Scheme by ID",
+              "request": {
+                "method": "GET",
+                "url": { "raw": "{{baseUrl}}/admin/masters/schemes/:id", "host": ["{{baseUrl}}"], "path": ["admin", "masters", "schemes", ":id"], "variable": [{ "key": "id", "value": "scheme-uuid" }] }
+              }
+            },
+            {
+              "name": "Create Scheme",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"schemeName\": \"Swarn Nagar Phase 2\",\n  \"state\": \"Rajasthan\",\n  \"city\": \"Jaipur\",\n  \"address\": \"NH-48, Jaipur Road, Chaksu\",\n  \"pinCode\": \"303901\",\n  \"schemeType\": \"Residential\",\n  \"featuredScheme\": true,\n  \"googleMap\": \"https://maps.google.com/?q=Chaksu+Jaipur\",\n  \"shortDescription\": \"Premium residential plots in gated community\",\n  \"description\": \"Swarn Nagar Phase 2 offers premium plots with all modern amenities.\"\n}" },
+                "url": { "raw": "{{baseUrl}}/admin/masters/schemes", "host": ["{{baseUrl}}"], "path": ["admin", "masters", "schemes"] }
+              }
+            },
+            {
+              "name": "Update Scheme",
+              "request": {
+                "method": "PUT",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"schemeName\": \"Swarn Nagar Phase 2 - Updated\",\n  \"state\": \"Rajasthan\",\n  \"city\": \"Jaipur\",\n  \"address\": \"NH-48, Jaipur Road\",\n  \"featuredScheme\": true\n}" },
+                "url": { "raw": "{{baseUrl}}/admin/masters/schemes/:id", "host": ["{{baseUrl}}"], "path": ["admin", "masters", "schemes", ":id"], "variable": [{ "key": "id", "value": "scheme-uuid" }] }
+              }
+            },
+            {
+              "name": "Delete Scheme",
+              "request": {
+                "method": "DELETE",
+                "url": { "raw": "{{baseUrl}}/admin/masters/schemes/:id", "host": ["{{baseUrl}}"], "path": ["admin", "masters", "schemes", ":id"], "variable": [{ "key": "id", "value": "scheme-uuid" }] }
+              }
+            },
+            {
+              "name": "Upload Scheme Images (slots 1-6)",
+              "request": {
+                "method": "PUT",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"images\": [\n    { \"slot\": 1, \"imageUrl\": \"https://example.com/img1.jpg\" },\n    { \"slot\": 2, \"imageUrl\": \"https://example.com/img2.jpg\" },\n    { \"slot\": 3, \"imageUrl\": \"https://example.com/img3.jpg\" }\n  ]\n}" },
+                "url": { "raw": "{{baseUrl}}/admin/masters/schemes/:id/images", "host": ["{{baseUrl}}"], "path": ["admin", "masters", "schemes", ":id", "images"], "variable": [{ "key": "id", "value": "scheme-uuid" }] }
+              }
+            }
+          ]
+        },
+        {
+          "name": "── Plc Charges ──",
+          "item": [
+            {
+              "name": "List Plc Charges",
+              "request": {
+                "method": "GET",
+                "url": { "raw": "{{baseUrl}}/admin/masters/plc-charges?page=1&pageSize=50", "host": ["{{baseUrl}}"], "path": ["admin", "masters", "plc-charges"], "query": [{ "key": "page", "value": "1" }, { "key": "pageSize", "value": "50" }] }
+              }
+            },
+            {
+              "name": "Create Plc Charge",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"plcName\": \"Corner Plot\",\n  \"chargeType\": \"Percentage\",\n  \"plcCharge\": 10\n}" },
+                "url": { "raw": "{{baseUrl}}/admin/masters/plc-charges", "host": ["{{baseUrl}}"], "path": ["admin", "masters", "plc-charges"] }
+              }
+            },
+            {
+              "name": "Update Plc Charge",
+              "request": {
+                "method": "PUT",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"plcName\": \"Corner Plot\",\n  \"chargeType\": \"Percentage\",\n  \"plcCharge\": 12\n}" },
+                "url": { "raw": "{{baseUrl}}/admin/masters/plc-charges/:id", "host": ["{{baseUrl}}"], "path": ["admin", "masters", "plc-charges", ":id"], "variable": [{ "key": "id", "value": "plc-uuid" }] }
+              }
+            },
+            {
+              "name": "Delete Plc Charge",
+              "request": {
+                "method": "DELETE",
+                "url": { "raw": "{{baseUrl}}/admin/masters/plc-charges/:id", "host": ["{{baseUrl}}"], "path": ["admin", "masters", "plc-charges", ":id"], "variable": [{ "key": "id", "value": "plc-uuid" }] }
+              }
+            }
+          ]
+        },
+        {
+          "name": "── Plot Types ──",
+          "item": [
+            {
+              "name": "List Plot Types",
+              "request": {
+                "method": "GET",
+                "url": { "raw": "{{baseUrl}}/admin/masters/plot-types?page=1&pageSize=50", "host": ["{{baseUrl}}"], "path": ["admin", "masters", "plot-types"], "query": [{ "key": "page", "value": "1" }, { "key": "pageSize", "value": "50" }] }
+              }
+            },
+            {
+              "name": "Create Plot Type",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"typeName\": \"PLOT\"\n}" },
+                "url": { "raw": "{{baseUrl}}/admin/masters/plot-types", "host": ["{{baseUrl}}"], "path": ["admin", "masters", "plot-types"] }
+              }
+            },
+            {
+              "name": "Update Plot Type",
+              "request": {
+                "method": "PUT",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"typeName\": \"RESIDENTIAL PLOT\"\n}" },
+                "url": { "raw": "{{baseUrl}}/admin/masters/plot-types/:id", "host": ["{{baseUrl}}"], "path": ["admin", "masters", "plot-types", ":id"], "variable": [{ "key": "id", "value": "type-uuid" }] }
+              }
+            },
+            {
+              "name": "Delete Plot Type",
+              "request": {
+                "method": "DELETE",
+                "url": { "raw": "{{baseUrl}}/admin/masters/plot-types/:id", "host": ["{{baseUrl}}"], "path": ["admin", "masters", "plot-types", ":id"], "variable": [{ "key": "id", "value": "type-uuid" }] }
+              }
+            }
+          ]
+        },
+        {
+          "name": "── Plots ──",
+          "item": [
+            {
+              "name": "List Plots",
+              "request": {
+                "method": "GET",
+                "url": { "raw": "{{baseUrl}}/admin/masters/plots?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["admin", "masters", "plots"], "query": [{ "key": "page", "value": "1" }, { "key": "pageSize", "value": "20" }] }
+              }
+            },
+            {
+              "name": "List Plots by Scheme",
+              "request": {
+                "method": "GET",
+                "url": { "raw": "{{baseUrl}}/admin/masters/plots?schemeId=scheme-uuid&page=1&pageSize=50", "host": ["{{baseUrl}}"], "path": ["admin", "masters", "plots"], "query": [{ "key": "schemeId", "value": "scheme-uuid" }, { "key": "page", "value": "1" }, { "key": "pageSize", "value": "50" }] }
+              }
+            },
+            {
+              "name": "Create Plot",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"schemeId\": \"scheme-uuid\",\n  \"plotTypeId\": \"type-uuid\",\n  \"plotSizeUnit\": \"Square Yards\",\n  \"plotSize\": 200,\n  \"totalCost\": 500000,\n  \"plotNo\": \"46\",\n  \"plcId\": \"plc-uuid\",\n  \"chargeOfPlot\": 50000,\n  \"totalCostOfPlot\": 550000\n}" },
+                "url": { "raw": "{{baseUrl}}/admin/masters/plots", "host": ["{{baseUrl}}"], "path": ["admin", "masters", "plots"] }
+              }
+            },
+            {
+              "name": "Update Plot",
+              "request": {
+                "method": "PUT",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"schemeId\": \"scheme-uuid\",\n  \"plotTypeId\": \"type-uuid\",\n  \"plotSizeUnit\": \"Square Yards\",\n  \"plotSize\": 200,\n  \"totalCost\": 550000,\n  \"plotNo\": \"46\",\n  \"plcId\": \"plc-uuid\",\n  \"chargeOfPlot\": 55000,\n  \"totalCostOfPlot\": 605000,\n  \"status\": \"Not Used\"\n}" },
+                "url": { "raw": "{{baseUrl}}/admin/masters/plots/:id", "host": ["{{baseUrl}}"], "path": ["admin", "masters", "plots", ":id"], "variable": [{ "key": "id", "value": "plot-uuid" }] }
+              }
+            },
+            {
+              "name": "Delete Plot",
+              "request": {
+                "method": "DELETE",
+                "url": { "raw": "{{baseUrl}}/admin/masters/plots/:id", "host": ["{{baseUrl}}"], "path": ["admin", "masters", "plots", ":id"], "variable": [{ "key": "id", "value": "plot-uuid" }] }
+              }
+            }
+          ]
         }
       ]
     }

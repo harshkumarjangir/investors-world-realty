@@ -1,14 +1,17 @@
 # Investors World Realty — API Documentation
 
-**Base URL:** `http://localhost:5000/api/v1`
+**Base URL (Dev):** `http://localhost:5000/api/v1`  
+**Base URL (VPS/Prod):** `https://serveriwr.harshkumarjangir.in/api/v1`
+
+> **Port note:** Locally defaults to 5000. On the VPS, set `PORT=5001` in `.env` (port 5000 is occupied by another project).
 
 **Auth:** Most endpoints require `Authorization: Bearer <token>` header.
 
 ---
 
-## 🔐 Auth (Associate)
+## 🔐 Auth (Associate) — 2-Step OTP Login
 
-### POST `/auth/login`
+### POST `/auth/login` — Step 1
 ```json
 {
   "userId": "IW100001",
@@ -17,6 +20,16 @@
   "platform": "android"
 }
 ```
+Returns `{ associateId }`. OTP sent to registered email + logged to console.
+
+### POST `/auth/verify-otp` — Step 2
+```json
+{
+  "associateId": "uuid-from-step-1",
+  "otp": "123456"
+}
+```
+Returns `{ accessToken, refreshToken, user }`. Token expires in 8h.
 
 ### POST `/auth/refresh`
 ```json
@@ -796,7 +809,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
 
 2. **Test Credentials:**
    - Associate: `IW100001` / `Test@1234`
-   - Admin: `admin@investorsworld.com` / `Admin@123456`
+   - Admin: `notespoint2023@gmail.com` / `Admin@123456`
 
 ### Testing Flow
 
@@ -816,7 +829,7 @@ Copy `data.accessToken` → set as `associateToken` in environment.
 POST {{baseUrl}}/admin/auth/login
 Body:
 {
-  "email": "admin@investorsworld.com",
+  "email": "notespoint2023@gmail.com",
   "password": "Admin@123456"
 }
 ```
@@ -977,5 +990,172 @@ When a property is sold, commissions distribute using the **GAP method**. Total 
 - Use `Accept-Language: hi` header for Hindi responses (unauthenticated)
 - Authenticated users get responses in their saved language preference
 - File uploads use `multipart/form-data`
-- JWT access token expires in 15 minutes — use `/auth/refresh` to get new one
+- JWT access token expires in **8 hours** — use `/auth/refresh` to get new one
 - Refresh token expires in 7 days
+- OTP is always logged to server console (also sent via email)
+
+---
+
+## 🏗️ Admin — Plot Bookings 🔒 (Admin)
+
+### POST `/admin/bookings`
+```json
+{
+  "associateId": "IW100001",
+  "propertyId": "prop-001",
+  "customerName": "Ramesh Gupta",
+  "customerMobile": "9876543210",
+  "customerAddress": "12, Civil Lines, Jaipur",
+  "plotType": "Residential",
+  "plotNo": "46",
+  "siteNo": "A-12",
+  "plotArea": 200,
+  "costPerUnit": 2500,
+  "chargeOfPlot": 5000,
+  "discount": 0,
+  "totalBCV": 500000,
+  "totalCost": 505000,
+  "amount": 100000,
+  "amountPaid": 100000,
+  "modeOfPayment": "Online",
+  "paymentDate": "2025-06-02",
+  "bankName": "HDFC Bank",
+  "emiMode": "Monthly"
+}
+```
+
+### GET `/admin/bookings/unapproved?page=1&pageSize=20`
+Returns all PENDING bookings awaiting approval.
+
+### POST `/admin/bookings/:id/approve`
+Approves booking, auto-generates receipt number (e.g., `REC000001`).
+
+### POST `/admin/bookings/:id/unapprove`
+Rejects/cancels a pending booking.
+
+### GET `/admin/bookings?startDate=2025-01-01&endDate=2025-12-31&associateCode=IW100001&customerCode=Ramesh&page=1&pageSize=20`
+Returns all bookings with filters.
+
+### GET `/admin/bookings/receipts?page=1&pageSize=20`
+Returns all confirmed bookings (with receipt numbers).
+
+### GET `/admin/bookings/receipts/:id`
+Returns full receipt data for a single booking (for printing).
+
+---
+
+## 🗂️ Admin — Masters 🔒 (Admin)
+
+All Masters endpoints are prefixed with `/admin/masters/`. Require `config:read` / `config:write` permission.
+
+### Account Master
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/admin/masters/accounts?page=1&pageSize=20` | List all bank/cash accounts |
+| POST | `/admin/masters/accounts` | Create account (accountName, underGroup, bankAccountNo, bankIfscCode, branchName, state, city, mobileNo, emailId, type) |
+| PUT | `/admin/masters/accounts/:id` | Update account |
+| DELETE | `/admin/masters/accounts/:id` | Delete account |
+
+### Schemes
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/admin/masters/schemes?page=1&pageSize=20` | List all schemes |
+| GET | `/admin/masters/schemes/:id` | Get scheme with images |
+| POST | `/admin/masters/schemes` | Create scheme (schemeName, state, city, address, pinCode, schemeType, featuredScheme, googleMap, shortDescription, description) |
+| PUT | `/admin/masters/schemes/:id` | Update scheme |
+| DELETE | `/admin/masters/schemes/:id` | Soft delete scheme |
+| PUT | `/admin/masters/schemes/:id/images` | Upload scheme images (body: `{ images: [{slot: 1, imageUrl: "..."}] }`, slots 1-6) |
+
+### Plc Charges
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/admin/masters/plc-charges?page=1&pageSize=50` | List PLC charges |
+| POST | `/admin/masters/plc-charges` | Create PLC charge (plcName, chargeType: "Percentage"\|"Fixed", plcCharge) |
+| PUT | `/admin/masters/plc-charges/:id` | Update PLC charge |
+| DELETE | `/admin/masters/plc-charges/:id` | Delete PLC charge |
+
+**PLC Charge examples:**
+- Corner Plot, Percentage, 10% → adds 10% of plot cost
+- East Facing, Fixed, 5000 → adds flat ₹5000
+
+### Plot Types (Flat/Plot/Shop Master)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/admin/masters/plot-types?page=1&pageSize=50` | List plot types |
+| POST | `/admin/masters/plot-types` | Create type (typeName) |
+| PUT | `/admin/masters/plot-types/:id` | Update type |
+| DELETE | `/admin/masters/plot-types/:id` | Delete type |
+
+### Plots
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/admin/masters/plots?schemeId=uuid&page=1&pageSize=20` | List plots (optionally filtered by scheme) |
+| POST | `/admin/masters/plots` | Create plot |
+| PUT | `/admin/masters/plots/:id` | Update plot |
+| DELETE | `/admin/masters/plots/:id` | Delete plot |
+
+**Create/Update Plot body:**
+```json
+{
+  "schemeId": "scheme-uuid",
+  "plotTypeId": "type-uuid",
+  "plotSizeUnit": "Square Yards",
+  "plotSize": 200,
+  "totalCost": 500000,
+  "plotNo": "46",
+  "plcId": "plc-charge-uuid",
+  "chargeOfPlot": 50000,
+  "totalCostOfPlot": 550000,
+  "status": "Not Used"
+}
+```
+
+**Plot status values:** `Not Used`, `Booked`, `Sold`
+
+**Auto-calculation logic:**
+- `chargeOfPlot` = if PLC is Percentage: `totalCost × (plcCharge / 100)`, if Fixed: `plcCharge`
+- `totalCostOfPlot` = `totalCost + chargeOfPlot`
+
+---
+
+## 📝 Test Data (from seed.js)
+
+### Associates
+| User ID | Name | Status | Rank |
+|---------|------|--------|------|
+| IW100001 | Rajesh Kumar | ACTIVE | 3 |
+| IW100002 | Suresh Sharma | ACTIVE | 2 |
+| IW100003 | Priya Verma | ACTIVE | 1 |
+| IW100004 | Amit Patel | ACTIVE | 1 |
+| IW100005 | Kavita Joshi | INACTIVE | 1 |
+
+**Password for all:** `Test@1234`
+
+### Properties
+| ID | Name | City | Type |
+|----|------|------|------|
+| prop-001 | Green Valley Phase 1 | Jaipur | Plot |
+| prop-002 | Royal Enclave | Ajmer | Farmhouse |
+| prop-003 | IWR Commercial Hub | Jaipur | Commercial |
+
+### Bookings
+- **REC000001** — IW100001, Green Valley, Plot 46, ₹1,00,000 deposit (CONFIRMED)
+- **REC000002** — IW100002, Royal Enclave, Plot 78, ₹2,00,000 deposit (CONFIRMED)
+- **REC000003** — IW100003, Green Valley, Plot 52, ₹75,000 deposit (CONFIRMED)
+- **booking-004** — IW100004, IWR Commercial Hub (PENDING — use for approve/reject testing)
+- **booking-005** — IW100001, Royal Enclave (PENDING)
+- **booking-006** — IW100002, Green Valley (PENDING)
+
+### Admin
+| Email | Password |
+|-------|----------|
+| notespoint2023@gmail.com | Admin@123456 |
+
+---
+
+_Document version: 1.1.0 | Updated: June 2026_

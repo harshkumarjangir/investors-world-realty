@@ -1,7 +1,9 @@
 # 📱 Investors World Realty — Mobile App API Guide (For Flutter Developer)
 
-**Base URL:** `http://localhost:5001/api/v1`  
-**Production URL:** `https://serveriwr.harshkumarjangir.in/api/v1`
+**Base URL (Local Dev):** `http://localhost:5000/api/v1`  
+**Base URL (VPS/Prod):** `https://serveriwr.harshkumarjangir.in/api/v1`
+
+> **Note:** On the VPS, the server runs on port **5001** (port 5000 is occupied by another app). The production domain handles this via Nginx reverse proxy.
 
 ---
 
@@ -1111,7 +1113,7 @@ await dio.post('/associate/profile/photo', data: formData);
 
 ### Image URLs
 Profile photos and property images return relative paths like `/uploads/profiles/uuid.jpg`.
-Prepend the base URL: `http://localhost:5001/uploads/profiles/uuid.jpg`
+Prepend the base URL: `http://localhost:5000/uploads/profiles/uuid.jpg`
 Production: `https://serveriwr.harshkumarjangir.in/uploads/profiles/uuid.jpg`
 
 ### Pagination Pattern
@@ -1233,4 +1235,18 @@ lib/
 
 ---
 
-_Document generated: June 2026 | Server version: 1.0.0_
+_Document generated: June 2026 | Server version: 1.1.0_
+
+---
+
+## 📝 Changelog
+
+### v1.1.0 (June 2026)
+- Added 2-step OTP login for both associates and admin
+- Registration no longer requires package or placement — only `sponsorId`
+- Associates start as `INACTIVE`, require admin approval to activate
+- Commission is gap-based (seller gets full slab %, uplines get the difference)
+- Access token extended from 15m → 8h
+- Added Masters module (admin-only): Schemes, Plots, PLC Charges, Plot Types, Account Master
+- Added Plot Booking module (Transactions): create booking, approve/reject, receipt download
+- Seed data: IW100001–IW100005 available for testing (password: `Test@1234`)
