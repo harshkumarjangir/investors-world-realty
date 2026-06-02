@@ -19,6 +19,10 @@ import {
   BookOpen,
   ChevronDown,
   ChevronRight,
+  Search,
+  Newspaper,
+  Key,
+  Building2,
 } from 'lucide-react';
 import { useAuth } from '../common/AuthContext.jsx';
 import { useI18n } from '../common/i18n.jsx';
@@ -52,9 +56,17 @@ const mastersSubItems = [
   { label: 'Plot List' },
 ];
 
+const myAccountSubItems = [
+  { label: 'Search', icon: Search },
+  { label: 'Add News', icon: Newspaper },
+  { label: 'Fetch Password', icon: Key },
+  { label: 'Company Detail', icon: Building2 },
+];
+
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [mastersOpen, setMastersOpen] = useState(false);
+  const [myAccountOpen, setMyAccountOpen] = useState(false);
   const { admin, logout, hasPermission } = useAuth();
   const { t, lang, switchLang } = useI18n();
   const navigate = useNavigate();
@@ -64,6 +76,7 @@ export default function Layout() {
   const toggleLang = () => { switchLang(lang === 'en' ? 'hi' : 'en'); };
   const visibleNavItems = navItems.filter(item => !item.permission || hasPermission(item.permission));
   const isMastersActive = location.pathname === '/masters';
+  const isMyAccountActive = location.pathname === '/my-account';
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -91,6 +104,36 @@ export default function Layout() {
                 </li>
               );
             })}
+
+            {/* My Account collapsible */}
+            <li>
+              <button onClick={() => setMyAccountOpen(!myAccountOpen)}
+                className={`w-full flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${isMyAccountActive ? 'bg-gold-500 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}>
+                <span className="flex items-center gap-3"><UserCircle size={18} />My Account</span>
+                {myAccountOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+              </button>
+              {myAccountOpen && (
+                <ul className="mt-1 ml-4 space-y-0.5">
+                  {myAccountSubItems.map((sub) => {
+                    const SubIcon = sub.icon;
+                    return (
+                      <li key={sub.label}>
+                        <NavLink to="/my-account" onClick={() => setSidebarOpen(false)}
+                          className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                          <SubIcon size={13} className="shrink-0" /> {sub.label}
+                        </NavLink>
+                      </li>
+                    );
+                  })}
+                  <li>
+                    <button onClick={handleLogout}
+                      className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-red-400 hover:bg-slate-800 hover:text-red-300 transition-colors">
+                      <LogOut size={13} className="shrink-0" /> Logout
+                    </button>
+                  </li>
+                </ul>
+              )}
+            </li>
 
             {/* Masters collapsible */}
             <li>

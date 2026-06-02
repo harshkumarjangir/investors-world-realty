@@ -339,3 +339,61 @@ export async function getUserWiseReport(associateId) {
     fundTransactions: fundTransactions.map((r) => ({ ...r, amount: Number(r.amount) })),
   };
 }
+
+// ─── getRankAchieversReport ────────────────────────────────────────────────────
+
+/**
+ * Return paginated associates who have achieved a specific rank.
+ * @param {number} rank - Rank number (1-10)
+ * @param {{ page, pageSize, skip, take }} pagination
+ */
+export async function getRankAchieversReport(rank, pagination) {
+  const { page, pageSize, skip, take } = pagination;
+
+  const where = { rank, deletedAt: null };
+
+  const [records, totalItems] = await Promise.all([
+    prisma.associate.findMany({
+      where,
+      orderBy: { activationDate: 'desc' },
+      skip,
+      take,
+      select: {
+        userId: true,
+        name: true,
+        email: true,
+        phone: true,
+        rank: true,
+        totalAreaSold: true,
+        status: true,
+        joiningDate: true,
+        activationDate: true,
+        sponsor: { select: { userId: true, name: true } },
+      },
+    }),
+    prisma.associate.count({ where }),
+  ]);
+
+  const RANK_NAMES = [
+    '', 'Business Associate', 'Business Adviser', 'Business Head',
+    'Dist. Business Head', 'State Business Head', 'Regional Business Head',
+    'National Business Head', 'Vice President Sales', 'President Sales', 'President Club',
+  ];
+
+  const items = records.map((r) => ({
+    userId: r.userId,
+    name: r.name,
+    email: r.email,
+    phone: r.phone,
+    rank: r.rank,
+    rankName: RANK_NAMES[r.rank] || 'Unknown',
+    totalAreaSold: r.totalAreaSold,
+    status: r.status,
+    joiningDate: r.joiningDate,
+    activationDate: r.activationDate,
+    sponsorUserId: r.sponsor?.userId ?? null,
+    sponsorName: r.sponsor?.name ?? null,
+  }));
+
+  return { items, totalItems, page, pageSize };
+}

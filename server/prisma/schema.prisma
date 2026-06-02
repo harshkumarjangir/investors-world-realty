@@ -166,6 +166,7 @@ model Associate {
   incomeRecords  IncomeRecord[]
   supportTickets SupportTicket[]
   bookings       Booking[]
+  advancePayments AdvancePayment[]
 
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
@@ -760,4 +761,28 @@ model Plot {
 
   @@index([schemeId])
   @@index([status])
+}
+
+// ─── Advance Payment Ledger ───────────────────────────────────────────────────
+// Tracks admin-managed advance credits/debits per associate (separate from wallet)
+
+model AdvancePayment {
+  id            String   @id @default(uuid())
+  associateId   String
+  associate     Associate @relation(fields: [associateId], references: [id])
+
+  type          String   // "CREDIT" | "DEBIT"
+  amount        Decimal
+  balanceAfter  Decimal
+  account       String?  // which bank account was used
+  remark        String?
+  date          DateTime @default(now())
+
+  // Admin who performed the action
+  adminId       String?
+
+  createdAt     DateTime @default(now())
+
+  @@index([associateId])
+  @@index([createdAt])
 }

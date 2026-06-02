@@ -6,12 +6,13 @@ import {
   getIncomeReport,
   getWithdrawalReport,
   getFundTransferReport,
+  getRankAchieversReport,
 } from '../../services/admin/report.service.js';
 
 // ─── Helper: fetch ALL records (no pagination) ────────────────────────────────
 
 async function fetchAllRecords(reportType, query) {
-  const { startDate, endDate, type, status } = query;
+  const { startDate, endDate, type, status, rank } = query;
   const bigPagination = { page: 1, pageSize: 10000, skip: 0, take: 10000 };
 
   switch (reportType) {
@@ -25,6 +26,10 @@ async function fetchAllRecords(reportType, query) {
       return getWithdrawalReport(status, startDate, endDate, bigPagination);
     case 'fund-transfer':
       return getFundTransferReport(startDate, endDate, bigPagination);
+    case 'rank-achievers': {
+      const rank = parseInt(query.rank || '1', 10);
+      return getRankAchieversReport(rank, bigPagination);
+    }
     default:
       throw Object.assign(new Error('Invalid report type'), { statusCode: 400 });
   }
@@ -72,6 +77,18 @@ const COLUMNS = {
     { header: 'Recipient', key: 'recipientUserId', width: 15 },
     { header: 'Description', key: 'description', width: 30 },
     { header: 'Date', key: 'createdAt', width: 18 },
+  ],
+  'rank-achievers': [
+    { header: 'User ID', key: 'userId', width: 15 },
+    { header: 'Name', key: 'name', width: 25 },
+    { header: 'Rank', key: 'rank', width: 8 },
+    { header: 'Designation', key: 'rankName', width: 25 },
+    { header: 'Phone', key: 'phone', width: 15 },
+    { header: 'Area Sold (gaj)', key: 'totalAreaSold', width: 16 },
+    { header: 'Status', key: 'status', width: 12 },
+    { header: 'Sponsor ID', key: 'sponsorUserId', width: 15 },
+    { header: 'Joining Date', key: 'joiningDate', width: 18 },
+    { header: 'Activation Date', key: 'activationDate', width: 18 },
   ],
 };
 

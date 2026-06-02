@@ -20,6 +20,13 @@ export async function listAssociatesHandler(req, res, next) {
     const filters = {
       status: req.query.status || undefined,
       search: req.query.search || undefined,
+      city: req.query.city || undefined,
+      state: req.query.state || undefined,
+      phone: req.query.phone || undefined,
+      panNumber: req.query.panNumber || undefined,
+      sponsorUserId: req.query.sponsorUserId || undefined,
+      dobFrom: req.query.dobFrom || undefined,
+      dobTo: req.query.dobTo || undefined,
     };
     const { items, totalItems, page, pageSize } = await adminListAssociates(filters, pagination);
     return paginatedResponse(res, items, totalItems, page, pageSize, 'Associates retrieved');

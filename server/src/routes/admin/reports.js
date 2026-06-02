@@ -36,6 +36,23 @@ router.get('/fund-transfer', requirePermission('reports:read'), getFundTransferR
 // GET /api/v1/admin/reports/user/:associateId
 router.get('/user/:associateId', requirePermission('reports:read'), getUserWiseReportHandler);
 
+// GET /api/v1/admin/reports/rank-achievers?rank=2
+router.get('/rank-achievers', requirePermission('reports:read'), async (req, res, next) => {
+  try {
+    const { getRankAchieversReport } = await import('../../services/admin/report.service.js');
+    const { parsePagination, paginatedResponse } = await import('../../utils/response.js');
+    const { rank } = req.query;
+    if (!rank) {
+      return res.status(400).json({ status: 'error', message: 'rank query param is required', data: null });
+    }
+    const pagination = parsePagination(req.query);
+    const result = await getRankAchieversReport(parseInt(rank, 10), pagination);
+    return paginatedResponse(res, result.items, result.totalItems, result.page, result.pageSize, 'Rank achievers report');
+  } catch (err) {
+    return next(err);
+  }
+});
+
 // ─── Export Endpoints ─────────────────────────────────────────────────────────
 // GET /api/v1/admin/reports/export/excel/:reportType
 router.get('/export/excel/:reportType', requirePermission('reports:read'), exportExcelHandler);

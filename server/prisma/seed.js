@@ -9,7 +9,7 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   console.log('🌱 Seeding database...');
 
-  // ─── Admin Roles ─────────────────────────────────────────────────────────────
+  // ─── Admin Roles ──────────────────────────────────────────────────────────
   const superAdminRole = await prisma.adminRole.upsert({
     where: { name: 'Super Admin' },
     update: {},
@@ -33,665 +33,228 @@ async function main() {
     },
   });
 
-  await prisma.adminRole.upsert({
-    where: { name: 'Manager' },
-    update: {},
-    create: {
-      name: 'Manager',
-      permissions: [
-        'dashboard:read',
-        'associates:read', 'associates:write',
-        'genealogy:read',
-        'payouts:read', 'payouts:write',
-        'reports:read', 'reports:export',
-        'properties:read', 'properties:write',
-        'kyc:read', 'kyc:write',
-        'transactions:read',
-      ],
-    },
-  });
-
-  await prisma.adminRole.upsert({
-    where: { name: 'Support' },
-    update: {},
-    create: {
-      name: 'Support',
-      permissions: [
-        'dashboard:read',
-        'associates:read',
-        'kyc:read', 'kyc:write',
-        'contact:read',
-        'transactions:read',
-      ],
-    },
-  });
-
-  await prisma.adminRole.upsert({
-    where: { name: 'Accounts' },
-    update: {},
-    create: {
-      name: 'Accounts',
-      permissions: [
-        'dashboard:read',
-        'payouts:read', 'payouts:write',
-        'reports:read', 'reports:export',
-        'funds:read', 'funds:write',
-        'transactions:read',
-      ],
-    },
-  });
-
+  for (const role of [
+    { name: 'Manager', permissions: ['dashboard:read','associates:read','associates:write','genealogy:read','payouts:read','payouts:write','reports:read','reports:export','properties:read','properties:write','kyc:read','kyc:write','transactions:read'] },
+    { name: 'Support',  permissions: ['dashboard:read','associates:read','kyc:read','kyc:write','contact:read','transactions:read'] },
+    { name: 'Accounts', permissions: ['dashboard:read','payouts:read','payouts:write','reports:read','reports:export','funds:read','funds:write','transactions:read'] },
+  ]) {
+    await prisma.adminRole.upsert({ where: { name: role.name }, update: {}, create: role });
+  }
   console.log('✅ Admin roles seeded');
 
-  // ─── Default Super Admin ──────────────────────────────────────────────────────
-  const hashedPassword = await bcrypt.hash('Admin@123456', 12);
+  // ─── Super Admin ──────────────────────────────────────────────────────────
+  const adminPass = await bcrypt.hash('Admin@123456', 12);
   await prisma.admin.upsert({
     where: { email: 'notespoint2023@gmail.com' },
     update: {},
-    create: {
-      name: 'Super Admin',
-      email: 'notespoint2023@gmail.com',
-      phone: '9999999999',
-      password: hashedPassword,
-      roleId: superAdminRole.id,
-    },
+    create: { name: 'Super Admin', email: 'notespoint2023@gmail.com', phone: '9999999999', password: adminPass, roleId: superAdminRole.id },
   });
+  console.log('✅ Super admin seeded');
 
-  console.log('✅ Default super admin seeded (email: notespoint2023@gmail.com, password: Admin@123456)');
-
-  // ─── Default Package ──────────────────────────────────────────────────────────
+  // ─── Default Package ──────────────────────────────────────────────────────
   await prisma.package.upsert({
     where: { id: 'default-package-001' },
     update: {},
-    create: {
-      id: 'default-package-001',
-      name: 'Starter Package',
-      price: 5000,
-      benefits: ['Binary tree placement', 'Direct income eligibility', 'Level income up to 5 levels'],
-      directPercent: 10,
-      isActive: true,
-    },
+    create: { id: 'default-package-001', name: 'Starter Package', price: 5000, benefits: ['Binary tree placement', 'Direct income eligibility', 'Level income up to 5 levels'], directPercent: 10, isActive: true },
   });
-
   console.log('✅ Default package seeded');
 
-  // ─── Income Plans ─────────────────────────────────────────────────────────────
-  await prisma.incomePlan.upsert({
-    where: { id: 'plan-direct-001' },
-    update: {},
-    create: { id: 'plan-direct-001', type: 'DIRECT', percentage: 10, isActive: true },
-  });
-
-  const levelPercentages = [5, 3, 2, 1, 1];
-  for (let i = 0; i < levelPercentages.length; i++) {
-    const level = i + 1;
-    await prisma.incomePlan.upsert({
-      where: { id: `plan-level-00${level}` },
-      update: {},
-      create: { id: `plan-level-00${level}`, type: 'LEVEL', level, percentage: levelPercentages[i], isActive: true },
-    });
+  // ─── Income Plans ─────────────────────────────────────────────────────────
+  await prisma.incomePlan.upsert({ where: { id: 'plan-direct-001' }, update: {}, create: { id: 'plan-direct-001', type: 'DIRECT', percentage: 10, isActive: true } });
+  for (const [i, pct] of [5,3,2,1,1].entries()) {
+    await prisma.incomePlan.upsert({ where: { id: `plan-level-00${i+1}` }, update: {}, create: { id: `plan-level-00${i+1}`, type: 'LEVEL', level: i+1, percentage: pct, isActive: true } });
   }
-
-  await prisma.incomePlan.upsert({
-    where: { id: 'plan-matching-001' },
-    update: {},
-    create: { id: 'plan-matching-001', type: 'MATCHING', percentage: 10, minPairVolume: 1000, isActive: true },
-  });
-
-  const rewardMilestones = [
-    { id: 'plan-reward-001', milestone: 50000, rewardAmount: 5000 },
-    { id: 'plan-reward-002', milestone: 100000, rewardAmount: 15000 },
-    { id: 'plan-reward-003', milestone: 500000, rewardAmount: 100000 },
-  ];
-  for (const reward of rewardMilestones) {
-    await prisma.incomePlan.upsert({
-      where: { id: reward.id },
-      update: {},
-      create: { id: reward.id, type: 'REWARD', percentage: 0, milestone: reward.milestone, rewardAmount: reward.rewardAmount, isActive: true },
-    });
+  await prisma.incomePlan.upsert({ where: { id: 'plan-matching-001' }, update: {}, create: { id: 'plan-matching-001', type: 'MATCHING', percentage: 10, minPairVolume: 1000, isActive: true } });
+  for (const r of [{ id:'plan-reward-001',milestone:50000,rewardAmount:5000},{ id:'plan-reward-002',milestone:100000,rewardAmount:15000},{ id:'plan-reward-003',milestone:500000,rewardAmount:100000}]) {
+    await prisma.incomePlan.upsert({ where: { id: r.id }, update: {}, create: { ...r, type: 'REWARD', percentage: 0, isActive: true } });
   }
+  console.log('✅ Income plans seeded');
 
-  console.log('✅ Income plans seeded (Direct, Level 1-5, Matching, Reward milestones)');
-
-  // ─── Master States ────────────────────────────────────────────────────────────
-  const states = [
-    'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
-    'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka',
-    'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram',
-    'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu',
-    'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
-    'Delhi', 'Jammu and Kashmir', 'Ladakh',
-  ];
-  for (const stateName of states) {
-    await prisma.masterState.upsert({
-      where: { name: stateName },
-      update: {},
-      create: { name: stateName },
-    });
+  // ─── Master States ────────────────────────────────────────────────────────
+  for (const s of ['Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Goa','Gujarat','Haryana','Himachal Pradesh','Jharkhand','Karnataka','Kerala','Madhya Pradesh','Maharashtra','Manipur','Meghalaya','Mizoram','Nagaland','Odisha','Punjab','Rajasthan','Sikkim','Tamil Nadu','Telangana','Tripura','Uttar Pradesh','Uttarakhand','West Bengal','Delhi','Jammu and Kashmir','Ladakh']) {
+    await prisma.masterState.upsert({ where: { name: s }, update: {}, create: { name: s } });
   }
-  console.log('✅ Master states seeded');
+  console.log('✅ Master states seeded (31 states)');
 
-  // ─── Property Categories ──────────────────────────────────────────────────────
-  const categories = ['Villa', 'Plot', 'Apartment', 'Commercial', 'Farmhouse', 'Penthouse'];
-  for (const cat of categories) {
-    await prisma.propertyCategory.upsert({
-      where: { name: cat },
-      update: {},
-      create: { name: cat },
-    });
+  // ─── Property Categories ──────────────────────────────────────────────────
+  for (const c of ['Villa','Plot','Apartment','Commercial','Farmhouse','Penthouse']) {
+    await prisma.propertyCategory.upsert({ where: { name: c }, update: {}, create: { name: c } });
   }
   console.log('✅ Property categories seeded');
 
-  // ─── App Version defaults ─────────────────────────────────────────────────────
-  await prisma.appVersion.upsert({
-    where: { id: 'app-version-android' },
-    update: {},
-    create: {
-      id: 'app-version-android',
-      platform: 'android',
-      minVersion: '1.0.0',
-      latestVersion: '1.0.0',
-      storeUrl: 'https://play.google.com/store/apps/details?id=com.investorsworld.realty',
-      forceUpdate: false,
-    },
+  // ─── App Version ──────────────────────────────────────────────────────────
+  await prisma.appVersion.upsert({ where: { id: 'app-version-android' }, update: {}, create: { id: 'app-version-android', platform: 'android', minVersion: '1.0.0', latestVersion: '1.0.0', storeUrl: 'https://play.google.com/store/apps/details?id=com.investorsworld.realty', forceUpdate: false } });
+  await prisma.appVersion.upsert({ where: { id: 'app-version-ios' }, update: {}, create: { id: 'app-version-ios', platform: 'ios', minVersion: '1.0.0', latestVersion: '1.0.0', storeUrl: 'https://apps.apple.com/app/investors-world-realty/id000000000', forceUpdate: false } });
+  console.log('✅ App versions seeded');
+
+  // ─── Commission Slabs (Gap Model) ────────────────────────────────────────
+  for (const s of [
+    { id:'slab-001', minArea:0,     maxArea:6000,   sellerPercent:4,   level1Percent:6,    level2Percent:7.5,  level3Percent:9,    level4Percent:10,   level5Percent:11,   level6Percent:12,   level7Percent:13,   level8Percent:14,   level9Percent:2, level10Percent:0 },
+    { id:'slab-002', minArea:6001,  maxArea:10000,  sellerPercent:3,   level1Percent:5,    level2Percent:6.5,  level3Percent:8,    level4Percent:9,    level5Percent:10,   level6Percent:11,   level7Percent:12,   level8Percent:13,   level9Percent:2, level10Percent:0 },
+    { id:'slab-003', minArea:10001, maxArea:15000,  sellerPercent:2.5, level1Percent:4,    level2Percent:5,    level3Percent:6,    level4Percent:6.8,  level5Percent:7.6,  level6Percent:8.4,  level7Percent:9.2,  level8Percent:10,   level9Percent:2, level10Percent:0 },
+    { id:'slab-004', minArea:15001, maxArea:20000,  sellerPercent:2.2, level1Percent:3.2,  level2Percent:4,    level3Percent:4.8,  level4Percent:5.5,  level5Percent:6.2,  level6Percent:6.9,  level7Percent:7.6,  level8Percent:8.3,  level9Percent:2, level10Percent:0 },
+    { id:'slab-005', minArea:20001, maxArea:25000,  sellerPercent:1.8, level1Percent:2.7,  level2Percent:3.4,  level3Percent:4.1,  level4Percent:4.8,  level5Percent:5.5,  level6Percent:6.1,  level7Percent:6.7,  level8Percent:7.3,  level9Percent:2, level10Percent:0 },
+    { id:'slab-006', minArea:25001, maxArea:30000,  sellerPercent:1.5, level1Percent:2.3,  level2Percent:2.9,  level3Percent:3.5,  level4Percent:4.1,  level5Percent:4.7,  level6Percent:5.2,  level7Percent:5.7,  level8Percent:6.2,  level9Percent:2, level10Percent:0 },
+    { id:'slab-007', minArea:30001, maxArea:35000,  sellerPercent:1.3, level1Percent:2,    level2Percent:2.6,  level3Percent:3.2,  level4Percent:3.7,  level5Percent:4.2,  level6Percent:4.7,  level7Percent:5.1,  level8Percent:5.6,  level9Percent:2, level10Percent:0 },
+    { id:'slab-008', minArea:35001, maxArea:999999, sellerPercent:1,   level1Percent:1.5,  level2Percent:2,    level3Percent:2.5,  level4Percent:3,    level5Percent:3.5,  level6Percent:4,    level7Percent:4.5,  level8Percent:5,    level9Percent:2, level10Percent:0 },
+  ]) {
+    await prisma.propertyCommissionSlab.upsert({ where: { id: s.id }, update: {}, create: { ...s, isActive: true } });
+  }
+  console.log('✅ Commission slabs seeded (8 slabs — matches seed-commission-slabs.js)');
+
+  // ─── PLC Charges ─────────────────────────────────────────────────────────
+  for (const p of [
+    { id:'plc-001', plcName:'Corner Plot',       chargeType:'Percentage', plcCharge:10 },
+    { id:'plc-002', plcName:'Do Not Flat',        chargeType:'Percentage', plcCharge:10 },
+    { id:'plc-003', plcName:'East Facing',        chargeType:'Percentage', plcCharge:5  },
+    { id:'plc-004', plcName:'Park Facing',        chargeType:'Percentage', plcCharge:8  },
+    { id:'plc-005', plcName:'Main Road Facing',   chargeType:'Fixed',      plcCharge:50000 },
+  ]) {
+    await prisma.plcCharge.upsert({ where: { id: p.id }, update: {}, create: p });
+  }
+  console.log('✅ PLC charges seeded');
+
+  // ─── Plot Types ───────────────────────────────────────────────────────────
+  for (const t of ['PLOT','FLAT','SHOP','VILLA','FARMHOUSE','COMMERCIAL']) {
+    await prisma.plotType.upsert({ where: { typeName: t }, update: {}, create: { typeName: t } });
+  }
+  console.log('✅ Plot types seeded');
+
+  // ─── Account Masters ──────────────────────────────────────────────────────
+  await prisma.accountMaster.upsert({
+    where: { id: 'acct-001' }, update: {},
+    create: { id:'acct-001', accountName:'HDFC Bank - Mansarovar', underGroup:'Bank', address:'P.No.157, Mahaveer Nagar-b, Patrkar Colony Road, Mansarovar', state:'Rajasthan', city:'Jaipur', mobileNo:'9999999999', emailId:'info@investorworld.co.in', phoneNo:'01411234567', gstNo:'08AABCI1234A1Z5', bankAccountNo:'50100123456789', branchName:'Mansarovar Branch', bankIfscCode:'HDFC0001234', type:'Dr' },
   });
-  await prisma.appVersion.upsert({
-    where: { id: 'app-version-ios' },
-    update: {},
-    create: {
-      id: 'app-version-ios',
-      platform: 'ios',
-      minVersion: '1.0.0',
-      latestVersion: '1.0.0',
-      storeUrl: 'https://apps.apple.com/app/investors-world-realty/id000000000',
-      forceUpdate: false,
-    },
+  await prisma.accountMaster.upsert({
+    where: { id: 'acct-002' }, update: {},
+    create: { id:'acct-002', accountName:'SBI - Main Branch', underGroup:'Bank', state:'Rajasthan', city:'Jaipur', bankAccountNo:'10234567890', branchName:'Jaipur Main Branch', bankIfscCode:'SBIN0001234', type:'Cr' },
   });
-  console.log('✅ App version defaults seeded');
+  console.log('✅ Account masters seeded');
 
-  // ─── Sample Properties ──────────────────────────────────────────────────────────
-  const property1 = await prisma.property.upsert({
-    where: { id: 'prop-001' },
-    update: {},
-    create: {
-      id: 'prop-001',
-      name: 'Green Valley Phase 1',
-      description: 'Premium residential plots in a gated community with all modern amenities',
-      location: 'NH-48, Jaipur Road',
-      city: 'Jaipur',
-      state: 'Rajasthan',
-      area: 5000,
-      price: 2500,
-      type: 'Plot',
-      amenities: ['Gated Community', 'Park', '24/7 Security', 'Water Supply', 'Electricity'],
-      status: 'AVAILABLE',
-      isFeatured: true,
-    },
+  // ─── Schemes ─────────────────────────────────────────────────────────────
+  const scheme1 = await prisma.scheme.upsert({
+    where: { id: 'scheme-001' }, update: {},
+    create: { id:'scheme-001', schemeName:'Swarn Nagar', state:'Rajasthan', city:'Jaipur', address:'Reed Samastoram, Gerudwali Road, Tonk Road, Chaksu Bypass, Chaksu, Jaipur', pinCode:'303901', schemeType:'Residential', featuredScheme:true, googleMap:'https://maps.google.com/?q=Chaksu+Jaipur', shortDescription:'Investors World Realty Pvt. Ltd. — Premium residential plots in Swarn Nagar.', description:'Swarn Nagar is a flagship project offering premium residential plots with all modern amenities in the growing Chaksu corridor of Jaipur.', isActive:true },
   });
-
-  const property2 = await prisma.property.upsert({
-    where: { id: 'prop-002' },
-    update: {},
-    create: {
-      id: 'prop-002',
-      name: 'Royal Enclave',
-      description: 'Farmhouse plots surrounded by lush greenery, ideal for weekend getaways',
-      location: 'Ajmer Highway, Kishangarh',
-      city: 'Ajmer',
-      state: 'Rajasthan',
-      area: 10000,
-      price: 1800,
-      type: 'Farmhouse',
-      amenities: ['Garden', 'Swimming Pool', 'Club House', 'Temple', 'Children Park'],
-      status: 'AVAILABLE',
-      isFeatured: true,
-    },
+  await prisma.scheme.upsert({
+    where: { id: 'scheme-002' }, update: {},
+    create: { id:'scheme-002', schemeName:'Veera Residency', state:'Rajasthan', city:'Jaipur', address:'VILL. DUDU, TEH. DUDU, DIST. AJMER ROAD, JAIPUR', pinCode:'303008', schemeType:'Residential', featuredScheme:true, isActive:true },
   });
+  console.log('✅ Schemes seeded (Swarn Nagar, Veera Residency)');
 
-  const property3 = await prisma.property.upsert({
-    where: { id: 'prop-003' },
-    update: {},
-    create: {
-      id: 'prop-003',
-      name: 'IWR Commercial Hub',
-      description: 'Commercial plots in prime business area with excellent connectivity',
-      location: 'Sitapura Industrial Area',
-      city: 'Jaipur',
-      state: 'Rajasthan',
-      area: 3000,
-      price: 5000,
-      type: 'Commercial',
-      amenities: ['Wide Roads', 'CCTV', 'Fire Safety', 'Parking', 'Power Backup'],
-      status: 'AVAILABLE',
-      isFeatured: false,
-    },
-  });
-
-  console.log('✅ Sample properties seeded');
-
-  // ─── Sample Associates (for testing bookings) ─────────────────────────────────
-  const assocPassword = await bcrypt.hash('Test@1234', 12);
-
-  const assoc1 = await prisma.associate.upsert({
-    where: { userId: 'IW100001' },
-    update: {},
-    create: {
-      userId: 'IW100001',
-      name: 'Rajesh Kumar',
-      email: 'rajesh@example.com',
-      phone: '9999900001',
-      password: assocPassword,
-      status: 'ACTIVE',
-      rank: 3,
-      totalAreaSold: 1200,
-      address: '45, Sector 12, Malviya Nagar',
-      city: 'Jaipur',
-      state: 'Rajasthan',
-      pincode: '302017',
-      panNumber: 'ABCDE1234F',
-      activationDate: new Date('2024-06-15'),
-      joiningDate: new Date('2024-06-10'),
-    },
-  });
-
-  const assoc2 = await prisma.associate.upsert({
-    where: { userId: 'IW100002' },
-    update: {},
-    create: {
-      userId: 'IW100002',
-      name: 'Suresh Sharma',
-      email: 'suresh@example.com',
-      phone: '9999900002',
-      password: assocPassword,
-      status: 'ACTIVE',
-      rank: 2,
-      totalAreaSold: 800,
-      sponsorId: assoc1.id,
-      address: '22, Gandhi Nagar',
-      city: 'Jaipur',
-      state: 'Rajasthan',
-      pincode: '302015',
-      panNumber: 'FGHIJ5678K',
-      activationDate: new Date('2024-07-20'),
-      joiningDate: new Date('2024-07-15'),
-    },
-  });
-
-  const assoc3 = await prisma.associate.upsert({
-    where: { userId: 'IW100003' },
-    update: {},
-    create: {
-      userId: 'IW100003',
-      name: 'Priya Verma',
-      email: 'priya@example.com',
-      phone: '9999900003',
-      password: assocPassword,
-      status: 'ACTIVE',
-      rank: 1,
-      totalAreaSold: 500,
-      sponsorId: assoc1.id,
-      address: '78, Vaishali Nagar',
-      city: 'Jaipur',
-      state: 'Rajasthan',
-      pincode: '302021',
-      panNumber: 'KLMNO9012P',
-      activationDate: new Date('2024-08-10'),
-      joiningDate: new Date('2024-08-05'),
-    },
-  });
-
-  const assoc4 = await prisma.associate.upsert({
-    where: { userId: 'IW100004' },
-    update: {},
-    create: {
-      userId: 'IW100004',
-      name: 'Amit Patel',
-      email: 'amit@example.com',
-      phone: '9999900004',
-      password: assocPassword,
-      status: 'ACTIVE',
-      rank: 1,
-      totalAreaSold: 300,
-      sponsorId: assoc2.id,
-      address: '11, Mansarovar',
-      city: 'Jaipur',
-      state: 'Rajasthan',
-      pincode: '302020',
-      panNumber: 'PQRST3456U',
-      activationDate: new Date('2024-09-01'),
-      joiningDate: new Date('2024-08-25'),
-    },
-  });
-
-  const assoc5 = await prisma.associate.upsert({
-    where: { userId: 'IW100005' },
-    update: {},
-    create: {
-      userId: 'IW100005',
-      name: 'Kavita Joshi',
-      email: 'kavita@example.com',
-      phone: '9999900005',
-      password: assocPassword,
-      status: 'INACTIVE',
-      rank: 1,
-      totalAreaSold: 0,
-      sponsorId: assoc2.id,
-      address: '33, Tonk Road',
-      city: 'Jaipur',
-      state: 'Rajasthan',
-      pincode: '302018',
-      panNumber: 'UVWXY7890Z',
-      joiningDate: new Date('2025-01-10'),
-    },
-  });
-
-  console.log('✅ Sample associates seeded (IW100001 - IW100005)');
-
-  // ─── Wallets for active associates ─────────────────────────────────────────────
-  for (const assoc of [assoc1, assoc2, assoc3, assoc4]) {
-    await prisma.wallet.upsert({
-      where: { associateId: assoc.id },
-      update: {},
-      create: {
-        associateId: assoc.id,
-        balance: Math.floor(Math.random() * 50000) + 5000,
-        totalCredits: Math.floor(Math.random() * 80000) + 10000,
-        totalDebits: Math.floor(Math.random() * 30000) + 2000,
-      },
+  // ─── Sample Plots (Swarn Nagar) ───────────────────────────────────────────
+  const plotType = await prisma.plotType.findFirst({ where: { typeName: 'PLOT' } });
+  const cornerPlc = await prisma.plcCharge.findFirst({ where: { plcName: 'Corner Plot' } });
+  for (const p of [
+    { no:'07',  size:181.22 }, { no:'08',  size:152.78 }, { no:'09',  size:152.78 },
+    { no:'10',  size:269.9,  corner:true }, { no:'100', size:166.66 },
+    { no:'101', size:332.47, corner:true }, { no:'11',  size:269.9,  corner:true },
+    { no:'12',  size:152.78 }, { no:'122', size:280.05, corner:true }, { no:'133', size:200 },
+  ]) {
+    const totalCost = p.size * 2500;
+    const charge = p.corner && cornerPlc ? totalCost * (Number(cornerPlc.plcCharge) / 100) : 0;
+    await prisma.plot.upsert({
+      where: { id: `plot-sn-${p.no}` }, update: {},
+      create: { id:`plot-sn-${p.no}`, schemeId:scheme1.id, plotTypeId:plotType?.id||null, plotSizeUnit:'Square Yards', plotSize:p.size, totalCost, plotNo:p.no, plcId:p.corner ? cornerPlc?.id||null : null, chargeOfPlot:charge, totalCostOfPlot:totalCost+charge, status:'Not Used' },
     });
   }
+  console.log('✅ Sample plots seeded for Swarn Nagar');
 
+  // ─── Sample Properties ────────────────────────────────────────────────────
+  const property1 = await prisma.property.upsert({ where:{id:'prop-001'}, update:{}, create:{id:'prop-001',name:'Green Valley Phase 1',description:'Premium residential plots in a gated community with all modern amenities',location:'NH-48, Jaipur Road',city:'Jaipur',state:'Rajasthan',area:5000,price:2500,type:'Plot',amenities:['Gated Community','Park','24/7 Security','Water Supply','Electricity'],status:'AVAILABLE',isFeatured:true} });
+  const property2 = await prisma.property.upsert({ where:{id:'prop-002'}, update:{}, create:{id:'prop-002',name:'Royal Enclave',description:'Farmhouse plots surrounded by lush greenery, ideal for weekend getaways',location:'Ajmer Highway, Kishangarh',city:'Ajmer',state:'Rajasthan',area:10000,price:1800,type:'Farmhouse',amenities:['Garden','Swimming Pool','Club House','Temple','Children Park'],status:'AVAILABLE',isFeatured:true} });
+  const property3 = await prisma.property.upsert({ where:{id:'prop-003'}, update:{}, create:{id:'prop-003',name:'IWR Commercial Hub',description:'Commercial plots in prime business area with excellent connectivity',location:'Sitapura Industrial Area',city:'Jaipur',state:'Rajasthan',area:3000,price:5000,type:'Commercial',amenities:['Wide Roads','CCTV','Fire Safety','Parking','Power Backup'],status:'AVAILABLE',isFeatured:false} });
+  console.log('✅ Sample properties seeded');
+
+  // ─── Associates ───────────────────────────────────────────────────────────
+  const ap = await bcrypt.hash('Test@1234', 12);
+  const assoc1 = await prisma.associate.upsert({ where:{userId:'IW100001'}, update:{}, create:{userId:'IW100001',name:'Rajesh Kumar',email:'rajesh@example.com',phone:'9999900001',password:ap,status:'ACTIVE',rank:3,totalAreaSold:1200,address:'45, Sector 12, Malviya Nagar',city:'Jaipur',state:'Rajasthan',pincode:'302017',panNumber:'ABCDE1234F',activationDate:new Date('2024-06-15'),joiningDate:new Date('2024-06-10')} });
+  const assoc2 = await prisma.associate.upsert({ where:{userId:'IW100002'}, update:{}, create:{userId:'IW100002',name:'Suresh Sharma',email:'suresh@example.com',phone:'9999900002',password:ap,status:'ACTIVE',rank:2,totalAreaSold:800,sponsorId:assoc1.id,address:'22, Gandhi Nagar',city:'Jaipur',state:'Rajasthan',pincode:'302015',panNumber:'FGHIJ5678K',activationDate:new Date('2024-07-20'),joiningDate:new Date('2024-07-15')} });
+  const assoc3 = await prisma.associate.upsert({ where:{userId:'IW100003'}, update:{}, create:{userId:'IW100003',name:'Priya Verma',email:'priya@example.com',phone:'9999900003',password:ap,status:'ACTIVE',rank:1,totalAreaSold:500,sponsorId:assoc1.id,address:'78, Vaishali Nagar',city:'Jaipur',state:'Rajasthan',pincode:'302021',panNumber:'KLMNO9012P',activationDate:new Date('2024-08-10'),joiningDate:new Date('2024-08-05')} });
+  const assoc4 = await prisma.associate.upsert({ where:{userId:'IW100004'}, update:{}, create:{userId:'IW100004',name:'Amit Patel',email:'amit@example.com',phone:'9999900004',password:ap,status:'ACTIVE',rank:1,totalAreaSold:300,sponsorId:assoc2.id,address:'11, Mansarovar',city:'Jaipur',state:'Rajasthan',pincode:'302020',panNumber:'PQRST3456U',activationDate:new Date('2024-09-01'),joiningDate:new Date('2024-08-25')} });
+  const assoc5 = await prisma.associate.upsert({ where:{userId:'IW100005'}, update:{}, create:{userId:'IW100005',name:'Kavita Joshi',email:'kavita@example.com',phone:'9999900005',password:ap,status:'INACTIVE',rank:1,totalAreaSold:0,sponsorId:assoc2.id,address:'33, Tonk Road',city:'Jaipur',state:'Rajasthan',pincode:'302018',panNumber:'UVWXY7890Z',joiningDate:new Date('2025-01-10')} });
+  console.log(`✅ Associates seeded (IW100001–IW100005). assoc5: ${assoc5.userId}`);
+
+  // ─── Wallets ──────────────────────────────────────────────────────────────
+  const walletData = [
+    { assoc: assoc1, balance: 32540, credits: 75000, debits: 42460 },
+    { assoc: assoc2, balance: 18200, credits: 45000, debits: 26800 },
+    { assoc: assoc3, balance: 9750,  credits: 22000, debits: 12250 },
+    { assoc: assoc4, balance: 5100,  credits: 12000, debits: 6900  },
+  ];
+  for (const w of walletData) {
+    await prisma.wallet.upsert({ where:{associateId:w.assoc.id}, update:{}, create:{associateId:w.assoc.id,balance:w.balance,totalCredits:w.credits,totalDebits:w.debits} });
+  }
   console.log('✅ Wallets seeded');
 
-  // ─── Tree Nodes (Binary Tree) ──────────────────────────────────────────────────
-  const treeNode1 = await prisma.treeNode.upsert({
-    where: { associateId: assoc1.id },
-    update: {},
-    create: {
-      associateId: assoc1.id,
-      position: 'LEFT',
-      level: 0,
-      leftVolume: 25000,
-      rightVolume: 18000,
-    },
-  });
+  // ─── Binary Tree ──────────────────────────────────────────────────────────
+  const tn1 = await prisma.treeNode.upsert({ where:{associateId:assoc1.id}, update:{}, create:{associateId:assoc1.id,position:'LEFT',level:0,leftVolume:25000,rightVolume:18000} });
+  const tn2 = await prisma.treeNode.upsert({ where:{associateId:assoc2.id}, update:{}, create:{associateId:assoc2.id,parentId:tn1.id,position:'LEFT',level:1,leftVolume:12000,rightVolume:8000} });
+  const tn3 = await prisma.treeNode.upsert({ where:{associateId:assoc3.id}, update:{}, create:{associateId:assoc3.id,parentId:tn1.id,position:'RIGHT',level:1,leftVolume:5000,rightVolume:3000} });
+  const tn4 = await prisma.treeNode.upsert({ where:{associateId:assoc4.id}, update:{}, create:{associateId:assoc4.id,parentId:tn2.id,position:'LEFT',level:2,leftVolume:0,rightVolume:0} });
+  await prisma.treeNode.update({ where:{id:tn1.id}, data:{leftChildId:tn2.id,rightChildId:tn3.id} });
+  await prisma.treeNode.update({ where:{id:tn2.id}, data:{leftChildId:tn4.id} });
+  console.log('✅ Binary tree seeded (IW100001 → IW100002/IW100003 → IW100004)');
 
-  const treeNode2 = await prisma.treeNode.upsert({
-    where: { associateId: assoc2.id },
-    update: {},
-    create: {
-      associateId: assoc2.id,
-      parentId: treeNode1.id,
-      position: 'LEFT',
-      level: 1,
-      leftVolume: 12000,
-      rightVolume: 8000,
-    },
-  });
+  // ─── Plot Bookings ────────────────────────────────────────────────────────
+  const bookings = [
+    { id:'booking-001', aId:assoc1.id, pId:property1.id, cName:'Ramesh Gupta',    cMob:'9876543210', cAddr:'12, Civil Lines, Jaipur',    plotNo:'46', siteNo:'A-12', area:200, cpu:2500, chg:5000,  disc:0,    bcv:500000, tc:505000, amt:100000, mop:'Online',  chqNo:null,          pd:'2025-05-15', bank:'HDFC Bank',          emi:'Monthly',   rcpt:'REC000001', status:'CONFIRMED' },
+    { id:'booking-002', aId:assoc2.id, pId:property2.id, cName:'Deepak Chauhan',  cMob:'9876543211', cAddr:'56, Tonk Road, Jaipur',      plotNo:'78', siteNo:'B-05', area:500, cpu:1800, chg:10000, disc:5000, bcv:900000, tc:905000, amt:200000, mop:'Cheque',  chqNo:'CHQ123456',   pd:'2025-04-20', bank:'State Bank of India', emi:'Quarterly', rcpt:'REC000002', status:'CONFIRMED' },
+    { id:'booking-003', aId:assoc3.id, pId:property1.id, cName:'Sunita Devi',     cMob:'9876543212', cAddr:'89, Mansarovar, Jaipur',     plotNo:'52', siteNo:'A-18', area:150, cpu:2500, chg:3000,  disc:2000, bcv:375000, tc:376000, amt:75000,  mop:'UPI',     chqNo:'UPI-REF-789', pd:'2025-03-10', bank:'ICICI Bank',          emi:'Monthly',   rcpt:'REC000003', status:'CONFIRMED' },
+    { id:'booking-004', aId:assoc4.id, pId:property3.id, cName:'Vikram Singh',    cMob:'9876543213', cAddr:'23, Sitapura, Jaipur',       plotNo:'15', siteNo:'C-03', area:100, cpu:5000, chg:8000,  disc:0,    bcv:500000, tc:508000, amt:150000, mop:'NEFT',    chqNo:'NEFT-REF-456',pd:'2025-05-28', bank:'Axis Bank',           emi:'Half Yearly',rcpt:null,        status:'PENDING' },
+    { id:'booking-005', aId:assoc1.id, pId:property2.id, cName:'Anita Bose',      cMob:'9876543214', cAddr:'67, Vaishali Nagar, Jaipur', plotNo:'91', siteNo:'B-11', area:300, cpu:1800, chg:6000,  disc:3000, bcv:540000, tc:543000, amt:100000, mop:'Cash',    chqNo:null,          pd:'2025-06-01', bank:null,                 emi:'Monthly',   rcpt:null,        status:'PENDING' },
+    { id:'booking-006', aId:assoc2.id, pId:property1.id, cName:'Ritu Saxena',     cMob:'9876543215', cAddr:'44, Malviya Nagar, Jaipur',  plotNo:'33', siteNo:'A-07', area:250, cpu:2500, chg:4000,  disc:1000, bcv:625000, tc:628000, amt:125000, mop:'Online',  chqNo:'TXN-987654',  pd:'2025-06-02', bank:'Punjab National Bank',emi:'Monthly',   rcpt:null,        status:'PENDING' },
+  ];
+  for (const b of bookings) {
+    await prisma.booking.upsert({ where:{id:b.id}, update:{}, create:{id:b.id,associateId:b.aId,propertyId:b.pId,customerName:b.cName,customerMobile:b.cMob,customerAddress:b.cAddr,plotNo:b.plotNo,siteNo:b.siteNo,plotArea:b.area,costPerUnit:b.cpu,chargeOfPlot:b.chg,discount:b.disc,totalBCV:b.bcv,totalCost:b.tc,amount:b.amt,modeOfPayment:b.mop,chequeNo:b.chqNo,paymentDate:new Date(b.pd),bankName:b.bank,emiMode:b.emi,receiptNo:b.rcpt,status:b.status} });
+  }
+  console.log('✅ Plot bookings seeded (3 confirmed with receipts, 3 pending)');
 
-  const treeNode3 = await prisma.treeNode.upsert({
-    where: { associateId: assoc3.id },
-    update: {},
-    create: {
-      associateId: assoc3.id,
-      parentId: treeNode1.id,
-      position: 'RIGHT',
-      level: 1,
-      leftVolume: 5000,
-      rightVolume: 3000,
-    },
-  });
-
-  const treeNode4 = await prisma.treeNode.upsert({
-    where: { associateId: assoc4.id },
-    update: {},
-    create: {
-      associateId: assoc4.id,
-      parentId: treeNode2.id,
-      position: 'LEFT',
-      level: 2,
-      leftVolume: 0,
-      rightVolume: 0,
-    },
-  });
-
-  // Update parent node child references
-  await prisma.treeNode.update({
-    where: { id: treeNode1.id },
-    data: { leftChildId: treeNode2.id, rightChildId: treeNode3.id },
-  });
-  await prisma.treeNode.update({
-    where: { id: treeNode2.id },
-    data: { leftChildId: treeNode4.id },
-  });
-
-  console.log('✅ Tree nodes seeded (binary tree)');
-
-  // ─── Sample Plot Bookings ──────────────────────────────────────────────────────
-  // Confirmed bookings (with receipts)
-  await prisma.booking.upsert({
-    where: { id: 'booking-001' },
-    update: {},
-    create: {
-      id: 'booking-001',
-      associateId: assoc1.id,
-      propertyId: property1.id,
-      customerName: 'Ramesh Gupta',
-      customerMobile: '9876543210',
-      customerAddress: '12, Civil Lines, Jaipur',
-      plotNo: '46',
-      siteNo: 'A-12',
-      plotArea: 200,
-      costPerUnit: 2500,
-      chargeOfPlot: 5000,
-      discount: 0,
-      totalBCV: 500000,
-      totalCost: 505000,
-      amount: 100000,
-      modeOfPayment: 'Online',
-      chequeNo: null,
-      paymentDate: new Date('2025-05-15'),
-      bankName: 'HDFC Bank',
-      drawnOn: null,
-      emiMode: 'Monthly',
-      receiptNo: 'REC000001',
-      status: 'CONFIRMED',
-    },
-  });
-
-  await prisma.booking.upsert({
-    where: { id: 'booking-002' },
-    update: {},
-    create: {
-      id: 'booking-002',
-      associateId: assoc2.id,
-      propertyId: property2.id,
-      customerName: 'Deepak Chauhan',
-      customerMobile: '9876543211',
-      customerAddress: '56, Tonk Road, Jaipur',
-      plotNo: '78',
-      siteNo: 'B-05',
-      plotArea: 500,
-      costPerUnit: 1800,
-      chargeOfPlot: 10000,
-      discount: 5000,
-      totalBCV: 900000,
-      totalCost: 905000,
-      amount: 200000,
-      modeOfPayment: 'Cheque',
-      chequeNo: 'CHQ123456',
-      paymentDate: new Date('2025-04-20'),
-      bankName: 'State Bank of India',
-      drawnOn: new Date('2025-04-20'),
-      emiMode: 'Quarterly',
-      receiptNo: 'REC000002',
-      status: 'CONFIRMED',
-    },
-  });
-
-  await prisma.booking.upsert({
-    where: { id: 'booking-003' },
-    update: {},
-    create: {
-      id: 'booking-003',
-      associateId: assoc3.id,
-      propertyId: property1.id,
-      customerName: 'Sunita Devi',
-      customerMobile: '9876543212',
-      customerAddress: '89, Mansarovar, Jaipur',
-      plotNo: '52',
-      siteNo: 'A-18',
-      plotArea: 150,
-      costPerUnit: 2500,
-      chargeOfPlot: 3000,
-      discount: 2000,
-      totalBCV: 375000,
-      totalCost: 376000,
-      amount: 75000,
-      modeOfPayment: 'UPI',
-      chequeNo: 'UPI-REF-789',
-      paymentDate: new Date('2025-03-10'),
-      bankName: 'ICICI Bank',
-      drawnOn: null,
-      emiMode: 'Monthly',
-      receiptNo: 'REC000003',
-      status: 'CONFIRMED',
-    },
-  });
-
-  // Pending bookings (unapproved)
-  await prisma.booking.upsert({
-    where: { id: 'booking-004' },
-    update: {},
-    create: {
-      id: 'booking-004',
-      associateId: assoc4.id,
-      propertyId: property3.id,
-      customerName: 'Vikram Singh',
-      customerMobile: '9876543213',
-      customerAddress: '23, Sitapura, Jaipur',
-      plotNo: '15',
-      siteNo: 'C-03',
-      plotArea: 100,
-      costPerUnit: 5000,
-      chargeOfPlot: 8000,
-      discount: 0,
-      totalBCV: 500000,
-      totalCost: 508000,
-      amount: 150000,
-      modeOfPayment: 'NEFT',
-      chequeNo: 'NEFT-REF-456',
-      paymentDate: new Date('2025-05-28'),
-      bankName: 'Axis Bank',
-      drawnOn: null,
-      emiMode: 'Half Yearly',
-      status: 'PENDING',
-    },
-  });
-
-  await prisma.booking.upsert({
-    where: { id: 'booking-005' },
-    update: {},
-    create: {
-      id: 'booking-005',
-      associateId: assoc1.id,
-      propertyId: property2.id,
-      customerName: 'Anita Bose',
-      customerMobile: '9876543214',
-      customerAddress: '67, Vaishali Nagar, Jaipur',
-      plotNo: '91',
-      siteNo: 'B-11',
-      plotArea: 300,
-      costPerUnit: 1800,
-      chargeOfPlot: 6000,
-      discount: 3000,
-      totalBCV: 540000,
-      totalCost: 543000,
-      amount: 100000,
-      modeOfPayment: 'Cash',
-      chequeNo: null,
-      paymentDate: new Date('2025-06-01'),
-      bankName: null,
-      drawnOn: null,
-      emiMode: 'Monthly',
-      status: 'PENDING',
-    },
-  });
-
-  await prisma.booking.upsert({
-    where: { id: 'booking-006' },
-    update: {},
-    create: {
-      id: 'booking-006',
-      associateId: assoc2.id,
-      propertyId: property1.id,
-      customerName: 'Ritu Saxena',
-      customerMobile: '9876543215',
-      customerAddress: '44, Malviya Nagar, Jaipur',
-      plotNo: '33',
-      siteNo: 'A-07',
-      plotArea: 250,
-      costPerUnit: 2500,
-      chargeOfPlot: 4000,
-      discount: 1000,
-      totalBCV: 625000,
-      totalCost: 628000,
-      amount: 125000,
-      modeOfPayment: 'Online',
-      chequeNo: 'TXN-987654',
-      paymentDate: new Date('2025-06-02'),
-      bankName: 'Punjab National Bank',
-      drawnOn: null,
-      emiMode: 'Monthly',
-      status: 'PENDING',
-    },
-  });
-
-  console.log('✅ Sample plot bookings seeded (3 confirmed + 3 pending)');
-
-  // ─── Sample Wallet Transactions ─────────────────────────────────────────────────
-  const wallet1 = await prisma.wallet.findUnique({ where: { associateId: assoc1.id } });
+  // ─── Wallet Transactions (only if none exist) ─────────────────────────────
+  const wallet1 = await prisma.wallet.findUnique({ where:{associateId:assoc1.id} });
   if (wallet1) {
-    const txTypes = [
-      { type: 'FUND_TRANSFER_OUT', amount: 3254, desc: 'Fund transfer to IW100002' },
-      { type: 'WITHDRAWAL', amount: 4638, desc: 'Withdrawal request' },
-      { type: 'ADMIN_CREDIT', amount: 2466, desc: 'Admin bonus credit' },
-      { type: 'FUND_TRANSFER_OUT', amount: 4935, desc: 'Fund transfer to IW100003' },
-      { type: 'DIRECT_INCOME', amount: 2307, desc: 'Direct income from IW100004 sale' },
-      { type: 'FUND_TRANSFER_OUT', amount: 3327, desc: 'Fund transfer to IW100002' },
-      { type: 'ADMIN_CREDIT', amount: 2992, desc: 'Festival bonus' },
-      { type: 'LEVEL_INCOME', amount: 3450, desc: 'Level income - Level 2' },
-      { type: 'FUND_TRANSFER_IN', amount: 127, desc: 'Fund received from IW100004' },
-      { type: 'ADMIN_CREDIT', amount: 1738, desc: 'Promotion reward' },
-    ];
-
-    let balance = Number(wallet1.balance);
-    for (let i = 0; i < txTypes.length; i++) {
-      const tx = txTypes[i];
-      const isCredit = ['DIRECT_INCOME', 'LEVEL_INCOME', 'ADMIN_CREDIT', 'FUND_TRANSFER_IN'].includes(tx.type);
-      if (isCredit) balance += tx.amount; else balance -= tx.amount;
-
-      await prisma.transaction.create({
-        data: {
-          walletId: wallet1.id,
-          type: tx.type,
-          amount: tx.amount,
-          balanceAfter: Math.max(0, balance),
-          description: tx.desc,
-          status: 'COMPLETED',
-          createdAt: new Date(Date.now() - (i * 15 * 24 * 60 * 60 * 1000)), // spread over ~5 months
-        },
-      });
+    const existingCount = await prisma.transaction.count({ where:{walletId:wallet1.id} });
+    if (existingCount === 0) {
+      const txRows = [
+        { type:'FUND_TRANSFER_OUT', amount:3254, desc:'Fund transfer to IW100002', daysAgo:150 },
+        { type:'WITHDRAWAL',        amount:4638, desc:'Withdrawal request',         daysAgo:135 },
+        { type:'ADMIN_CREDIT',      amount:2466, desc:'Admin bonus credit',          daysAgo:120 },
+        { type:'FUND_TRANSFER_OUT', amount:4935, desc:'Fund transfer to IW100003',  daysAgo:105 },
+        { type:'DIRECT_INCOME',     amount:2307, desc:'Direct income from IW100004 sale', daysAgo:90 },
+        { type:'FUND_TRANSFER_OUT', amount:3327, desc:'Fund transfer to IW100002',  daysAgo:75 },
+        { type:'ADMIN_CREDIT',      amount:2992, desc:'Festival bonus',              daysAgo:60 },
+        { type:'LEVEL_INCOME',      amount:3450, desc:'Level income - Level 2',      daysAgo:45 },
+        { type:'FUND_TRANSFER_IN',  amount:127,  desc:'Fund received from IW100004', daysAgo:30 },
+        { type:'ADMIN_CREDIT',      amount:1738, desc:'Promotion reward',            daysAgo:15 },
+      ];
+      const CREDITS = ['DIRECT_INCOME','LEVEL_INCOME','ADMIN_CREDIT','FUND_TRANSFER_IN'];
+      let bal = Number(wallet1.balance);
+      for (const tx of txRows) {
+        bal = CREDITS.includes(tx.type) ? bal + tx.amount : bal - tx.amount;
+        await prisma.transaction.create({ data:{ walletId:wallet1.id, type:tx.type, amount:tx.amount, balanceAfter:Math.max(0,bal), description:tx.desc, status:'COMPLETED', createdAt:new Date(Date.now() - tx.daysAgo * 86400000) } });
+      }
+      console.log('✅ Sample wallet transactions seeded');
+    } else {
+      console.log('⏭️  Wallet transactions already exist — skipping');
     }
   }
 
-  console.log('✅ Sample wallet transactions seeded');
-
+  // ─── Summary ──────────────────────────────────────────────────────────────
   console.log('\n🎉 Database seeding complete!');
-  console.log('⚠️  Remember to change the default admin password after first login.');
-  console.log('\n📋 Test Credentials:');
-  console.log('   Admin: notespoint2023@gmail.com / Admin@123456');
-  console.log('   Associates: IW100001 - IW100005 / Test@1234');
+  console.log('\n📋 Credentials:');
+  console.log('   Admin:      notespoint2023@gmail.com  /  Admin@123456');
+  console.log('   Associates: IW100001 – IW100005       /  Test@1234');
+  console.log('\n📦 What was seeded:');
+  console.log('   • 4 admin roles + 1 super admin');
+  console.log('   • 1 default package + income plans');
+  console.log('   • 31 states, 6 property categories');
+  console.log('   • 8 commission slabs (gap model, matches seed-commission-slabs.js)');
+  console.log('   • 5 PLC charges, 6 plot types, 2 account masters');
+  console.log('   • 2 schemes (Swarn Nagar, Veera Residency) + 10 sample plots');
+  console.log('   • 3 sample properties');
+  console.log('   • 5 associates (IW100001–IW100005) with wallets + binary tree');
+  console.log('   • 6 plot bookings (3 confirmed/receipted, 3 pending)');
+  console.log('   • 10 sample wallet transactions for IW100001');
 }
 
 main()

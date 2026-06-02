@@ -10,20 +10,35 @@ import { registerAssociate, activateAssociate } from '../registration.service.js
  * @param {{ page, pageSize, skip, take }} pagination
  */
 export async function adminListAssociates(filters = {}, pagination = {}) {
-  const { status, search } = filters;
+  const { status, search, city, state, phone, panNumber, sponsorUserId, dobFrom, dobTo } = filters;
   const { page = 1, pageSize = 20, skip = 0, take = 20 } = pagination;
 
   const where = { deletedAt: null };
 
-  if (status) {
-    where.status = status;
-  }
+  if (status) where.status = status;
 
   if (search) {
     where.OR = [
       { name: { contains: search, mode: 'insensitive' } },
       { userId: { contains: search, mode: 'insensitive' } },
     ];
+  }
+
+  if (city) where.city = { contains: city, mode: 'insensitive' };
+  if (state) where.state = { contains: state, mode: 'insensitive' };
+  if (phone) where.phone = { contains: phone, mode: 'insensitive' };
+  if (panNumber) where.panNumber = { contains: panNumber, mode: 'insensitive' };
+
+  if (sponsorUserId) {
+    const sponsor = await prisma.associate.findFirst({ where: { userId: sponsorUserId, deletedAt: null }, select: { id: true } });
+    if (sponsor) where.sponsorId = sponsor.id;
+    else return { items: [], totalItems: 0, page, pageSize };
+  }
+
+  if (dobFrom || dobTo) {
+    where.dateOfBirth = {};
+    if (dobFrom) where.dateOfBirth.gte = new Date(dobFrom);
+    if (dobTo) where.dateOfBirth.lte = new Date(dobTo);
   }
 
   const [records, totalItems] = await Promise.all([
@@ -38,8 +53,12 @@ export async function adminListAssociates(filters = {}, pagination = {}) {
         name: true,
         email: true,
         phone: true,
+        city: true,
+        state: true,
+        panNumber: true,
         status: true,
         joiningDate: true,
+        sponsor: { select: { userId: true, name: true } },
         package: { select: { name: true } },
       },
     }),
@@ -52,9 +71,14 @@ export async function adminListAssociates(filters = {}, pagination = {}) {
     name: a.name,
     email: a.email,
     phone: a.phone,
+    city: a.city,
+    state: a.state,
+    panNumber: a.panNumber,
     status: a.status,
     joiningDate: a.joiningDate,
     packageName: a.package?.name || null,
+    sponsorUserId: a.sponsor?.userId || null,
+    sponsorName: a.sponsor?.name || null,
   }));
 
   return { items, totalItems, page, pageSize };
@@ -197,7 +221,14 @@ export async function adminEditAssociate(associateId, data, adminId) {
     throw Object.assign(new Error('Associate not found'), { statusCode: 404 });
   }
 
-  const { name, email, phone, address, city, state, pincode, status } = data;
+  const { name, email, phone, address, city, state, pincode, status, password } = data;
+
+  // hash password if provided
+  let hashedPassword;
+  if (password) {
+    const bcrypt = await import('bcryptjs');
+    hashedPassword = await bcrypt.hash(password, 12);
+  }
 
   const updated = await prisma.associate.update({
     where: { id: associateId },
@@ -210,6 +241,7 @@ export async function adminEditAssociate(associateId, data, adminId) {
       ...(state !== undefined && { state }),
       ...(pincode !== undefined && { pincode }),
       ...(status !== undefined && { status }),
+      ...(hashedPassword && { password: hashedPassword, failedAttempts: 0 }),
     },
     select: {
       id: true,
