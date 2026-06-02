@@ -60,11 +60,17 @@ export async function forgotPassword(req, res, next) {
         OR: [{ phone: identifier }, { email: identifier }],
         deletedAt: null,
       },
+      select: { id: true, userId: true, email: true, phone: true },
     });
 
     // Always return success to prevent user enumeration
     if (associate) {
+      // Send OTP to the identifier provided (phone or email)
       await sendOtp(identifier);
+      // Always log for debugging — shows userId, identifier, and a reminder
+      console.log(`[FORGOT-PASSWORD OTP] userId=${associate.userId} | identifier=${identifier} | email=${associate.email} | phone=${associate.phone}`);
+    } else {
+      console.log(`[FORGOT-PASSWORD] No associate found for identifier: ${identifier}`);
     }
 
     return successResponse(res, null, 'If the account exists, an OTP has been sent');
