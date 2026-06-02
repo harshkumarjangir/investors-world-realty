@@ -1,7 +1,7 @@
 # 📱 Investors World Realty — Mobile App API Guide (For Flutter Developer)
 
-**Base URL:** `http://localhost:5000/api/v1`  
-**Production URL:** _(to be configured)_
+**Base URL:** `http://localhost:5001/api/v1`  
+**Production URL:** `https://serveriwr.harshkumarjangir.in/api/v1`
 
 ---
 
@@ -58,7 +58,7 @@ Authorization: Bearer <access_token>
 
 ## 🔐 1. Authentication
 
-### 1.1 Login
+### 1.1 Login (Step 1 — Verify Credentials)
 ```
 POST /auth/login
 ```
@@ -69,6 +69,35 @@ POST /auth/login
   "password": "Test@1234",
   "deviceToken": "firebase_fcm_token",
   "platform": "android"
+}
+```
+**Response:**
+```json
+{
+  "status": "success",
+  "data": {
+    "associateId": "uuid",
+    "message": "OTP sent to registered email"
+  }
+}
+```
+**Notes:**
+- `deviceToken` = Firebase FCM token for push notifications
+- `platform` = "android" | "ios"
+- After 5 failed attempts, account locks for 30 minutes (returns 423)
+- OTP is sent to the associate's registered email
+
+---
+
+### 1.2 Verify OTP (Step 2 — Get Tokens)
+```
+POST /auth/verify-otp
+```
+**Body:**
+```json
+{
+  "associateId": "uuid-from-login-response",
+  "otp": "123456"
 }
 ```
 **Response:**
@@ -90,16 +119,12 @@ POST /auth/login
   }
 }
 ```
-**Notes:**
-- `deviceToken` = Firebase FCM token for push notifications
-- `platform` = "android" | "ios"
-- Access token expires in 15 minutes
+- Access token expires in 8 hours
 - Refresh token expires in 7 days
-- After 5 failed attempts, account locks for 30 minutes (returns 423)
 
 ---
 
-### 1.2 Refresh Token
+### 1.3 Refresh Token
 ```
 POST /auth/refresh
 ```
@@ -139,7 +164,7 @@ POST /auth/forgot-password
   "identifier": "9999900001"
 }
 ```
-**Notes:** `identifier` can be phone number or userId. OTP sent via SMS.
+**Notes:** `identifier` can be phone number or email. OTP is sent to the associated email address (also logged in server console).
 
 ---
 
@@ -525,12 +550,16 @@ POST /income/calculator
 **Body:**
 ```json
 {
-  "referrals": 5,
-  "depth": 3,
-  "packageId": "default-package-001"
+  "areaInGaj": 500,
+  "rank": 1
 }
 ```
-**Response:** Estimated income breakdown.
+**Response:** Estimated commission breakdown based on area sold and rank slab.
+
+**Notes:**
+- Commission is gap-based: seller gets their rank's full slab %
+- Uplines get the difference between their slab and previous level's slab
+- President Club (rank 7) always gets flat 2% on every sale
 
 ---
 
@@ -715,30 +744,32 @@ POST /registration/register
   "pincode": "400001",
   "panNumber": "ABCDE1234F",
   "sponsorId": "IW100001",
-  "placement": "LEFT",
-  "packageId": "default-package-001",
   "password": "John@1234",
   "dateOfBirth": "1990-05-15"
 }
 ```
 **Notes:**
-- `placement` = "LEFT" | "RIGHT" (binary tree position)
-- `sponsorId` = existing associate's userId
-- `packageId` = UUID of selected package
+- `sponsorId` = existing associate's userId (referral code)
+- No package or placement required
+- Associate is created with status `INACTIVE` — requires admin approval to activate
+- Sponsor must be ACTIVE and must have downline capacity based on their rank
 
 ---
 
-### 9.3 Activate Associate 🔒
+### 9.3 Activate Associate (Admin Only) 🔒
 ```
 POST /registration/activate
 ```
 **Body:**
 ```json
 {
-  "associateId": "uuid-of-new-associate",
-  "packageId": "default-package-001"
+  "associateId": "uuid-of-new-associate"
 }
 ```
+**Notes:**
+- This is an admin-only action
+- Only associates with status `INACTIVE` can be activated
+- On activation: status → ACTIVE, wallet created, placed in binary tree under sponsor
 
 ---
 
@@ -967,11 +998,11 @@ POST /public/commission-calculator
 **Body:**
 ```json
 {
-  "referrals": 5,
-  "depth": 3,
-  "packageId": "default-package-001"
+  "areaInGaj": 500,
+  "rank": 1
 }
 ```
+**Response:** Estimated commission breakdown based on gap-method calculation.
 
 ---
 
@@ -982,49 +1013,61 @@ Create a Postman environment called **"IWR Dev"** with:
 
 | Variable | Value |
 |----------|-------|
-| `baseUrl` | `http://localhost:5000/api/v1` |
-| `accessToken` | _(set after login)_ |
-| `refreshToken` | _(set after login)_ |
+| `baseUrl` | `http://localhost:5001/api/v1` |
+| `accessToken` | _(set after OTP verification)_ |
+| `refreshToken` | _(set after OTP verification)_ |
+| `associateId` | _(set after login step 1)_ |
 
 ### Test Credentials
 ```
 User ID: IW100001
 Password: Test@1234
+Admin Email: notespoint2023@gmail.com
+Admin Password: Admin@123456
 ```
 
 ### Postman Testing Flow
 
-#### Step 1: Login
+#### Step 1: Login (Verify Credentials → Get associateId)
 ```
 POST {{baseUrl}}/auth/login
 Body: { "userId": "IW100001", "password": "Test@1234", "deviceToken": "test", "platform": "android" }
 ```
-Save `data.accessToken` → environment variable `accessToken`
+Response returns `data.associateId`. OTP is sent to registered email (also logged in server console).
 
-#### Step 2: Use Token
+#### Step 2: Verify OTP (Get Tokens)
+```
+POST {{baseUrl}}/auth/verify-otp
+Body: { "associateId": "{{associateId}}", "otp": "123456" }
+```
+Save `data.accessToken` → environment variable `accessToken`
+Save `data.refreshToken` → environment variable `refreshToken`
+
+#### Step 3: Use Token
 For all 🔒 endpoints, add header:
 ```
 Authorization: Bearer {{accessToken}}
 ```
 
-#### Step 3: Test Sequence
+#### Step 4: Test Sequence
 | # | Method | Endpoint | Purpose |
 |---|--------|----------|---------|
-| 1 | POST | `/auth/login` | Get token |
-| 2 | GET | `/associate/dashboard` | Dashboard data |
-| 3 | GET | `/associate/profile` | Profile info |
-| 4 | GET | `/genealogy/tree?depth=3` | Binary tree |
-| 5 | GET | `/genealogy/team-summary` | Team stats |
-| 6 | GET | `/income/summary` | Income breakdown |
-| 7 | GET | `/wallet/balance` | Wallet balance |
-| 8 | GET | `/wallet/transactions?page=1` | Transaction history |
-| 9 | GET | `/properties?page=1` | Property list |
-| 10 | GET | `/notifications?page=1` | Notifications |
-| 11 | GET | `/support/tickets` | Support tickets |
-| 12 | GET | `/associate/settings` | User settings |
-| 13 | GET | `/documents/kyc` | KYC status |
-| 14 | GET | `/associate/referral-link` | Referral link |
-| 15 | GET | `/public/app-version?platform=android&version=1.0.0` | Version check |
+| 1 | POST | `/auth/login` | Verify credentials, get associateId |
+| 2 | POST | `/auth/verify-otp` | Verify OTP, get tokens |
+| 3 | GET | `/associate/dashboard` | Dashboard data |
+| 4 | GET | `/associate/profile` | Profile info |
+| 5 | GET | `/genealogy/tree?depth=3` | Binary tree |
+| 6 | GET | `/genealogy/team-summary` | Team stats |
+| 7 | GET | `/income/summary` | Income breakdown |
+| 8 | GET | `/wallet/balance` | Wallet balance |
+| 9 | GET | `/wallet/transactions?page=1` | Transaction history |
+| 10 | GET | `/properties?page=1` | Property list |
+| 11 | GET | `/notifications?page=1` | Notifications |
+| 12 | GET | `/support/tickets` | Support tickets |
+| 13 | GET | `/associate/settings` | User settings |
+| 14 | GET | `/documents/kyc` | KYC status |
+| 15 | GET | `/associate/referral-link` | Referral link |
+| 16 | GET | `/public/app-version?platform=android&version=1.0.0` | Version check |
 
 ---
 
@@ -1033,11 +1076,12 @@ Authorization: Bearer {{accessToken}}
 ### Authentication Flow
 ```
 1. App Start → GET /public/app-version (check for updates)
-2. Login Screen → POST /auth/login
-3. Save accessToken + refreshToken in secure storage
-4. Register FCM token → POST /notifications/device-token
-5. On 401 → POST /auth/refresh (auto-retry original request)
-6. Logout → POST /auth/logout (clears device token)
+2. Login Screen → POST /auth/login (userId + password)
+3. OTP Screen → POST /auth/verify-otp (associateId + otp)
+4. Save accessToken + refreshToken in secure storage
+5. Register FCM token → POST /notifications/device-token
+6. On 401 → POST /auth/refresh (auto-retry original request)
+7. Logout → POST /auth/logout → clear storage → login screen
 ```
 
 ### Push Notifications (Firebase)
@@ -1067,7 +1111,8 @@ await dio.post('/associate/profile/photo', data: formData);
 
 ### Image URLs
 Profile photos and property images return relative paths like `/uploads/profiles/uuid.jpg`.
-Prepend the base URL: `http://localhost:5000/uploads/profiles/uuid.jpg`
+Prepend the base URL: `http://localhost:5001/uploads/profiles/uuid.jpg`
+Production: `https://serveriwr.harshkumarjangir.in/uploads/profiles/uuid.jpg`
 
 ### Pagination Pattern
 ```dart
@@ -1169,7 +1214,7 @@ lib/
 
 ## ⚠️ 18. Important Notes
 
-1. **Token Refresh:** Access token expires in 15 min. Implement Dio interceptor to catch 401, call `/auth/refresh`, retry original request.
+1. **Token Refresh:** Access token expires in 8 hours. Refresh token expires in 7 days. Implement Dio interceptor to catch 401, call `/auth/refresh`, retry original request.
 
 2. **File Downloads (PDFs):** Documents endpoints return binary PDF. Save to device using `path_provider` + write bytes.
 
@@ -1188,4 +1233,4 @@ lib/
 
 ---
 
-_Document generated: May 2026 | Server version: 1.0.0_
+_Document generated: June 2026 | Server version: 1.0.0_

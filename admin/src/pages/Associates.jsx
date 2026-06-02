@@ -16,6 +16,10 @@ export default function Associates() {
   const [totalPages, setTotalPages] = useState(1);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingAssociate, setEditingAssociate] = useState(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [filters, setFilters] = useState({
+    fromDate: '', toDate: '', associateId: '', associateName: '', approveFrom: '', approveTo: '',
+  });
 
   useEffect(() => {
     fetchAssociates();
@@ -25,7 +29,16 @@ export default function Associates() {
     try {
       setLoading(true);
       const res = await api.get('/admin/associates', {
-        params: { search, status: statusFilter, page, pageSize: 15 },
+        params: {
+          search: search || filters.associateName || filters.associateId,
+          status: statusFilter,
+          page,
+          pageSize: 15,
+          fromDate: filters.fromDate || undefined,
+          toDate: filters.toDate || undefined,
+          approveFrom: filters.approveFrom || undefined,
+          approveTo: filters.approveTo || undefined,
+        },
       });
       setAssociates(res.data?.data || res.data?.associates || []);
       setTotalPages(res.data?.totalPages || Math.ceil((res.data?.totalItems || 0) / 15) || 1);
@@ -60,27 +73,46 @@ export default function Associates() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder={t('associates.search')}
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="w-full rounded-lg border border-gray-300 pl-9 pr-3 py-2 text-sm focus:border-gold-400 focus:ring-2 focus:ring-gold-200"
-          />
+      <div className="rounded-xl bg-white p-4 shadow-sm border border-gray-100 space-y-3">
+        <div className="flex flex-wrap gap-3 items-end">
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">From</label>
+            <input type="date" value={filters.fromDate} onChange={(e) => setFilters({ ...filters, fromDate: e.target.value })} className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold-400 focus:ring-2 focus:ring-gold-200" />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">To</label>
+            <input type="date" value={filters.toDate} onChange={(e) => setFilters({ ...filters, toDate: e.target.value })} className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold-400 focus:ring-2 focus:ring-gold-200" />
+          </div>
+          <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold-400 focus:ring-2 focus:ring-gold-200">
+            <option value="">All Status</option>
+            <option value="ACTIVE">Active</option>
+            <option value="INACTIVE">Inactive</option>
+            <option value="SUSPENDED">Suspended</option>
+          </select>
+          <button onClick={() => { setPage(1); fetchAssociates(); }} className="rounded-lg bg-gold-500 px-5 py-2 text-sm font-medium text-white hover:bg-gold-600">Search</button>
+          <button onClick={() => setShowAdvanced(!showAdvanced)} className="text-sm font-medium text-gold-500 hover:text-gold-600 whitespace-nowrap">{showAdvanced ? 'Hide' : 'Advanced Search'}</button>
         </div>
-        <select
-          value={statusFilter}
-          onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold-400 focus:ring-2 focus:ring-gold-200"
-        >
-          <option value="">All Status</option>
-          <option value="ACTIVE">Active</option>
-          <option value="INACTIVE">Inactive</option>
-          <option value="SUSPENDED">Suspended</option>
-        </select>
+        {showAdvanced && (
+          <div className="flex flex-wrap gap-3 items-end pt-3 border-t border-gray-100">
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">Associate Id</label>
+              <input type="text" placeholder="IW100001" value={filters.associateId} onChange={(e) => setFilters({ ...filters, associateId: e.target.value })} className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold-400 focus:ring-2 focus:ring-gold-200" />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">Associate Name</label>
+              <input type="text" placeholder="Name" value={filters.associateName} onChange={(e) => setFilters({ ...filters, associateName: e.target.value })} className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold-400 focus:ring-2 focus:ring-gold-200" />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">Approve From</label>
+              <input type="date" value={filters.approveFrom} onChange={(e) => setFilters({ ...filters, approveFrom: e.target.value })} className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold-400 focus:ring-2 focus:ring-gold-200" />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">Approve To</label>
+              <input type="date" value={filters.approveTo} onChange={(e) => setFilters({ ...filters, approveTo: e.target.value })} className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold-400 focus:ring-2 focus:ring-gold-200" />
+            </div>
+            <button onClick={() => { setPage(1); fetchAssociates(); }} className="rounded-lg bg-gold-500 px-5 py-2 text-sm font-medium text-white hover:bg-gold-600">Search</button>
+          </div>
+        )}
       </div>
 
       {error && <p className="text-red-600 text-sm">{error}</p>}

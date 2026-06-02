@@ -18,6 +18,8 @@ import Notifications from './pages/Notifications.jsx';
 import Config from './pages/Config.jsx';
 import Commissions from './pages/Commissions.jsx';
 import Promotions from './pages/Promotions.jsx';
+import CompanyDetails from './pages/CompanyDetails.jsx';
+import Downline from './pages/Downline.jsx';
 
 export default function App() {
   return (
@@ -37,6 +39,7 @@ export default function App() {
               <Route path="associates" element={<Associates />} />
               <Route path="associates/:id" element={<AssociateDetail />} />
               <Route path="genealogy" element={<Genealogy />} />
+              <Route path="downline" element={<Downline />} />
               <Route path="payouts" element={<Payouts />} />
               <Route path="funds" element={<Funds />} />
               <Route path="transactions" element={<Transactions />} />
@@ -46,6 +49,7 @@ export default function App() {
               <Route path="notifications" element={<Notifications />} />
               <Route path="commissions" element={<Commissions />} />
               <Route path="promotions" element={<Promotions />} />
+              <Route path="company" element={<CompanyDetails />} />
               <Route path="config" element={<Config />} />
             </Route>
             <Route path="*" element={<Navigate to="/" />} />

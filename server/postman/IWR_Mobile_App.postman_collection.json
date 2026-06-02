@@ -5,9 +5,10 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:5000/api/v1" },
+    { "key": "baseUrl", "value": "http://localhost:5001/api/v1" },
     { "key": "accessToken", "value": "" },
-    { "key": "refreshToken", "value": "" }
+    { "key": "refreshToken", "value": "" },
+    { "key": "associateId", "value": "" }
   ],
   "auth": {
     "type": "bearer",
@@ -19,6 +20,32 @@
       "item": [
         {
           "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.data && json.data.associateId) {",
+                  "  pm.collectionVariables.set('associateId', json.data.associateId);",
+                  "  console.log('Associate ID saved. Check email/console for OTP.');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"IW100001\",\n  \"password\": \"Test@1234\",\n  \"deviceToken\": \"test_fcm_token\",\n  \"platform\": \"android\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Verify OTP (Step 2)",
           "event": [
             {
               "listen": "test",
@@ -38,9 +65,9 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"userId\": \"IW100001\",\n  \"password\": \"Test@1234\",\n  \"deviceToken\": \"test_fcm_token\",\n  \"platform\": \"android\"\n}"
+              "raw": "{\n  \"associateId\": \"{{associateId}}\",\n  \"otp\": \"123456\"\n}"
             },
-            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+            "url": { "raw": "{{baseUrl}}/auth/verify-otp", "host": ["{{baseUrl}}"], "path": ["auth", "verify-otp"] }
           }
         },
         {
@@ -261,7 +288,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"referrals\": 5,\n  \"depth\": 3,\n  \"packageId\": \"default-package-001\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"areaInGaj\": 500,\n  \"rank\": 1\n}" },
             "url": { "raw": "{{baseUrl}}/income/calculator", "host": ["{{baseUrl}}"], "path": ["income", "calculator"] }
           }
         }
@@ -379,16 +406,16 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"name\": \"John Doe\",\n  \"phone\": \"9876543210\",\n  \"email\": \"john@example.com\",\n  \"sponsorId\": \"IW100001\",\n  \"password\": \"John@1234\",\n  \"address\": \"123 Main Street\",\n  \"city\": \"Mumbai\",\n  \"state\": \"Maharashtra\",\n  \"pincode\": \"400001\",\n  \"panNumber\": \"ABCDE1234F\",\n  \"dateOfBirth\": \"1990-05-15\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"John Doe\",\n  \"phone\": \"9876543210\",\n  \"email\": \"john@example.com\",\n  \"sponsorId\": \"IW100001\",\n  \"password\": \"John@1234\",\n  \"address\": \"123 Main Street\",\n  \"city\": \"Mumbai\",\n  \"state\": \"Maharashtra\",\n  \"pincode\": \"400001\",\n  \"panNumber\": \"ABCDE1234F\",\n  \"dateOfBirth\": \"1990-05-15\"\n}\n\nNote: No packageId or placement needed. Status starts as INACTIVE pending admin approval." },
             "url": { "raw": "{{baseUrl}}/registration/register", "host": ["{{baseUrl}}"], "path": ["registration", "register"] }
           }
         },
         {
-          "name": "Activate Associate",
+          "name": "Activate Associate (Admin Only)",
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"associateId\": \"uuid-of-associate\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"associateId\": \"uuid-of-associate\"\n}\n\nNote: This is an admin-only endpoint. Associates register and wait for admin approval." },
             "url": { "raw": "{{baseUrl}}/registration/activate", "host": ["{{baseUrl}}"], "path": ["registration", "activate"] }
           }
         }
@@ -562,7 +589,7 @@
             "auth": { "type": "noauth" },
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"referrals\": 5,\n  \"depth\": 3,\n  \"packageId\": \"default-package-001\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"areaInGaj\": 500,\n  \"rank\": 1\n}" },
             "url": { "raw": "{{baseUrl}}/public/commission-calculator", "host": ["{{baseUrl}}"], "path": ["public", "commission-calculator"] }
           }
         }

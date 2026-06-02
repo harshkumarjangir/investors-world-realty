@@ -1,5 +1,6 @@
 import {
   getPendingKYC,
+  getKYCByStatus,
   approveKYC,
   rejectKYC,
   getAssociateKYC,
@@ -11,6 +12,17 @@ export async function getPendingKYCHandler(req, res, next) {
     const pagination = parsePagination(req.query);
     const result = await getPendingKYC(pagination);
     return paginatedResponse(res, result.items, result.totalItems, result.page, result.pageSize, 'Pending KYC documents');
+  } catch (err) {
+    return next(err);
+  }
+}
+
+export async function getKYCByStatusHandler(req, res, next) {
+  try {
+    const { status } = req.query;
+    const pagination = parsePagination(req.query);
+    const result = await getKYCByStatus(status, pagination);
+    return paginatedResponse(res, result.items, result.totalItems, result.page, result.pageSize, `${status} KYC documents`);
   } catch (err) {
     return next(err);
   }

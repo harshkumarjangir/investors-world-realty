@@ -50,6 +50,54 @@ export async function getPendingKYC(pagination) {
   return { items, totalItems, page, pageSize };
 }
 
+// ─── getKYCByStatus ───────────────────────────────────────────────────────────
+
+export async function getKYCByStatus(status, pagination) {
+  const { page, pageSize, skip, take } = pagination;
+
+  const where = { status: status || 'APPROVED' };
+
+  const [records, totalItems] = await Promise.all([
+    prisma.kYCDocument.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take,
+      select: {
+        id: true,
+        type: true,
+        documentNumber: true,
+        documentUrl: true,
+        status: true,
+        rejectionReason: true,
+        verifiedAt: true,
+        createdAt: true,
+        associate: { select: { id: true, userId: true, name: true, profilePhoto: true, phone: true } },
+      },
+    }),
+    prisma.kYCDocument.count({ where }),
+  ]);
+
+  const items = records.map((r) => ({
+    id: r.id,
+    type: r.type,
+    documentNumber: r.documentNumber,
+    documentUrl: r.documentUrl,
+    status: r.status,
+    rejectionReason: r.rejectionReason,
+    verifiedAt: r.verifiedAt,
+    createdAt: r.createdAt,
+    associateId: r.associate.id,
+    userId: r.associate.userId,
+    associateName: r.associate.name,
+    name: r.associate.name,
+    profilePhoto: r.associate.profilePhoto,
+    phone: r.associate.phone,
+  }));
+
+  return { items, totalItems, page, pageSize };
+}
+
 // ─── approveKYC ───────────────────────────────────────────────────────────────
 
 /**

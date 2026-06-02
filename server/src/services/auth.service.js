@@ -29,7 +29,6 @@ export async function loginAssociate(userId, password, deviceToken = null) {
 
   const associate = await prisma.associate.findUnique({
     where: { userId, deletedAt: null },
-    include: { package: true },
   });
 
   if (!associate) {
@@ -61,6 +60,34 @@ export async function loginAssociate(userId, password, deviceToken = null) {
     await prisma.associate.update({ where: { id: associate.id }, data: { failedAttempts: 0 } });
   }
 
+  // Send OTP for verification (2FA)
+  await sendOtp(associate.email);
+
+  // Store device token temporarily for use after OTP verification
+  if (deviceToken) {
+    await redis.set(`pending_device:${associate.id}`, deviceToken, 'EX', TTL.OTP);
+  }
+
+  return { message: 'OTP sent to registered email', associateId: associate.id };
+}
+
+// ─── Verify Associate OTP (Step 2 of login) ──────────────────────────────────
+export async function verifyAssociateOtp(associateId, otp) {
+  const associate = await prisma.associate.findUnique({
+    where: { id: associateId },
+    include: { package: true },
+  });
+
+  if (!associate) {
+    throw Object.assign(new Error('Associate not found'), { statusCode: 404 });
+  }
+
+  const valid = await verifyOtp(associate.email, otp);
+
+  if (!valid) {
+    throw Object.assign(new Error('Invalid or expired OTP'), { statusCode: 400 });
+  }
+
   const tokenPayload = {
     id: associate.id,
     userId: associate.userId,
@@ -71,17 +98,20 @@ export async function loginAssociate(userId, password, deviceToken = null) {
   const refreshToken = generateRefreshToken(tokenPayload);
 
   // Store refresh token in Redis
+  const redis = getRedisClient();
   await redis.set(keys.refreshSession(refreshToken), associate.id, 'EX', TTL.REFRESH_TOKEN);
 
-  // Store device token if provided
-  if (deviceToken) {
-    await upsertDeviceToken(associate.id, deviceToken);
+  // Store device token if was pending
+  const pendingDevice = await redis.get(`pending_device:${associate.id}`);
+  if (pendingDevice) {
+    await upsertDeviceToken(associate.id, pendingDevice);
+    await redis.del(`pending_device:${associate.id}`);
   }
 
   return {
     accessToken,
     refreshToken,
-    associate: {
+    user: {
       id: associate.id,
       userId: associate.userId,
       name: associate.name,
@@ -90,7 +120,6 @@ export async function loginAssociate(userId, password, deviceToken = null) {
       status: associate.status,
       theme: associate.theme,
       language: associate.language,
-      package: associate.package ? { id: associate.package.id, name: associate.package.name } : null,
     },
   };
 }
@@ -292,7 +321,9 @@ export async function verifyAdminOtp(adminId, otp) {
     admin: {
       id: admin.id,
       name: admin.name,
+      username: admin.username || admin.name,
       email: admin.email,
+      phone: admin.phone,
       role: admin.role.name,
       permissions: admin.role.permissions,
     },

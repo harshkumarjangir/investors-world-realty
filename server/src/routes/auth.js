@@ -5,6 +5,7 @@ import { authenticate } from '../middleware/auth.js';
 import { publicRateLimit, authRateLimit } from '../middleware/rateLimiter.js';
 import {
   login,
+  verifyOtpHandler,
   refresh,
   logout,
   forgotPassword,
@@ -22,6 +23,16 @@ router.post('/login',
   ],
   validate,
   login,
+);
+
+router.post('/verify-otp',
+  publicRateLimit,
+  [
+    body('associateId').trim().notEmpty().withMessage('Associate ID is required'),
+    body('otp').trim().isLength({ min: 6, max: 6 }).withMessage('OTP must be 6 digits'),
+  ],
+  validate,
+  verifyOtpHandler,
 );
 
 router.post('/refresh',

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authenticateAdmin, requirePermission } from '../../middleware/auth.js';
 import {
   getPendingKYCHandler,
+  getKYCByStatusHandler,
   approveKYCHandler,
   rejectKYCHandler,
   getAssociateKYCHandler,
@@ -14,6 +15,9 @@ router.use(authenticateAdmin);
 
 // GET /api/v1/admin/kyc/pending
 router.get('/pending', requirePermission('kyc:read'), getPendingKYCHandler);
+
+// GET /api/v1/admin/kyc/list?status=APPROVED|REJECTED
+router.get('/list', requirePermission('kyc:read'), getKYCByStatusHandler);
 
 // POST /api/v1/admin/kyc/:id/approve
 router.post('/:id/approve', requirePermission('kyc:write'), approveKYCHandler);

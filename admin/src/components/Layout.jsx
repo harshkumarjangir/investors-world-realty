@@ -15,6 +15,7 @@ import {
   LogOut,
   Menu,
   X,
+  UserCircle,
 } from 'lucide-react';
 import { useAuth } from '../common/AuthContext.jsx';
 import { useI18n } from '../common/i18n.jsx';
@@ -23,6 +24,7 @@ const navItems = [
   { key: 'nav.dashboard', icon: LayoutDashboard, path: '/', permission: 'dashboard:read' },
   { key: 'nav.associates', icon: Users, path: '/associates', permission: 'associates:read' },
   { key: 'nav.genealogy', icon: GitBranch, path: '/genealogy', permission: 'genealogy:read' },
+  { key: 'Downline', icon: GitBranch, path: '/downline', permission: 'genealogy:read' },
   { key: 'nav.payouts', icon: Wallet, path: '/payouts', permission: 'payouts:read' },
   { key: 'nav.reports', icon: FileText, path: '/reports', permission: 'reports:read' },
   { key: 'nav.funds', icon: DollarSign, path: '/funds', permission: 'funds:read' },
@@ -65,12 +67,12 @@ export default function Layout() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-30 w-64 transform bg-slate-900 transition-transform duration-200 ease-in-out lg:relative lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-30 w-64 flex flex-col transform bg-slate-900 transition-transform duration-200 ease-in-out lg:relative lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Logo / Brand */}
-        <div className="flex h-16 items-center justify-between px-4 border-b border-slate-700">
+        <div className="flex h-16 shrink-0 items-center justify-between px-4 border-b border-slate-700">
           <h1 className="text-lg font-bold text-white truncate">
             Investors World Realty
           </h1>
@@ -83,7 +85,7 @@ export default function Layout() {
         </div>
 
         {/* Navigation */}
-        <nav className="mt-4 flex-1 overflow-y-auto px-3 pb-4">
+        <nav className="mt-4 flex-1 overflow-y-auto sidebar-scroll px-3 pb-4">
           <ul className="space-y-1">
             {visibleNavItems.map((item) => {
               const Icon = item.icon;
@@ -133,10 +135,14 @@ export default function Layout() {
               {t('lang.switch')}
             </button> */}
 
-            {/* Admin name */}
-            <span className="text-sm font-medium text-gray-700">
+            {/* Admin name — links to Company Details */}
+            <NavLink
+              to="/company"
+              className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gold-50 hover:text-gold-600 transition-colors"
+            >
+              <UserCircle size={20} />
               {admin?.name || 'Admin'}
-            </span>
+            </NavLink>
 
             {/* Logout button */}
             <button
@@ -150,7 +156,7 @@ export default function Layout() {
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto main-scroll">
           <Outlet />
         </main>
       </div>

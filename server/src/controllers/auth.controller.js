@@ -1,5 +1,6 @@
 import {
   loginAssociate,
+  verifyAssociateOtp,
   refreshAssociateToken,
   logoutAssociate,
   sendOtp,
@@ -13,6 +14,16 @@ export async function login(req, res, next) {
   try {
     const { userId, password, deviceToken, platform } = req.body;
     const result = await loginAssociate(userId, password, deviceToken, platform);
+    return successResponse(res, result, 'OTP sent to registered email');
+  } catch (err) {
+    return next(err);
+  }
+}
+
+export async function verifyOtpHandler(req, res, next) {
+  try {
+    const { associateId, otp } = req.body;
+    const result = await verifyAssociateOtp(associateId, otp);
     return successResponse(res, result, 'Login successful');
   } catch (err) {
     return next(err);

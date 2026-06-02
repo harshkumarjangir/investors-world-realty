@@ -10,7 +10,7 @@ async function fetchNode(treeNodeId) {
     where: { id: treeNodeId },
     include: {
       associate: {
-        select: { id: true, userId: true, name: true, status: true },
+        select: { id: true, userId: true, name: true, phone: true, status: true, rank: true, totalAreaSold: true, joiningDate: true },
       },
     },
   });
@@ -67,7 +67,11 @@ export async function getTree(associateId, depth = 5) {
           associateId: leftNode.associateId,
           userId: leftNode.associate.userId,
           name: leftNode.associate.name,
+          phone: leftNode.associate.phone,
           status: leftNode.associate.status,
+          rank: leftNode.associate.rank,
+          totalAreaSold: leftNode.associate.totalAreaSold,
+          joiningDate: leftNode.associate.joiningDate,
           position: leftNode.position,
           level: leftNode.level,
           left: null,
@@ -86,7 +90,11 @@ export async function getTree(associateId, depth = 5) {
           associateId: rightNode.associateId,
           userId: rightNode.associate.userId,
           name: rightNode.associate.name,
+          phone: rightNode.associate.phone,
           status: rightNode.associate.status,
+          rank: rightNode.associate.rank,
+          totalAreaSold: rightNode.associate.totalAreaSold,
+          joiningDate: rightNode.associate.joiningDate,
           position: rightNode.position,
           level: rightNode.level,
           left: null,

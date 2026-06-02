@@ -23,6 +23,7 @@ function parseBankDetails(kyc) {
 
 export default function KYC() {
   const { t } = useI18n();
+  const [activeTab, setActiveTab] = useState('PENDING');
   const [kycList, setKycList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -31,13 +32,14 @@ export default function KYC() {
   const [remarkInputs, setRemarkInputs] = useState({});
 
   useEffect(() => {
-    fetchPendingKYC();
-  }, [page]);
+    fetchKYC();
+  }, [page, activeTab]);
 
-  const fetchPendingKYC = async () => {
+  const fetchKYC = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/admin/kyc/pending', { params: { page, pageSize: 20 } });
+      const endpoint = activeTab === 'PENDING' ? '/admin/kyc/pending' : `/admin/kyc/list?status=${activeTab}`;
+      const res = await api.get(endpoint, { params: { page, pageSize: 20 } });
       setKycList(res.data?.data || res.data?.kyc || []);
       setTotalPages(res.data?.totalPages || 1);
     } catch (err) {
@@ -51,7 +53,7 @@ export default function KYC() {
     if (!confirm('Approve this KYC document?')) return;
     try {
       await api.post(`/admin/kyc/${id}/approve`);
-      fetchPendingKYC();
+      fetchKYC();
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to approve');
     }
@@ -62,7 +64,7 @@ export default function KYC() {
     if (!reason) return;
     try {
       await api.post(`/admin/kyc/${id}/reject`, { reason });
-      fetchPendingKYC();
+      fetchKYC();
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to reject');
     }
@@ -76,6 +78,27 @@ export default function KYC() {
       </div>
 
       {error && <p className="text-red-600 text-sm">{error}</p>}
+
+      {/* Tabs */}
+      <div className="flex gap-1 border-b border-gray-200">
+        {[
+          { key: 'PENDING', label: 'Pending' },
+          { key: 'APPROVED', label: 'Approved' },
+          { key: 'REJECTED', label: 'Rejected' },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => { setActiveTab(tab.key); setPage(1); }}
+            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === tab.key
+                ? 'border-gold-500 text-gold-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
       <div className="rounded-xl bg-white shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
