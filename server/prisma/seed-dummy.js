@@ -74,9 +74,20 @@ async function main() {
   await prisma.propertyImage.deleteMany({});
   await prisma.propertyVideo.deleteMany({});
   await prisma.property.deleteMany({});
-  await prisma.wallet.deleteMany({});
-  await prisma.treeNode.deleteMany({});
-  await prisma.associate.deleteMany({});
+  // Only delete dummy associates (IW100011+), preserving rank-ladder IW100001–IW100010
+  const dummyAssociates = await prisma.associate.findMany({
+    where: { userId: { gte: 'IW100011' } },
+    select: { id: true },
+  });
+  const dummyIds = dummyAssociates.map((a) => a.id);
+  if (dummyIds.length > 0) {
+    await prisma.treeNode.updateMany({ where: { associateId: { in: dummyIds } }, data: { leftChildId: null, rightChildId: null, parentId: null } });
+    await prisma.treeNode.deleteMany({ where: { associateId: { in: dummyIds } } });
+    await prisma.wallet.deleteMany({ where: { associateId: { in: dummyIds } } });
+    await prisma.associate.deleteMany({ where: { id: { in: dummyIds } } });
+  } else {
+    await prisma.wallet.deleteMany({ where: { associateId: { notIn: [] } } });
+  }
   await prisma.payout.deleteMany({});
   console.log('  ✅ Cleaned\n');
 
@@ -90,64 +101,22 @@ async function main() {
   }
 
   // ─── Create Root Associate (Sponsor for all) ───────────────────────────────
-  console.log('Creating root associate...');
-  const rootAssociate = await prisma.associate.upsert({
-    where: { userId: 'IW100001' },
-    update: {},
-    create: {
-      userId: 'IW100001',
-      name: 'Rajesh Kumar',
-      email: 'rajesh@investorsworld.com',
-      phone: '9999900001',
-      password: hashedPassword,
-      address: '123 Main Road',
-      city: 'Mumbai',
-      state: 'Maharashtra',
-      pincode: '400001',
-      panNumber: 'ABCDE1234F',
-      packageId: pkg.id,
-      status: 'ACTIVE',
-      activationDate: new Date('2024-01-15'),
-      joiningDate: new Date('2024-01-10'),
-    },
-  });
-
-  // Create root TreeNode
-  await prisma.treeNode.upsert({
-    where: { associateId: rootAssociate.id },
-    update: {},
-    create: {
-      associateId: rootAssociate.id,
-      position: 'LEFT',
-      level: 0,
-      leftVolume: 250000,
-      rightVolume: 200000,
-      carryForward: 50000,
-    },
-  });
-
-  // Create root Wallet
-  await prisma.wallet.upsert({
-    where: { associateId: rootAssociate.id },
-    update: {},
-    create: {
-      associateId: rootAssociate.id,
-      balance: 75000,
-      totalCredits: 125000,
-      totalDebits: 50000,
-    },
-  });
-
-  console.log(`  ✅ Root: ${rootAssociate.userId} (${rootAssociate.name})`);
+  console.log('Looking up root sponsor IW100010 (President Club)...');
+  const rootAssociate = await prisma.associate.findUnique({ where: { userId: 'IW100010' } });
+  if (!rootAssociate) {
+    console.error('❌ IW100010 not found. Run: npm run db:seed first.');
+    process.exit(1);
+  }
+  console.log(`  ✅ Root: ${rootAssociate.userId} (${rootAssociate.name}) — rank ${rootAssociate.rank}`);
 
   // ─── Create 29 More Associates ─────────────────────────────────────────────
-  console.log('\nCreating 29 associates with proper binary tree...');
+  console.log('\nCreating 20 dummy associates (IW100011–IW100030)...');
   const associates = [rootAssociate];
   const rootTreeNode = await prisma.treeNode.findUnique({ where: { associateId: rootAssociate.id } });
   const treeNodes = [rootTreeNode];
 
-  for (let i = 1; i < 30; i++) {
-    const userId = `IW${String(100001 + i).padStart(6, '0')}`;
+  for (let i = 1; i <= 20; i++) {
+    const userId = `IW${String(100010 + i).padStart(6, '0')}`;
     const name = indianNames[i % indianNames.length];
     const loc = cities[i % cities.length];
     const status = i <= 20 ? 'ACTIVE' : (i <= 25 ? 'INACTIVE' : 'SUSPENDED');
@@ -234,7 +203,7 @@ async function main() {
     associates.push(associate);
     if (i % 10 === 0) console.log(`  ✅ Created ${i}/29 associates`);
   }
-  console.log(`  ✅ All 30 associates created with proper binary tree`);
+  console.log(`  ✅ All 20 dummy associates created (IW100011–IW100030)`);
 
   // ─── Create Income Records ─────────────────────────────────────────────────
   console.log('\nCreating income records...');
@@ -343,7 +312,7 @@ async function main() {
   for (let i = 0; i < 8; i++) {
     const assoc = associates[Math.floor(Math.random() * 20)];
     const statuses = ['OPEN', 'OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'];
-    const ticketNum = `TKT-${String(Date.now()).slice(-4)}${String(i + 1).padStart(3, '0')}`;
+    const ticketNum = `TKT-${String(i + 1).padStart(6, '0')}`;
 
     await prisma.supportTicket.create({
       data: {
@@ -434,7 +403,7 @@ async function main() {
   // ─── Summary ───────────────────────────────────────────────────────────────
   console.log('\n🎉 Dummy data seeding complete!');
   console.log('─────────────────────────────────────────');
-  console.log('  30 Associates (20 active, 5 inactive, 5 suspended)');
+  console.log('  20 Dummy Associates IW100011–IW100030 (+ 10 rank-ladder from seed.js)');
   console.log('  50 Income Records');
   console.log('  15 Properties (4 featured)');
   console.log('  40 Wallet Transactions');
@@ -446,7 +415,7 @@ async function main() {
   console.log('─────────────────────────────────────────');
   console.log('\n📋 Login credentials for all associates:');
   console.log('  Password: Test@1234');
-  console.log('  User IDs: IW100001 through IW100030');
+  console.log('  Rank Ladder: IW100001–IW100010 (seed.js) | Dummy: IW100011–IW100030');
   console.log('\n📋 Admin login:');
   console.log('  Email: admin@investorsworld.com');
   console.log('  Password: Admin@123456');

@@ -809,7 +809,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
 
 2. **Test Credentials:**
    - Associate: `IW100001` / `Test@1234`
-   - Admin: `notespoint2023@gmail.com` / `Admin@123456`
+   - Admin: `admindevelopertest@yopmail.com` / `Admin@123456`
 
 ### Testing Flow
 
@@ -829,7 +829,7 @@ Copy `data.accessToken` → set as `associateToken` in environment.
 POST {{baseUrl}}/admin/auth/login
 Body:
 {
-  "email": "notespoint2023@gmail.com",
+  "email": "admindevelopertest@yopmail.com",
   "password": "Admin@123456"
 }
 ```
@@ -1154,7 +1154,7 @@ All Masters endpoints are prefixed with `/admin/masters/`. Require `config:read`
 ### Admin
 | Email | Password |
 |-------|----------|
-| notespoint2023@gmail.com | Admin@123456 |
+| admindevelopertest@yopmail.com | Admin@123456 |
 
 ---
 

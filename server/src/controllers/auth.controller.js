@@ -14,7 +14,7 @@ export async function login(req, res, next) {
   try {
     const { userId, password, deviceToken, platform } = req.body;
     const result = await loginAssociate(userId, password, deviceToken, platform);
-    return successResponse(res, result, 'OTP sent to registered email');
+    return successResponse(res, result, 'Login successful');
   } catch (err) {
     return next(err);
   }

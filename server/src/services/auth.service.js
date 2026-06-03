@@ -42,7 +42,6 @@ export async function loginAssociate(userId, password, deviceToken = null) {
   const passwordMatch = await bcrypt.compare(password, associate.password);
 
   if (!passwordMatch) {
-    // Increment failed attempts
     const attempts = associate.failedAttempts + 1;
     const update = { failedAttempts: attempts };
 
@@ -60,15 +59,38 @@ export async function loginAssociate(userId, password, deviceToken = null) {
     await prisma.associate.update({ where: { id: associate.id }, data: { failedAttempts: 0 } });
   }
 
-  // Send OTP for verification (2FA)
-  await sendOtp(associate.email);
+  // ── Direct login — no OTP, return tokens immediately ──────────────────────
+  const tokenPayload = {
+    id: associate.id,
+    userId: associate.userId,
+    type: 'associate',
+  };
 
-  // Store device token temporarily for use after OTP verification
+  const accessToken  = generateAccessToken(tokenPayload);
+  const refreshToken = generateRefreshToken(tokenPayload);
+
+  await redis.set(keys.refreshSession(refreshToken), associate.id, 'EX', TTL.REFRESH_TOKEN);
+
+  // Persist device token if provided
   if (deviceToken) {
-    await redis.set(`pending_device:${associate.id}`, deviceToken, 'EX', TTL.OTP);
+    await upsertDeviceToken(associate.id, deviceToken);
   }
 
-  return { message: 'OTP sent to registered email', associateId: associate.id };
+  return {
+    accessToken,
+    refreshToken,
+    user: {
+      id: associate.id,
+      userId: associate.userId,
+      name: associate.name,
+      email: associate.email,
+      phone: associate.phone,
+      status: associate.status,
+      rank: associate.rank,
+      theme: associate.theme,
+      language: associate.language,
+    },
+  };
 }
 
 // ─── Verify Associate OTP (Step 2 of login) ──────────────────────────────────

@@ -60,9 +60,11 @@ Authorization: Bearer <access_token>
 
 ## 🔐 1. Authentication
 
-Login is a **2-step process**: credentials → OTP → tokens.
+Login is now **single-step** — credentials in, tokens out. No OTP for login.
 
-### 1.1 Login (Step 1 — Verify Credentials & Send OTP)
+OTP is only used for **registration email verification** and **forgot password**.
+
+### 1.1 Login (Direct — Returns Tokens Immediately)
 ```
 POST /auth/login
 ```
@@ -80,53 +82,27 @@ POST /auth/login
 {
   "status": "success",
   "data": {
-    "associateId": "uuid",
-    "message": "OTP sent to registered email"
-  }
-}
-```
-**Notes:**
-- `deviceToken` = Firebase FCM token for push notifications (optional)
-- `platform` = "android" | "ios"
-- On success, a 6-digit OTP is sent to the associate's registered email AND printed to the server console
-- After 5 failed attempts, account locks for 30 minutes (returns 423)
-
----
-
-### 1.2 Verify OTP (Step 2 — Get Tokens)
-```
-POST /auth/verify-otp
-```
-**Body:**
-```json
-{
-  "associateId": "uuid-from-step-1-response",
-  "otp": "123456"
-}
-```
-**Response:**
-```json
-{
-  "status": "success",
-  "data": {
     "accessToken": "eyJhbG...",
     "refreshToken": "eyJhbG...",
     "user": {
       "id": "uuid",
       "userId": "IW100001",
       "name": "Rajesh Kumar",
-      "email": "rajesh@example.com",
+      "email": "developertest@yopmail.com",
       "phone": "9999900001",
       "status": "ACTIVE",
+      "rank": 1,
       "theme": "light",
       "language": "en"
     }
   }
 }
 ```
-- Access token expires in **8 hours**
-- Refresh token expires in **7 days**
-- OTP is valid for **5 minutes**
+**Notes:**
+- Tokens returned directly — no OTP step
+- `deviceToken` = Firebase FCM token (optional)
+- `platform` = "android" | "ios"
+- After 5 failed attempts → account locked 30 min (HTTP 423)
 
 ---
 
@@ -291,7 +267,7 @@ GET /associate/profile
     "id": "uuid",
     "userId": "IW100001",
     "name": "Rajesh Kumar",
-    "email": "rajesh@example.com",
+    "email": "developertest@yopmail.com",
     "phone": "9999900001",
     "dateOfBirth": "1990-05-15",
     "address": "123 Main Street",
@@ -563,9 +539,11 @@ POST /registration/register
 }
 ```
 **Notes:**
-- **No `packageId` or `placement` required** — placement is automatic
-- Associate starts as `INACTIVE` — requires admin approval to activate
-- Sponsor must be ACTIVE and have downline capacity (rank-based: Rank 1 can't add, Rank 2-9 can add max 3, Rank 10 unlimited)
+- **`sponsorId` is OPTIONAL.** Users downloading from Play Store without a referral link can register without it — just omit the field or send empty string.
+- If no `sponsorId`, the admin assigns them under the root associate on activation.
+- If `sponsorId` is provided, it must be an ACTIVE associate with downline capacity (rank 2+).
+- Associate starts as `INACTIVE` — admin must approve/activate.
+- `password` rules: min 8 chars, 1 uppercase, 1 number, 1 special character.
 
 ### 9.3 Request Account Deletion 🔒
 ```
@@ -674,7 +652,7 @@ POST /support/tickets/:id/reply
 ```
 User ID: IW100001
 Password: Test@1234
-Admin Email: notespoint2023@gmail.com
+Admin Email: admindevelopertest@yopmail.com
 Admin Password: Admin@123456
 ```
 
@@ -691,13 +669,15 @@ Admin Password: Admin@123456
 ### Authentication Flow
 ```
 1. App Start → GET /public/app-version (force update check)
-2. Login Screen → POST /auth/login (userId + password)
-3. OTP Screen → POST /auth/verify-otp (associateId + otp)
-4. Save tokens in flutter_secure_storage
-5. Register FCM → POST /notifications/device-token
-6. On 401 → POST /auth/refresh → retry original request
-7. Logout → POST /auth/logout → clear storage → login screen
+2. Login Screen → POST /auth/login (userId + password) → tokens returned directly
+3. Save accessToken + refreshToken in flutter_secure_storage
+4. Register FCM → POST /notifications/device-token
+5. On 401 → POST /auth/refresh → retry original request
+6. Logout → POST /auth/logout → clear storage → login screen
 ```
+**OTP is only used for:**
+- Registration email verification (signup)
+- Forgot password flow
 
 ### File Uploads
 ```dart

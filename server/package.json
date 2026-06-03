@@ -19,6 +19,7 @@
     "db:seed": "node prisma/seed.js",
     "db:seed:dummy": "node prisma/seed-dummy.js",
     "db:seed:slabs": "node prisma/seed-commission-slabs.js",
+    "db:reset": "node prisma/reset-and-seed.js",
     "db:studio": "prisma studio"
   },
   "license": "UNLICENSED",

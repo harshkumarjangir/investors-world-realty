@@ -25,6 +25,8 @@ router.post('/login',
   login,
 );
 
+// verify-otp is kept for registration email verification (signup OTP)
+// NOT used for login anymore — login returns tokens directly
 router.post('/verify-otp',
   publicRateLimit,
   [

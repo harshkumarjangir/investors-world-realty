@@ -26,7 +26,7 @@
             "auth": { "type": "noauth" },
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"email\": \"notespoint2023@gmail.com\",\n  \"password\": \"Admin@123456\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admindevelopertest@yopmail.com\",\n  \"password\": \"Admin@123456\"\n}" },
             "url": { "raw": "{{baseUrl}}/admin/auth/login", "host": ["{{baseUrl}}"], "path": ["admin","auth","login"] }
           }
         },

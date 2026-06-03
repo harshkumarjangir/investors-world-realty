@@ -53,9 +53,8 @@ router.post('/register',
       .normalizeEmail(),
 
     body('sponsorId')
-      .trim()
-      .notEmpty()
-      .withMessage('Sponsor/Referral ID is required'),
+      .optional()
+      .trim(),
 
     body('password')
       .notEmpty()

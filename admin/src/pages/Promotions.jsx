@@ -47,7 +47,23 @@ export default function Promotions() {
       const res = await api.get('/admin/associates', {
         params: { search, page, pageSize: 20, status: 'ACTIVE' },
       });
-      setAssociates(res.data?.data || []);
+      const items = res.data?.data || [];
+
+      // Fetch direct downline count for each associate
+      const withDownlines = await Promise.all(
+        items.map(async (a) => {
+          try {
+            const dc = await api.get('/admin/associates', {
+              params: { sponsorUserId: a.userId, pageSize: 1, status: 'ACTIVE' },
+            });
+            return { ...a, directDownlines: dc.data?.totalItems ?? 0 };
+          } catch {
+            return { ...a, directDownlines: 0 };
+          }
+        })
+      );
+
+      setAssociates(withDownlines);
       setTotalPages(res.data?.totalPages || 1);
     } catch (err) {
       console.error('Failed to load associates', err);
@@ -126,17 +142,28 @@ export default function Promotions() {
               ) : (
                 associates.map((a) => {
                   const rank = a.rank || 1;
-                  return (
+                  const rankName = a.rankName || RANK_NAMES[rank] || 'Unknown';
+                    return (
                     <tr key={a.id} className="border-b border-gray-50 even:bg-gray-50">
                       <td className="px-4 py-3 font-mono text-gray-700">{a.userId}</td>
                       <td className="px-4 py-3 font-medium text-gray-800">{a.name}</td>
                       <td className="px-4 py-3">
                         <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${RANK_COLORS[rank]}`}>
-                          L{rank}: {RANK_NAMES[rank]}
+                          L{rank}: {rankName}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-gray-700">{(a.totalAreaSold || 0).toLocaleString()} gaj</td>
-                      <td className="px-4 py-3 text-gray-700">{a.directDownlines || '-'}</td>
+                      <td className="px-4 py-3">
+                        <span className={`font-medium ${a.directDownlines > 0 ? 'text-gray-800' : 'text-gray-400'}`}>
+                          {a.directDownlines ?? 0}
+                          {rank >= 2 && rank < 10 && (
+                            <span className="ml-1 text-xs text-gray-400">/ 3</span>
+                          )}
+                          {rank >= 10 && (
+                            <span className="ml-1 text-xs text-gray-400">∞</span>
+                          )}
+                        </span>
+                      </td>
                       <td className="px-4 py-3">
                         {rank < 10 && (
                           <button

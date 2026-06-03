@@ -133,7 +133,6 @@ export async function registerAssociate(data) {
   if (!name) missing.push('name');
   if (!phone) missing.push('phone');
   if (!email) missing.push('email');
-  if (!sponsorId) missing.push('sponsorId');
   if (!password) missing.push('password');
 
   if (missing.length > 0) {
@@ -156,14 +155,19 @@ export async function registerAssociate(data) {
     throw Object.assign(new Error('Email address is already registered'), { statusCode: 400 });
   }
 
-  // ── Validate sponsor ───────────────────────────────────────────────────────
-  const sponsor = await validateSponsor(sponsorId);
+  // ── Validate sponsor (optional) ────────────────────────────────────────────
+  // If sponsorId is provided, validate it. If not, associate will be assigned
+  // to the root/default sponsor by admin when activating.
+  let sponsor = null;
+  if (sponsorId && sponsorId.trim()) {
+    sponsor = await validateSponsor(sponsorId.trim());
 
-  // ── Check if sponsor can add downlines (rank-based) ────────────────────────
-  const { canAddDownline } = await import('./promotion.service.js');
-  const downlineCheck = await canAddDownline(sponsor.id);
-  if (!downlineCheck.canAdd) {
-    throw Object.assign(new Error(downlineCheck.reason), { statusCode: 400 });
+    // Check if sponsor can add downlines (rank-based)
+    const { canAddDownline } = await import('./promotion.service.js');
+    const downlineCheck = await canAddDownline(sponsor.id);
+    if (!downlineCheck.canAdd) {
+      throw Object.assign(new Error(downlineCheck.reason), { statusCode: 400 });
+    }
   }
 
   // ── Generate userId ────────────────────────────────────────────────────────
@@ -185,7 +189,7 @@ export async function registerAssociate(data) {
       state: state || null,
       pincode: pincode || null,
       panNumber: panNumber || null,
-      sponsorId: sponsor.id,
+      sponsorId: sponsor?.id || null,   // null if no sponsor provided
       status: 'INACTIVE',
       rank: 1,
       dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
@@ -239,17 +243,40 @@ export async function activateAssociate(associateId) {
 
     // 3. Create TreeNode if not exists (place under sponsor)
     const existingNode = await tx.treeNode.findUnique({ where: { associateId } });
-    if (!existingNode && associate.sponsorId) {
-      const sponsorNode = await tx.treeNode.findUnique({ where: { associateId: associate.sponsorId } });
-      const level = sponsorNode ? sponsorNode.level + 1 : 1;
-      await tx.treeNode.create({
-        data: {
-          associateId,
-          parentId: sponsorNode?.id || null,
-          position: 'LEFT',
-          level,
-        },
-      });
+    if (!existingNode) {
+      // Use sponsor if available, otherwise fall back to the root associate (rank 10)
+      let parentAssociateId = associate.sponsorId;
+
+      if (!parentAssociateId) {
+        // Find the root associate (no sponsor = root of tree)
+        const root = await tx.associate.findFirst({
+          where: { sponsorId: null, deletedAt: null, status: 'ACTIVE' },
+          orderBy: { createdAt: 'asc' },
+          select: { id: true },
+        });
+        parentAssociateId = root?.id || null;
+      }
+
+      if (parentAssociateId) {
+        const sponsorNode = await tx.treeNode.findUnique({ where: { associateId: parentAssociateId } });
+        const level = sponsorNode ? sponsorNode.level + 1 : 1;
+        await tx.treeNode.create({
+          data: {
+            associateId,
+            parentId: sponsorNode?.id || null,
+            position: 'LEFT',
+            level,
+          },
+        });
+
+        // Update associate's sponsorId if it was null (assign to root)
+        if (!associate.sponsorId && parentAssociateId) {
+          await tx.associate.update({
+            where: { id: associateId },
+            data: { sponsorId: parentAssociateId },
+          });
+        }
+      }
     }
 
     return activated;

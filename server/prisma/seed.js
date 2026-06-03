@@ -45,9 +45,9 @@ async function main() {
   // ─── Super Admin ──────────────────────────────────────────────────────────
   const adminPass = await bcrypt.hash('Admin@123456', 12);
   await prisma.admin.upsert({
-    where: { email: 'notespoint2023@gmail.com' },
+    where: { email: 'admindevelopertest@yopmail.com' },
     update: {},
-    create: { name: 'Super Admin', email: 'notespoint2023@gmail.com', phone: '9999999999', password: adminPass, roleId: superAdminRole.id },
+    create: { name: 'Super Admin', email: 'admindevelopertest@yopmail.com', phone: '9999999999', password: adminPass, roleId: superAdminRole.id },
   });
   console.log('✅ Super admin seeded');
 
@@ -168,33 +168,137 @@ async function main() {
 
   // ─── Associates ───────────────────────────────────────────────────────────
   const ap = await bcrypt.hash('Test@1234', 12);
-  const assoc1 = await prisma.associate.upsert({ where:{userId:'IW100001'}, update:{}, create:{userId:'IW100001',name:'Rajesh Kumar',email:'rajesh@example.com',phone:'9999900001',password:ap,status:'ACTIVE',rank:3,totalAreaSold:1200,address:'45, Sector 12, Malviya Nagar',city:'Jaipur',state:'Rajasthan',pincode:'302017',panNumber:'ABCDE1234F',activationDate:new Date('2024-06-15'),joiningDate:new Date('2024-06-10')} });
-  const assoc2 = await prisma.associate.upsert({ where:{userId:'IW100002'}, update:{}, create:{userId:'IW100002',name:'Suresh Sharma',email:'suresh@example.com',phone:'9999900002',password:ap,status:'ACTIVE',rank:2,totalAreaSold:800,sponsorId:assoc1.id,address:'22, Gandhi Nagar',city:'Jaipur',state:'Rajasthan',pincode:'302015',panNumber:'FGHIJ5678K',activationDate:new Date('2024-07-20'),joiningDate:new Date('2024-07-15')} });
-  const assoc3 = await prisma.associate.upsert({ where:{userId:'IW100003'}, update:{}, create:{userId:'IW100003',name:'Priya Verma',email:'priya@example.com',phone:'9999900003',password:ap,status:'ACTIVE',rank:1,totalAreaSold:500,sponsorId:assoc1.id,address:'78, Vaishali Nagar',city:'Jaipur',state:'Rajasthan',pincode:'302021',panNumber:'KLMNO9012P',activationDate:new Date('2024-08-10'),joiningDate:new Date('2024-08-05')} });
-  const assoc4 = await prisma.associate.upsert({ where:{userId:'IW100004'}, update:{}, create:{userId:'IW100004',name:'Amit Patel',email:'amit@example.com',phone:'9999900004',password:ap,status:'ACTIVE',rank:1,totalAreaSold:300,sponsorId:assoc2.id,address:'11, Mansarovar',city:'Jaipur',state:'Rajasthan',pincode:'302020',panNumber:'PQRST3456U',activationDate:new Date('2024-09-01'),joiningDate:new Date('2024-08-25')} });
-  const assoc5 = await prisma.associate.upsert({ where:{userId:'IW100005'}, update:{}, create:{userId:'IW100005',name:'Kavita Joshi',email:'kavita@example.com',phone:'9999900005',password:ap,status:'INACTIVE',rank:1,totalAreaSold:0,sponsorId:assoc2.id,address:'33, Tonk Road',city:'Jaipur',state:'Rajasthan',pincode:'302018',panNumber:'UVWXY7890Z',joiningDate:new Date('2025-01-10')} });
-  console.log(`✅ Associates seeded (IW100001–IW100005). assoc5: ${assoc5.userId}`);
+
+  // ─── Full Rank Ladder (one associate per rank 10→1) ───────────────────────
+  // Each higher-rank associate sponsors the next one down.
+  // This lets you test registration under any rank level.
+  //
+  // IW100010 = President Club    (rank 10) — root sponsor, unlimited downlines
+  // IW100009 = President Sales   (rank 9)
+  // IW100008 = Vice President    (rank 8)
+  // IW100007 = National BH       (rank 7)
+  // IW100006 = Regional BH       (rank 6)
+  // IW100005 = State BH          (rank 5)
+  // IW100004 = Dist. BH          (rank 4)
+  // IW100003 = Business Head     (rank 3)
+  // IW100002 = Business Adviser  (rank 2) ← good sponsor to test new registration
+  // IW100001 = Business Associate(rank 1) ← cannot sponsor (rank 1 restriction)
+
+  const rankData = [
+    { userId:'IW100010', name:'Arjun Singhania',  email:'arjun@example.com',   phone:'9999900010', rank:10, area:15000, pan:'ARJUN1234A', city:'Mumbai',    addr:'1, Sea View, Marine Drive',  join:'2022-01-01', act:'2022-01-05' },
+    { userId:'IW100009', name:'Meena Kapoor',     email:'meena@example.com',   phone:'9999900009', rank:9,  area:12000, pan:'MEENA5678B', city:'Delhi',     addr:'9, Green Park, New Delhi',   join:'2022-03-01', act:'2022-03-05' },
+    { userId:'IW100008', name:'Sunil Rathore',    email:'sunil@example.com',   phone:'9999900008', rank:8,  area:9500,  pan:'SUNIL9012C', city:'Jaipur',    addr:'8, Civil Lines, Jaipur',     join:'2022-06-01', act:'2022-06-05' },
+    { userId:'IW100007', name:'Pooja Agarwal',    email:'pooja@example.com',   phone:'9999900007', rank:7,  area:7200,  pan:'POOJA3456D', city:'Lucknow',   addr:'7, Hazratganj, Lucknow',     join:'2022-09-01', act:'2022-09-05' },
+    { userId:'IW100006', name:'Deepak Verma',     email:'deepak@example.com',  phone:'9999900006', rank:6,  area:5500,  pan:'DEPAK7890E', city:'Pune',      addr:'6, Koregaon Park, Pune',     join:'2023-01-01', act:'2023-01-05' },
+    { userId:'IW100005', name:'Anita Sharma',     email:'anita@example.com',   phone:'9999900005', rank:5,  area:4000,  pan:'ANITA1234F', city:'Bangalore', addr:'5, Indiranagar, Bangalore',  join:'2023-04-01', act:'2023-04-05' },
+    { userId:'IW100004', name:'Vikram Joshi',     email:'vikram@example.com',  phone:'9999900004', rank:4,  area:2800,  pan:'VIKRM5678G', city:'Chennai',   addr:'4, Anna Nagar, Chennai',     join:'2023-07-01', act:'2023-07-05' },
+    { userId:'IW100003', name:'Priya Verma',      email:'priya@example.com',   phone:'9999900003', rank:3,  area:1800,  pan:'PRIYA9012H', city:'Hyderabad', addr:'3, Banjara Hills, Hyderabad',join:'2023-10-01', act:'2023-10-05' },
+    { userId:'IW100002', name:'Suresh Sharma',    email:'developmenttestingtest@gmail.com',  phone:'9999900002', rank:2,  area:800,   pan:'SURESH345I', city:'Jaipur',    addr:'2, Malviya Nagar, Jaipur',   join:'2024-01-01', act:'2024-01-05' },
+    { userId:'IW100001', name:'Rajesh Kumar',     email:'developertest@yopmail.com',  phone:'9999900001', rank:1,  area:300,   pan:'ABCDE1234F', city:'Jaipur',    addr:'1, Gandhi Nagar, Jaipur',    join:'2024-06-01', act:'2024-06-05' },
+  ];
+
+  // Create in top-down order so sponsorId can be set
+  const assocMap = {};
+  let prevAssocId = null;
+
+  for (const r of rankData) {
+    const a = await prisma.associate.upsert({
+      where: { userId: r.userId },
+      update: {},
+      create: {
+        userId:         r.userId,
+        name:           r.name,
+        email:          r.email,
+        phone:          r.phone,
+        password:       ap,
+        status:         'ACTIVE',
+        rank:           r.rank,
+        totalAreaSold:  r.area,
+        sponsorId:      prevAssocId, // each sponsors the one below
+        address:        r.addr,
+        city:           r.city,
+        state:          'Rajasthan',
+        pincode:        '302001',
+        panNumber:      r.pan,
+        joiningDate:    new Date(r.join),
+        activationDate: new Date(r.act),
+      },
+    });
+    assocMap[r.userId] = a;
+    prevAssocId = a.id;
+  }
+
+  // Convenient aliases (used below for bookings/tree)
+  const assoc10 = assocMap['IW100010']; // President Club — root
+  const assoc9  = assocMap['IW100009'];
+  const assoc8  = assocMap['IW100008'];
+  const assoc7  = assocMap['IW100007'];
+  const assoc6  = assocMap['IW100006'];
+  const assoc5  = assocMap['IW100005'];
+  const assoc4  = assocMap['IW100004'];
+  const assoc3  = assocMap['IW100003'];
+  const assoc2  = assocMap['IW100002']; // Business Adviser — good test sponsor
+  const assoc1  = assocMap['IW100001']; // Business Associate — rank 1
+
+  console.log(`✅ Associates seeded (IW100001–IW100010, full rank ladder rank 1–10)');
+  console.log('   Tip: Use IW100002–IW100010 as sponsorId when testing new registration`);
 
   // ─── Wallets ──────────────────────────────────────────────────────────────
   const walletData = [
-    { assoc: assoc1, balance: 32540, credits: 75000, debits: 42460 },
-    { assoc: assoc2, balance: 18200, credits: 45000, debits: 26800 },
-    { assoc: assoc3, balance: 9750,  credits: 22000, debits: 12250 },
-    { assoc: assoc4, balance: 5100,  credits: 12000, debits: 6900  },
+    { assoc: assoc10, balance: 250000, credits: 500000, debits: 250000 },
+    { assoc: assoc9,  balance: 180000, credits: 380000, debits: 200000 },
+    { assoc: assoc8,  balance: 120000, credits: 250000, debits: 130000 },
+    { assoc: assoc7,  balance: 85000,  credits: 180000, debits: 95000  },
+    { assoc: assoc6,  balance: 55000,  credits: 120000, debits: 65000  },
+    { assoc: assoc5,  balance: 38000,  credits: 80000,  debits: 42000  },
+    { assoc: assoc4,  balance: 22000,  credits: 48000,  debits: 26000  },
+    { assoc: assoc3,  balance: 12000,  credits: 28000,  debits: 16000  },
+    { assoc: assoc2,  balance: 7500,   credits: 18000,  debits: 10500  },
+    { assoc: assoc1,  balance: 2500,   credits: 6000,   debits: 3500   },
   ];
   for (const w of walletData) {
-    await prisma.wallet.upsert({ where:{associateId:w.assoc.id}, update:{}, create:{associateId:w.assoc.id,balance:w.balance,totalCredits:w.credits,totalDebits:w.debits} });
+    await prisma.wallet.upsert({
+      where:  { associateId: w.assoc.id },
+      update: {},
+      create: { associateId: w.assoc.id, balance: w.balance, totalCredits: w.credits, totalDebits: w.debits },
+    });
   }
-  console.log('✅ Wallets seeded');
+  console.log('✅ Wallets seeded (all 10 associates)');
 
-  // ─── Binary Tree ──────────────────────────────────────────────────────────
-  const tn1 = await prisma.treeNode.upsert({ where:{associateId:assoc1.id}, update:{}, create:{associateId:assoc1.id,position:'LEFT',level:0,leftVolume:25000,rightVolume:18000} });
-  const tn2 = await prisma.treeNode.upsert({ where:{associateId:assoc2.id}, update:{}, create:{associateId:assoc2.id,parentId:tn1.id,position:'LEFT',level:1,leftVolume:12000,rightVolume:8000} });
-  const tn3 = await prisma.treeNode.upsert({ where:{associateId:assoc3.id}, update:{}, create:{associateId:assoc3.id,parentId:tn1.id,position:'RIGHT',level:1,leftVolume:5000,rightVolume:3000} });
-  const tn4 = await prisma.treeNode.upsert({ where:{associateId:assoc4.id}, update:{}, create:{associateId:assoc4.id,parentId:tn2.id,position:'LEFT',level:2,leftVolume:0,rightVolume:0} });
-  await prisma.treeNode.update({ where:{id:tn1.id}, data:{leftChildId:tn2.id,rightChildId:tn3.id} });
-  await prisma.treeNode.update({ where:{id:tn2.id}, data:{leftChildId:tn4.id} });
-  console.log('✅ Binary tree seeded (IW100001 → IW100002/IW100003 → IW100004)');
+  // ─── Binary Tree (linear chain: 10→9→8→7→6→5→4→3→2→1) ────────────────────
+  const treeNodes = {};
+  const orderedIds = ['IW100010','IW100009','IW100008','IW100007','IW100006','IW100005','IW100004','IW100003','IW100002','IW100001'];
+
+  for (let i = 0; i < orderedIds.length; i++) {
+    const assoc = assocMap[orderedIds[i]];
+    const parentNode = i > 0 ? treeNodes[orderedIds[i - 1]] : null;
+    const node = await prisma.treeNode.upsert({
+      where:  { associateId: assoc.id },
+      update: {},
+      create: {
+        associateId: assoc.id,
+        parentId:    parentNode?.id || null,
+        position:    i % 2 === 0 ? 'LEFT' : 'RIGHT',
+        level:       i,
+        leftVolume:  Math.max(0, 50000 - i * 4500),
+        rightVolume: Math.max(0, 40000 - i * 3800),
+      },
+    });
+    treeNodes[orderedIds[i]] = node;
+
+    // Link parent's child pointer
+    if (parentNode) {
+      const pos = i % 2 === 0 ? 'LEFT' : 'RIGHT';
+      if (pos === 'LEFT') {
+        await prisma.treeNode.update({ where: { id: parentNode.id }, data: { leftChildId: node.id } });
+        parentNode.leftChildId = node.id;
+      } else {
+        await prisma.treeNode.update({ where: { id: parentNode.id }, data: { rightChildId: node.id } });
+        parentNode.rightChildId = node.id;
+      }
+    }
+  }
+  console.log('✅ Binary tree seeded (IW100010 root → linear chain down to IW100001)');
 
   // ─── Plot Bookings ────────────────────────────────────────────────────────
   const bookings = [
@@ -211,7 +315,7 @@ async function main() {
   console.log('✅ Plot bookings seeded (3 confirmed with receipts, 3 pending)');
 
   // ─── Wallet Transactions (only if none exist) ─────────────────────────────
-  const wallet1 = await prisma.wallet.findUnique({ where:{associateId:assoc1.id} });
+  const wallet1 = await prisma.wallet.findUnique({ where:{associateId:assoc10.id} });
   if (wallet1) {
     const existingCount = await prisma.transaction.count({ where:{walletId:wallet1.id} });
     if (existingCount === 0) {
@@ -242,8 +346,8 @@ async function main() {
   // ─── Summary ──────────────────────────────────────────────────────────────
   console.log('\n🎉 Database seeding complete!');
   console.log('\n📋 Credentials:');
-  console.log('   Admin:      notespoint2023@gmail.com  /  Admin@123456');
-  console.log('   Associates: IW100001 – IW100005       /  Test@1234');
+  console.log('   Admin:      admindevelopertest@yopmail.com  /  Admin@123456');
+  console.log('   Associates: IW100001 – IW100010       /  Test@1234');
   console.log('\n📦 What was seeded:');
   console.log('   • 4 admin roles + 1 super admin');
   console.log('   • 1 default package + income plans');
@@ -252,9 +356,20 @@ async function main() {
   console.log('   • 5 PLC charges, 6 plot types, 2 account masters');
   console.log('   • 2 schemes (Swarn Nagar, Veera Residency) + 10 sample plots');
   console.log('   • 3 sample properties');
-  console.log('   • 5 associates (IW100001–IW100005) with wallets + binary tree');
+  console.log('   • 10 associates (IW100001–IW100010) — full rank ladder rank 1 to 10');
   console.log('   • 6 plot bookings (3 confirmed/receipted, 3 pending)');
-  console.log('   • 10 sample wallet transactions for IW100001');
+  console.log('   • 10 sample wallet transactions for IW100010');
+  console.log('\n🏅 Rank ladder for registration testing:');
+  console.log('   IW100010  President Club    (rank 10) — unlimited downlines');
+  console.log('   IW100009  President Sales   (rank 9)');
+  console.log('   IW100008  Vice President    (rank 8)');
+  console.log('   IW100007  National BH       (rank 7)');
+  console.log('   IW100006  Regional BH       (rank 6)');
+  console.log('   IW100005  State BH          (rank 5)');
+  console.log('   IW100004  Dist. BH          (rank 4)');
+  console.log('   IW100003  Business Head     (rank 3)');
+  console.log('   IW100002  Business Adviser  (rank 2) ← best for testing (can add up to 3)');
+  console.log('   IW100001  Business Associate(rank 1) ← cannot sponsor new members');
 }
 
 main()

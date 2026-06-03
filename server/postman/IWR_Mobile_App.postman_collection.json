@@ -5,15 +5,41 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl",       "value": "http://localhost:5001/api/v1",                       "description": "Local dev URL" },
-    { "key": "prodUrl",       "value": "https://serveriwr.harshkumarjangir.in/api/v1",       "description": "Production URL" },
-    { "key": "accessToken",   "value": "",  "description": "Set automatically after OTP verify" },
-    { "key": "refreshToken",  "value": "",  "description": "Set automatically after OTP verify" },
-    { "key": "associateId",   "value": "",  "description": "Set automatically after login step 1" }
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5001/api/v1",
+      "description": "Local dev URL"
+    },
+    {
+      "key": "prodUrl",
+      "value": "https://serveriwr.harshkumarjangir.in/api/v1",
+      "description": "Production URL"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "description": "Set automatically after OTP verify"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "description": "Set automatically after OTP verify"
+    },
+    {
+      "key": "associateId",
+      "value": "",
+      "description": "Set automatically after login step 1"
+    }
   ],
   "auth": {
     "type": "bearer",
-    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
   },
   "item": [
     {
@@ -21,84 +47,103 @@
       "description": "2-step login: Step 1 sends OTP to email, Step 2 verifies OTP and returns tokens.\nOTP is always printed to server console regardless of environment.",
       "item": [
         {
-          "name": "Step 1 — Login (Send OTP)",
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "var j = pm.response.json();",
-              "if (j.status === 'success' && j.data && j.data.associateId) {",
-              "  pm.collectionVariables.set('associateId', j.data.associateId);",
-              "  console.log('✅ AssociateId saved:', j.data.associateId);",
-              "  console.log('📧 OTP sent to registered email. Also check server console.');",
-              "} else {",
-              "  console.log('❌ Login failed:', j.message);",
-              "}"
-            ]}
-          }],
+          "name": "1. Login (Direct — No OTP)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var j = pm.response.json();",
+                  "if (j.status === 'success' && j.data && j.data.accessToken) {",
+                  "  pm.collectionVariables.set('accessToken', j.data.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', j.data.refreshToken);",
+                  "  console.log('✅ Tokens saved! User:', j.data.user.name, '| Rank:', j.data.user.rank);",
+                  "} else {",
+                  "  console.log('❌ Login failed:', j.message);",
+                  "}"
+                ]
+              }
+            }
+          ],
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"userId\": \"IW100001\",\n  \"password\": \"Test@1234\",\n  \"deviceToken\": \"test_fcm_token_123\",\n  \"platform\": \"android\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
-            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth","login"] },
-            "description": "**Step 1 of 2-step login.**\n\nVerifies userId + password. On success, sends a 6-digit OTP to the associate's registered email and also logs it to the server console.\n\n**Response:**\n```json\n{\n  \"status\": \"success\",\n  \"data\": {\n    \"associateId\": \"uuid-here\",\n    \"message\": \"OTP sent to registered email\"\n  }\n}\n```\n\n**Notes:**\n- `deviceToken` = Firebase FCM token (optional but recommended)\n- `platform` = `android` | `ios`\n- After 5 failed attempts → account locked 30 min (HTTP 423)\n- OTP expires in 5 minutes"
-          }
-        },
-        {
-          "name": "Step 2 — Verify OTP (Get Tokens)",
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "var j = pm.response.json();",
-              "if (j.status === 'success' && j.data && j.data.accessToken) {",
-              "  pm.collectionVariables.set('accessToken', j.data.accessToken);",
-              "  pm.collectionVariables.set('refreshToken', j.data.refreshToken);",
-              "  console.log('✅ Tokens saved! accessToken and refreshToken set.');",
-              "  console.log('👤 User:', j.data.user.name, '| Rank:', j.data.user.rank || 'N/A');",
-              "} else {",
-              "  console.log('❌ OTP verify failed:', j.message);",
-              "}"
-            ]}
-          }],
-          "request": {
-            "auth": { "type": "noauth" },
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"associateId\": \"{{associateId}}\",\n  \"otp\": \"123456\"\n}",
-              "options": { "raw": { "language": "json" } }
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             },
-            "url": { "raw": "{{baseUrl}}/auth/verify-otp", "host": ["{{baseUrl}}"], "path": ["auth","verify-otp"] },
-            "description": "**Step 2 of 2-step login.**\n\nVerifies the 6-digit OTP. On success returns access + refresh tokens.\n\n**Response:**\n```json\n{\n  \"status\": \"success\",\n  \"data\": {\n    \"accessToken\": \"eyJhbG...\",\n    \"refreshToken\": \"eyJhbG...\",\n    \"user\": {\n      \"id\": \"uuid\",\n      \"userId\": \"IW100001\",\n      \"name\": \"Rajesh Kumar\",\n      \"email\": \"rajesh@example.com\",\n      \"phone\": \"9999900001\",\n      \"status\": \"ACTIVE\",\n      \"theme\": \"light\",\n      \"language\": \"en\"\n    }\n  }\n}\n```\n\n**Token expiry:**\n- `accessToken` → 8 hours\n- `refreshToken` → 7 days"
+            "description": "Single-step login — credentials in, tokens out. No OTP.\n\nResponse includes accessToken + refreshToken + user object with rank.\n\nOTP is only used for registration email verification, NOT for login.\n\nAfter 5 failed attempts → account locked 30 min (HTTP 423)."
           }
         },
         {
           "name": "Refresh Token",
-          "event": [{
-            "listen": "test",
-            "script": { "exec": [
-              "var j = pm.response.json();",
-              "if (j.status === 'success' && j.data && j.data.accessToken) {",
-              "  pm.collectionVariables.set('accessToken', j.data.accessToken);",
-              "  console.log('✅ Access token refreshed');",
-              "}"
-            ]}
-          }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var j = pm.response.json();",
+                  "if (j.status === 'success' && j.data && j.data.accessToken) {",
+                  "  pm.collectionVariables.set('accessToken', j.data.accessToken);",
+                  "  console.log('✅ Access token refreshed');",
+                  "}"
+                ]
+              }
+            }
+          ],
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
-            "url": { "raw": "{{baseUrl}}/auth/refresh", "host": ["{{baseUrl}}"], "path": ["auth","refresh"] },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            },
             "description": "Use this when `accessToken` expires (HTTP 401). Returns a new `accessToken`.\n\n**Flutter:** Implement a Dio interceptor that auto-calls this on 401, then retries the original request."
           }
         },
@@ -106,43 +151,101 @@
           "name": "Logout",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\",\n  \"deviceToken\": \"test_fcm_token_123\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
-            "url": { "raw": "{{baseUrl}}/auth/logout", "host": ["{{baseUrl}}"], "path": ["auth","logout"] },
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            },
             "description": "Invalidates the refresh token and removes the FCM device token.\n\n🔒 Requires `Authorization: Bearer {{accessToken}}`\n\nCall this before navigating to the login screen."
           }
         },
         {
           "name": "Forgot Password (Send OTP)",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"identifier\": \"rajesh@example.com\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "raw": "{\n  \"identifier\": \"developertest@yopmail.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
-            "url": { "raw": "{{baseUrl}}/auth/forgot-password", "host": ["{{baseUrl}}"], "path": ["auth","forgot-password"] },
+            "url": {
+              "raw": "{{baseUrl}}/auth/forgot-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "forgot-password"
+              ]
+            },
             "description": "`identifier` can be **email** or **phone number**.\n\nSends OTP to the associated email. Also logs OTP to server console.\n\nAlways returns success to prevent user enumeration."
           }
         },
         {
           "name": "Reset Password (Verify OTP + New Password)",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"identifier\": \"rajesh@example.com\",\n  \"otp\": \"123456\",\n  \"newPassword\": \"NewPass@123\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "raw": "{\n  \"identifier\": \"developertest@yopmail.com\",\n  \"otp\": \"123456\",\n  \"newPassword\": \"NewPass@123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
-            "url": { "raw": "{{baseUrl}}/auth/reset-password", "host": ["{{baseUrl}}"], "path": ["auth","reset-password"] },
+            "url": {
+              "raw": "{{baseUrl}}/auth/reset-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "reset-password"
+              ]
+            },
             "description": "**Password rules:** Min 8 chars, at least 1 uppercase, 1 number, 1 special character.\n\nExample valid password: `MyPass@123`"
           }
         },
@@ -150,13 +253,31 @@
           "name": "Change Password 🔒",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"currentPassword\": \"Test@1234\",\n  \"newPassword\": \"NewPass@456\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
-            "url": { "raw": "{{baseUrl}}/auth/change-password", "host": ["{{baseUrl}}"], "path": ["auth","change-password"] },
+            "url": {
+              "raw": "{{baseUrl}}/auth/change-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "change-password"
+              ]
+            },
             "description": "🔒 Requires auth token.\n\nChanges password for the currently logged-in associate."
           }
         }
@@ -170,7 +291,16 @@
           "name": "Get Dashboard",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/associate/dashboard", "host": ["{{baseUrl}}"], "path": ["associate","dashboard"] },
+            "url": {
+              "raw": "{{baseUrl}}/associate/dashboard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "associate",
+                "dashboard"
+              ]
+            },
             "description": "Returns all dashboard data in one call.\n\n**Response shape:**\n```json\n{\n  \"data\": {\n    \"cards\": {\n      \"lastPayment\": 5000,\n      \"totalPayment\": 25000,\n      \"selfAmount\": 10000,\n      \"totalAmount\": 50000\n    },\n    \"userDetails\": {\n      \"userId\": \"IW100001\",\n      \"name\": \"Rajesh Kumar\",\n      \"joiningDate\": \"2024-01-15T00:00:00.000Z\",\n      \"activationDate\": \"2024-01-16T00:00:00.000Z\",\n      \"panNumber\": \"XXXXX234F\",\n      \"totalActivations\": 3,\n      \"rank\": 2,\n      \"rankName\": \"Business Adviser\",\n      \"totalAreaSold\": 1200,\n      \"profilePhoto\": \"/uploads/profiles/uuid.jpg\",\n      \"status\": \"ACTIVE\"\n    },\n    \"advancePayment\": {\n      \"credit\": 30000,\n      \"debit\": 5000,\n      \"balance\": 25000\n    },\n    \"referral\": {\n      \"referralLink\": \"https://app.investorsworld.com/register?ref=IW100001\",\n      \"userId\": \"IW100001\"\n    }\n  }\n}\n```\n\n**Card fields:**\n- `lastPayment` — most recent completed transaction\n- `totalPayment` — sum of all income credits (direct+level+matching+reward)\n- `selfAmount` — direct income commissions\n- `totalAmount` — all wallet credits combined"
           }
         },
@@ -178,7 +308,16 @@
           "name": "Get Advance Payment Status",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/associate/advance-payment", "host": ["{{baseUrl}}"], "path": ["associate","advance-payment"] },
+            "url": {
+              "raw": "{{baseUrl}}/associate/advance-payment",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "associate",
+                "advance-payment"
+              ]
+            },
             "description": "Returns the advance payment ledger balance for the associate.\n\n**Response:**\n```json\n{\n  \"data\": {\n    \"credit\": 30000,\n    \"debit\": 5000,\n    \"balance\": 25000\n  }\n}\n```"
           }
         },
@@ -186,7 +325,16 @@
           "name": "Get Referral Link",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/associate/referral-link", "host": ["{{baseUrl}}"], "path": ["associate","referral-link"] },
+            "url": {
+              "raw": "{{baseUrl}}/associate/referral-link",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "associate",
+                "referral-link"
+              ]
+            },
             "description": "Returns the associate's unique referral/registration link.\n\n**Response:**\n```json\n{\n  \"data\": {\n    \"referralLink\": \"https://app.investorsworld.com/register?ref=IW100001\",\n    \"userId\": \"IW100001\"\n  }\n}\n```\n\nUse `share_plus` package to share this link."
           }
         },
@@ -194,7 +342,16 @@
           "name": "Get Referral QR Code",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/associate/referral-qr", "host": ["{{baseUrl}}"], "path": ["associate","referral-qr"] },
+            "url": {
+              "raw": "{{baseUrl}}/associate/referral-qr",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "associate",
+                "referral-qr"
+              ]
+            },
             "description": "Returns referral link as a base64 QR code image.\n\n**Response:**\n```json\n{\n  \"data\": {\n    \"qrCode\": \"data:image/png;base64,...\",\n    \"referralLink\": \"https://...\"\n  }\n}\n```\n\nDisplay using `Image.memory(base64Decode(qrCode.split(',')[1]))`"
           }
         }
@@ -207,21 +364,48 @@
           "name": "Get Profile",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/associate/profile", "host": ["{{baseUrl}}"], "path": ["associate","profile"] },
-            "description": "Full profile with KYC status, sponsor info, rank, tree position.\n\n**Response:**\n```json\n{\n  \"data\": {\n    \"id\": \"uuid\",\n    \"userId\": \"IW100001\",\n    \"name\": \"Rajesh Kumar\",\n    \"email\": \"rajesh@example.com\",\n    \"phone\": \"9999900001\",\n    \"dateOfBirth\": \"1990-05-15\",\n    \"address\": \"123 Main Street\",\n    \"city\": \"Mumbai\",\n    \"state\": \"Maharashtra\",\n    \"pincode\": \"400001\",\n    \"panNumber\": \"ABCDE1234F\",\n    \"profilePhoto\": \"/uploads/profiles/uuid.jpg\",\n    \"status\": \"ACTIVE\",\n    \"rank\": 2,\n    \"rankName\": \"Business Adviser\",\n    \"totalAreaSold\": 1200,\n    \"joiningDate\": \"2024-01-15T00:00:00.000Z\",\n    \"activationDate\": \"2024-01-16T00:00:00.000Z\",\n    \"theme\": \"light\",\n    \"language\": \"en\",\n    \"sponsor\": {\n      \"userId\": \"IW100000\",\n      \"name\": \"Sponsor Name\",\n      \"phone\": \"9999900000\",\n      \"email\": \"sponsor@example.com\"\n    },\n    \"treeNode\": { \"position\": \"LEFT\", \"level\": 1 },\n    \"kycStatus\": {\n      \"pan\":     { \"status\": \"APPROVED\", \"number\": \"ABCDE1234F\", \"url\": \"/uploads/kyc/pan.jpg\" },\n      \"aadhaar\": { \"status\": \"PENDING\",  \"number\": \"123456789012\", \"url\": \"/uploads/kyc/aadhar.jpg\" },\n      \"bank\":    { \"status\": \"APPROVED\", \"accountNumber\": \"1234567890\", \"ifsc\": \"SBIN0001234\", \"bankName\": \"SBI\", \"branch\": \"Main Branch\" }\n    }\n  }\n}\n```\n\nKYC status values: `PENDING` | `APPROVED` | `REJECTED` | `null` (not submitted)"
+            "url": {
+              "raw": "{{baseUrl}}/associate/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "associate",
+                "profile"
+              ]
+            },
+            "description": "Full profile with KYC status, sponsor info, rank, tree position.\n\n**Response:**\n```json\n{\n  \"data\": {\n    \"id\": \"uuid\",\n    \"userId\": \"IW100001\",\n    \"name\": \"Rajesh Kumar\",\n    \"email\": \"developertest@yopmail.com\",\n    \"phone\": \"9999900001\",\n    \"dateOfBirth\": \"1990-05-15\",\n    \"address\": \"123 Main Street\",\n    \"city\": \"Mumbai\",\n    \"state\": \"Maharashtra\",\n    \"pincode\": \"400001\",\n    \"panNumber\": \"ABCDE1234F\",\n    \"profilePhoto\": \"/uploads/profiles/uuid.jpg\",\n    \"status\": \"ACTIVE\",\n    \"rank\": 2,\n    \"rankName\": \"Business Adviser\",\n    \"totalAreaSold\": 1200,\n    \"joiningDate\": \"2024-01-15T00:00:00.000Z\",\n    \"activationDate\": \"2024-01-16T00:00:00.000Z\",\n    \"theme\": \"light\",\n    \"language\": \"en\",\n    \"sponsor\": {\n      \"userId\": \"IW100000\",\n      \"name\": \"Sponsor Name\",\n      \"phone\": \"9999900000\",\n      \"email\": \"sponsor@example.com\"\n    },\n    \"treeNode\": { \"position\": \"LEFT\", \"level\": 1 },\n    \"kycStatus\": {\n      \"pan\":     { \"status\": \"APPROVED\", \"number\": \"ABCDE1234F\", \"url\": \"/uploads/kyc/pan.jpg\" },\n      \"aadhaar\": { \"status\": \"PENDING\",  \"number\": \"123456789012\", \"url\": \"/uploads/kyc/aadhar.jpg\" },\n      \"bank\":    { \"status\": \"APPROVED\", \"accountNumber\": \"1234567890\", \"ifsc\": \"SBIN0001234\", \"bankName\": \"SBI\", \"branch\": \"Main Branch\" }\n    }\n  }\n}\n```\n\nKYC status values: `PENDING` | `APPROVED` | `REJECTED` | `null` (not submitted)"
           }
         },
         {
           "name": "Update Profile",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"phone\": \"9876543211\",\n  \"email\": \"newemail@example.com\",\n  \"address\": \"456 New Street\",\n  \"city\": \"Delhi\",\n  \"state\": \"Delhi\",\n  \"pincode\": \"110001\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
-            "url": { "raw": "{{baseUrl}}/associate/profile", "host": ["{{baseUrl}}"], "path": ["associate","profile"] },
+            "url": {
+              "raw": "{{baseUrl}}/associate/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "associate",
+                "profile"
+              ]
+            },
             "description": "Updatable fields: `phone`, `email`, `address`, `city`, `state`, `pincode`.\n\nAll fields are optional — only send what needs to be changed."
           }
         },
@@ -229,8 +413,28 @@
           "name": "Upload Profile Photo",
           "request": {
             "method": "POST",
-            "body": { "mode": "formdata", "formdata": [{ "key": "photo", "type": "file", "src": "", "description": "JPEG or PNG, max 2MB" }] },
-            "url": { "raw": "{{baseUrl}}/associate/profile/photo", "host": ["{{baseUrl}}"], "path": ["associate","profile","photo"] },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "photo",
+                  "type": "file",
+                  "src": "",
+                  "description": "JPEG or PNG, max 2MB"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/associate/profile/photo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "associate",
+                "profile",
+                "photo"
+              ]
+            },
             "description": "Upload profile photo. Use `multipart/form-data`.\n\n**Flutter:**\n```dart\nFormData formData = FormData.fromMap({\n  'photo': await MultipartFile.fromFile(filePath, filename: 'photo.jpg'),\n});\nawait dio.post('/associate/profile/photo', data: formData);\n```\n\n**Response:**\n```json\n{ \"data\": { \"profilePhotoUrl\": \"/uploads/profiles/uuid.jpg\" } }\n```"
           }
         },
@@ -238,7 +442,16 @@
           "name": "Get Settings",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/associate/settings", "host": ["{{baseUrl}}"], "path": ["associate","settings"] },
+            "url": {
+              "raw": "{{baseUrl}}/associate/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "associate",
+                "settings"
+              ]
+            },
             "description": "**Response:**\n```json\n{ \"data\": { \"theme\": \"light\", \"language\": \"en\" } }\n```"
           }
         },
@@ -246,13 +459,31 @@
           "name": "Update Settings",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"theme\": \"dark\",\n  \"language\": \"hi\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
-            "url": { "raw": "{{baseUrl}}/associate/settings", "host": ["{{baseUrl}}"], "path": ["associate","settings"] },
+            "url": {
+              "raw": "{{baseUrl}}/associate/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "associate",
+                "settings"
+              ]
+            },
             "description": "`theme`: `light` | `dark`\n`language`: `en` | `hi`"
           }
         }
@@ -265,11 +496,34 @@
           "name": "Upload PAN Card",
           "request": {
             "method": "POST",
-            "body": { "mode": "formdata", "formdata": [
-              { "key": "document", "type": "file", "src": "", "description": "JPEG/PNG/PDF, max 5MB" },
-              { "key": "documentNumber", "value": "ABCDE1234F", "type": "text", "description": "PAN format: 5 letters + 4 digits + 1 letter" }
-            ]},
-            "url": { "raw": "{{baseUrl}}/associate/kyc/pan", "host": ["{{baseUrl}}"], "path": ["associate","kyc","pan"] },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "document",
+                  "type": "file",
+                  "src": "",
+                  "description": "JPEG/PNG/PDF, max 5MB"
+                },
+                {
+                  "key": "documentNumber",
+                  "value": "ABCDE1234F",
+                  "type": "text",
+                  "description": "PAN format: 5 letters + 4 digits + 1 letter"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/associate/kyc/pan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "associate",
+                "kyc",
+                "pan"
+              ]
+            },
             "description": "Submit PAN card for KYC verification.\n\n**documentNumber format:** `ABCDE1234F` (5 uppercase letters, 4 digits, 1 uppercase letter)\n\nStatus after submission: `PENDING` → admin reviews → `APPROVED` or `REJECTED`"
           }
         },
@@ -277,11 +531,34 @@
           "name": "Upload Aadhaar Card",
           "request": {
             "method": "POST",
-            "body": { "mode": "formdata", "formdata": [
-              { "key": "document", "type": "file", "src": "", "description": "JPEG/PNG/PDF, max 5MB" },
-              { "key": "documentNumber", "value": "123456789012", "type": "text", "description": "12-digit Aadhaar number" }
-            ]},
-            "url": { "raw": "{{baseUrl}}/associate/kyc/aadhaar", "host": ["{{baseUrl}}"], "path": ["associate","kyc","aadhaar"] },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "document",
+                  "type": "file",
+                  "src": "",
+                  "description": "JPEG/PNG/PDF, max 5MB"
+                },
+                {
+                  "key": "documentNumber",
+                  "value": "123456789012",
+                  "type": "text",
+                  "description": "12-digit Aadhaar number"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/associate/kyc/aadhaar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "associate",
+                "kyc",
+                "aadhaar"
+              ]
+            },
             "description": "Submit Aadhaar card for address proof verification.\n\n**documentNumber:** exactly 12 digits"
           }
         },
@@ -289,13 +566,32 @@
           "name": "Update Bank Details",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"accountNumber\": \"1234567890\",\n  \"ifsc\": \"SBIN0001234\",\n  \"bankName\": \"State Bank of India\",\n  \"branch\": \"Main Branch\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
-            "url": { "raw": "{{baseUrl}}/associate/kyc/bank", "host": ["{{baseUrl}}"], "path": ["associate","kyc","bank"] },
+            "url": {
+              "raw": "{{baseUrl}}/associate/kyc/bank",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "associate",
+                "kyc",
+                "bank"
+              ]
+            },
             "description": "Submit bank account details for payout processing.\n\n**IFSC format:** 4 uppercase letters + `0` + 6 alphanumeric chars (e.g., `SBIN0001234`)\n\nBank details are returned inside `kycStatus.bank` in the profile response."
           }
         },
@@ -303,7 +599,16 @@
           "name": "Get KYC Documents",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/documents/kyc", "host": ["{{baseUrl}}"], "path": ["documents","kyc"] },
+            "url": {
+              "raw": "{{baseUrl}}/documents/kyc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "documents",
+                "kyc"
+              ]
+            },
             "description": "Returns all KYC document details for the current user.\n\n**Response:**\n```json\n{\n  \"data\": {\n    \"pan\":     { \"url\": \"/uploads/kyc/pan-uuid.pdf\", \"status\": \"APPROVED\", \"number\": \"ABCDE1234F\" },\n    \"aadhaar\": { \"url\": \"/uploads/kyc/aadhar-uuid.pdf\", \"status\": \"PENDING\", \"number\": \"123456789012\" },\n    \"bank\":    { \"status\": \"APPROVED\", \"accountNumber\": \"****7890\", \"bankName\": \"SBI\", \"ifsc\": \"SBIN0001234\" }\n  }\n}\n```"
           }
         }
@@ -316,7 +621,23 @@
           "name": "Get Binary Tree",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/genealogy/tree?depth=5", "host": ["{{baseUrl}}"], "path": ["genealogy","tree"], "query": [{"key":"depth","value":"5","description":"1-10, default 5"}] },
+            "url": {
+              "raw": "{{baseUrl}}/genealogy/tree?depth=5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "genealogy",
+                "tree"
+              ],
+              "query": [
+                {
+                  "key": "depth",
+                  "value": "5",
+                  "description": "1-10, default 5"
+                }
+              ]
+            },
             "description": "Returns the binary tree structure up to `depth` levels.\n\n**Response node shape:**\n```json\n{\n  \"associateId\": \"uuid\",\n  \"userId\": \"IW100001\",\n  \"name\": \"Rajesh Kumar\",\n  \"phone\": \"9999900001\",\n  \"status\": \"ACTIVE\",\n  \"rank\": 2,\n  \"totalAreaSold\": 1200,\n  \"joiningDate\": \"2024-01-15T00:00:00.000Z\",\n  \"position\": \"LEFT\",\n  \"level\": 0,\n  \"left\": { ...same structure... },\n  \"right\": { ...same structure... }\n}\n```\n\n`depth` range: 1–10"
           }
         },
@@ -324,13 +645,41 @@
           "name": "Get Downline Members",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/genealogy/downline?status=ACTIVE&leg=left&level=1&page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["genealogy","downline"], "query": [
-              {"key":"status","value":"ACTIVE","description":"ACTIVE | INACTIVE | SUSPENDED (optional)"},
-              {"key":"leg","value":"left","description":"left | right (optional)"},
-              {"key":"level","value":"1","description":"exact depth level (optional)"},
-              {"key":"page","value":"1"},
-              {"key":"pageSize","value":"20"}
-            ]},
+            "url": {
+              "raw": "{{baseUrl}}/genealogy/downline?status=ACTIVE&leg=left&level=1&page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "genealogy",
+                "downline"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "ACTIVE",
+                  "description": "ACTIVE | INACTIVE | SUSPENDED (optional)"
+                },
+                {
+                  "key": "leg",
+                  "value": "left",
+                  "description": "left | right (optional)"
+                },
+                {
+                  "key": "level",
+                  "value": "1",
+                  "description": "exact depth level (optional)"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            },
             "description": "Paginated flat list of all downline associates.\n\nAll query params are **optional**.\n\n**Response item:**\n```json\n{\n  \"userId\": \"IW100002\",\n  \"name\": \"Suresh\",\n  \"status\": \"ACTIVE\",\n  \"joiningDate\": \"2024-02-01T00:00:00.000Z\",\n  \"level\": 1,\n  \"position\": \"left\"\n}\n```"
           }
         },
@@ -338,7 +687,16 @@
           "name": "Get Sponsor Info",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/genealogy/sponsor", "host": ["{{baseUrl}}"], "path": ["genealogy","sponsor"] },
+            "url": {
+              "raw": "{{baseUrl}}/genealogy/sponsor",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "genealogy",
+                "sponsor"
+              ]
+            },
             "description": "Returns the associate's direct sponsor (upline referral).\n\n**Response:**\n```json\n{\n  \"data\": {\n    \"userId\": \"IW100000\",\n    \"name\": \"Sponsor Name\",\n    \"phone\": \"9999900000\",\n    \"email\": \"sponsor@example.com\"\n  }\n}\n```"
           }
         },
@@ -346,7 +704,16 @@
           "name": "Get Team Summary",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/genealogy/team-summary", "host": ["{{baseUrl}}"], "path": ["genealogy","team-summary"] },
+            "url": {
+              "raw": "{{baseUrl}}/genealogy/team-summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "genealogy",
+                "team-summary"
+              ]
+            },
             "description": "Returns left/right business volume totals.\n\n**Response:**\n```json\n{\n  \"data\": {\n    \"leftVolume\": 150000,\n    \"rightVolume\": 145000\n  }\n}\n```"
           }
         }
@@ -359,7 +726,16 @@
           "name": "Income Summary",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/income/summary", "host": ["{{baseUrl}}"], "path": ["income","summary"] },
+            "url": {
+              "raw": "{{baseUrl}}/income/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "income",
+                "summary"
+              ]
+            },
             "description": "**Response:**\n```json\n{\n  \"data\": {\n    \"totalIncome\": 75000,\n    \"directIncome\": 30000,\n    \"levelIncome\": 25000,\n    \"matchingIncome\": 15000,\n    \"rewardIncome\": 5000,\n    \"pendingIncome\": 3000,\n    \"paidIncome\": 72000\n  }\n}\n```"
           }
         },
@@ -367,7 +743,26 @@
           "name": "Income History",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/income/history?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["income","history"], "query": [{"key":"page","value":"1"},{"key":"pageSize","value":"20"}] },
+            "url": {
+              "raw": "{{baseUrl}}/income/history?page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "income",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            },
             "description": "Paginated list of all income records.\n\n**Income types:** `DIRECT` | `LEVEL` | `MATCHING` | `REWARD`\n**Status:** `PENDING` | `APPROVED` | `PAID` | `REJECTED`"
           }
         },
@@ -375,13 +770,31 @@
           "name": "Commission Calculator",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"areaInGaj\": 500,\n  \"rank\": 1\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
-            "url": { "raw": "{{baseUrl}}/income/calculator", "host": ["{{baseUrl}}"], "path": ["income","calculator"] },
+            "url": {
+              "raw": "{{baseUrl}}/income/calculator",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "income",
+                "calculator"
+              ]
+            },
             "description": "Estimate commission for a given area and seller rank.\n\n**Gap-based model:**\n- Seller gets full rank slab %\n- Each upline gets the gap between their slab % and the previous level\n- President Club (rank 10) always gets flat 2%\n- Any rank can sell"
           }
         }
@@ -394,7 +807,16 @@
           "name": "Get Balance",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/wallet/balance", "host": ["{{baseUrl}}"], "path": ["wallet","balance"] },
+            "url": {
+              "raw": "{{baseUrl}}/wallet/balance",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "wallet",
+                "balance"
+              ]
+            },
             "description": "**Response:**\n```json\n{\n  \"data\": {\n    \"balance\": 25000,\n    \"totalCredits\": 75000,\n    \"totalDebits\": 50000\n  }\n}\n```\n\nAll amounts in ₹ (INR)."
           }
         },
@@ -402,13 +824,31 @@
           "name": "Fund Transfer",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"recipientUserId\": \"IW100002\",\n  \"amount\": 1000,\n  \"description\": \"Fund transfer to downline\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
-            "url": { "raw": "{{baseUrl}}/wallet/transfer", "host": ["{{baseUrl}}"], "path": ["wallet","transfer"] },
+            "url": {
+              "raw": "{{baseUrl}}/wallet/transfer",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "wallet",
+                "transfer"
+              ]
+            },
             "description": "`recipientUserId` = the userId of the recipient (e.g., `IW100002`), **not** the UUID."
           }
         },
@@ -416,7 +856,26 @@
           "name": "Transaction History",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/wallet/transactions?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["wallet","transactions"], "query": [{"key":"page","value":"1"},{"key":"pageSize","value":"20"}] },
+            "url": {
+              "raw": "{{baseUrl}}/wallet/transactions?page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "wallet",
+                "transactions"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            },
             "description": "Paginated list of all wallet transactions.\n\n**Transaction types:** `DIRECT_INCOME` | `LEVEL_INCOME` | `MATCHING_INCOME` | `REWARD_INCOME` | `FUND_TRANSFER_IN` | `FUND_TRANSFER_OUT` | `WITHDRAWAL` | `ADMIN_CREDIT` | `ADMIN_DEBIT`"
           }
         },
@@ -424,13 +883,31 @@
           "name": "Request Withdrawal",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"amount\": 5000\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
-            "url": { "raw": "{{baseUrl}}/wallet/withdraw", "host": ["{{baseUrl}}"], "path": ["wallet","withdraw"] },
+            "url": {
+              "raw": "{{baseUrl}}/wallet/withdraw",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "wallet",
+                "withdraw"
+              ]
+            },
             "description": "Submit a withdrawal request. Admin reviews and approves/rejects it."
           }
         },
@@ -438,7 +915,26 @@
           "name": "Withdrawal History",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/wallet/withdrawals?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["wallet","withdrawals"], "query": [{"key":"page","value":"1"},{"key":"pageSize","value":"20"}] },
+            "url": {
+              "raw": "{{baseUrl}}/wallet/withdrawals?page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "wallet",
+                "withdrawals"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            },
             "description": "Paginated list of withdrawal requests.\n\n**Status:** `PENDING` | `APPROVED` | `REJECTED` | `PAID`"
           }
         }
@@ -450,25 +946,75 @@
         {
           "name": "List Properties (Public)",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/properties?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["properties"], "query": [
-              {"key":"page","value":"1"},
-              {"key":"pageSize","value":"20"},
-              {"key":"location","value":"","description":"optional city filter"},
-              {"key":"type","value":"","description":"optional: Villa, Plot, Apartment"},
-              {"key":"minPrice","value":"","description":"optional"},
-              {"key":"maxPrice","value":"","description":"optional"}
-            ]},
+            "url": {
+              "raw": "{{baseUrl}}/properties?page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "properties"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                },
+                {
+                  "key": "location",
+                  "value": "",
+                  "description": "optional city filter"
+                },
+                {
+                  "key": "type",
+                  "value": "",
+                  "description": "optional: Villa, Plot, Apartment"
+                },
+                {
+                  "key": "minPrice",
+                  "value": "",
+                  "description": "optional"
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "",
+                  "description": "optional"
+                }
+              ]
+            },
             "description": "No auth required. Returns paginated property listing."
           }
         },
         {
           "name": "Property Detail (Public)",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/properties/:id", "host": ["{{baseUrl}}"], "path": ["properties",":id"], "variable": [{"key":"id","value":"property-uuid-here"}] },
+            "url": {
+              "raw": "{{baseUrl}}/properties/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "properties",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "property-uuid-here"
+                }
+              ]
+            },
             "description": "Full property details including `images[]`, `videos[]`, `amenities[]`."
           }
         },
@@ -476,35 +1022,126 @@
           "name": "Book Property 🔒",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"amount\": 500000\n}", "options": { "raw": { "language": "json" } }},
-            "url": { "raw": "{{baseUrl}}/properties/:id/book", "host": ["{{baseUrl}}"], "path": ["properties",":id","book"], "variable": [{"key":"id","value":"property-uuid-here"}] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 500000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/properties/:id/book",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "properties",
+                ":id",
+                "book"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "property-uuid-here"
+                }
+              ]
+            }
           }
         },
         {
           "name": "My Bookings 🔒",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/properties/bookings", "host": ["{{baseUrl}}"], "path": ["properties","bookings"] }
+            "url": {
+              "raw": "{{baseUrl}}/properties/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "properties",
+                "bookings"
+              ]
+            }
           }
         },
         {
           "name": "Property Inquiry 🔒",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"message\": \"I am interested in this property. Please contact me.\"\n}", "options": { "raw": { "language": "json" } }},
-            "url": { "raw": "{{baseUrl}}/properties/:id/inquiry", "host": ["{{baseUrl}}"], "path": ["properties",":id","inquiry"], "variable": [{"key":"id","value":"property-uuid-here"}] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"I am interested in this property. Please contact me.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/properties/:id/inquiry",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "properties",
+                ":id",
+                "inquiry"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "property-uuid-here"
+                }
+              ]
+            }
           }
         },
         {
           "name": "EMI Calculator (Public)",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"principal\": 5000000,\n  \"annualRate\": 8.5,\n  \"tenureMonths\": 240\n}", "options": { "raw": { "language": "json" } }},
-            "url": { "raw": "{{baseUrl}}/properties/emi-calculator", "host": ["{{baseUrl}}"], "path": ["properties","emi-calculator"] },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"principal\": 5000000,\n  \"annualRate\": 8.5,\n  \"tenureMonths\": 240\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/properties/emi-calculator",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "properties",
+                "emi-calculator"
+              ]
+            },
             "description": "**Response:**\n```json\n{\n  \"data\": {\n    \"emi\": 43391,\n    \"totalPayment\": 10413840,\n    \"totalInterest\": 5413840\n  }\n}\n```"
           }
         }
@@ -516,32 +1153,79 @@
         {
           "name": "Validate Sponsor (Public)",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/registration/validate-sponsor?sponsorId=IW100001", "host": ["{{baseUrl}}"], "path": ["registration","validate-sponsor"], "query": [{"key":"sponsorId","value":"IW100001","description":"The sponsor's userId e.g. IW100001"}] },
-            "description": "Validate a sponsor ID before showing the registration form.\n\n**Response:**\n```json\n{\n  \"data\": {\n    \"valid\": true,\n    \"sponsorName\": \"Rajesh Kumar\",\n    \"sponsorUserId\": \"IW100001\"\n  }\n}\n```"
+            "url": {
+              "raw": "{{baseUrl}}/registration/validate-sponsor?sponsorId=IW100001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registration",
+                "validate-sponsor"
+              ],
+              "query": [
+                {
+                  "key": "sponsorId",
+                  "value": "IW100001",
+                  "description": "The sponsor's userId e.g. IW100001"
+                }
+              ]
+            },
+            "description": "Validate a sponsor ID before showing it on the registration form.\n\nThis is optional — show a 'Validate' button on the sponsorId field. If user has no sponsorId, skip this call."
           }
         },
         {
-          "name": "Register New Associate (Public)",
+          "name": "Register New Associate (sponsorId optional)",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"John Doe\",\n  \"phone\": \"9876543210\",\n  \"email\": \"john@example.com\",\n  \"address\": \"123 Main Street\",\n  \"city\": \"Mumbai\",\n  \"state\": \"Maharashtra\",\n  \"pincode\": \"400001\",\n  \"panNumber\": \"ABCDE1234F\",\n  \"sponsorId\": \"IW100001\",\n  \"password\": \"John@1234\",\n  \"dateOfBirth\": \"1990-05-15\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"phone\": \"9876543210\",\n  \"email\": \"john@example.com\",\n  \"address\": \"123 Main Street\",\n  \"city\": \"Mumbai\",\n  \"state\": \"Maharashtra\",\n  \"pincode\": \"400001\",\n  \"panNumber\": \"ABCDE1234F\",\n  \"sponsorId\": \"IW100002\",\n  \"password\": \"John@1234\",\n  \"dateOfBirth\": \"1990-05-15\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
-            "url": { "raw": "{{baseUrl}}/registration/register", "host": ["{{baseUrl}}"], "path": ["registration","register"] },
-            "description": "**Important notes:**\n- ❌ NO `packageId` — packages are not used\n- ❌ NO `placement` (LEFT/RIGHT) — tree placement is automatic\n- ✅ Only `sponsorId` needed (the existing associate's userId)\n- Associate is created as `INACTIVE` — admin must approve to activate\n- `password` must have: min 8 chars, 1 uppercase, 1 number, 1 special char\n- `sponsorId` must be an ACTIVE associate who has downline capacity (rank ≥ 2, or rank 10 for unlimited)"
+            "url": {
+              "raw": "{{baseUrl}}/registration/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registration",
+                "register"
+              ]
+            },
+            "description": "Register a new associate.\n\n**sponsorId is OPTIONAL.** If the user downloaded from Play Store without a referral link, they can register without one. When admin activates the account, they will be assigned under the root associate.\n\nIf sponsorId is provided, it must be an ACTIVE associate with downline capacity (rank 2+).\n\nAssociate starts as INACTIVE — admin must activate from the admin panel.\n\nPassword rules: min 8 chars, 1 uppercase, 1 number, 1 special character."
           }
         },
         {
           "name": "Request Account Deletion 🔒",
           "request": {
             "method": "POST",
-            "url": { "raw": "{{baseUrl}}/registration/request-delete", "host": ["{{baseUrl}}"], "path": ["registration","request-delete"] },
+            "url": {
+              "raw": "{{baseUrl}}/registration/request-delete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registration",
+                "request-delete"
+              ]
+            },
             "description": "Submits a deletion request to admin for review. Does NOT immediately delete.\n\nNo body required — the authenticated user's account is identified by the token."
           }
         }
@@ -554,7 +1238,25 @@
           "name": "Get Notifications",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/notifications?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["notifications"], "query": [{"key":"page","value":"1"},{"key":"pageSize","value":"20"}] },
+            "url": {
+              "raw": "{{baseUrl}}/notifications?page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            },
             "description": "**Notification types:** `PAYOUT` | `REGISTRATION` | `PROPERTY` | `ANNOUNCEMENT` | `INCOME` | `KYC` | `BOOKING` | `SYSTEM`\n\n**Flutter navigation on tap:**\n- `PAYOUT` → Wallet/Income screen\n- `KYC` → Profile/KYC section\n- `PROPERTY` → Property detail\n- `BOOKING` → My Bookings"
           }
         },
@@ -562,16 +1264,54 @@
           "name": "Mark Notification as Read",
           "request": {
             "method": "PATCH",
-            "url": { "raw": "{{baseUrl}}/notifications/:id/read", "host": ["{{baseUrl}}"], "path": ["notifications",":id","read"], "variable": [{"key":"id","value":"notification-uuid"}] }
+            "url": {
+              "raw": "{{baseUrl}}/notifications/:id/read",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                ":id",
+                "read"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "notification-uuid"
+                }
+              ]
+            }
           }
         },
         {
           "name": "Register Device Token (call after login)",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"token\": \"fcm_device_token_from_firebase\",\n  \"platform\": \"android\"\n}", "options": { "raw": { "language": "json" } }},
-            "url": { "raw": "{{baseUrl}}/notifications/device-token", "host": ["{{baseUrl}}"], "path": ["notifications","device-token"] },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"fcm_device_token_from_firebase\",\n  \"platform\": \"android\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications/device-token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "device-token"
+              ]
+            },
             "description": "Call this after successful login to register the FCM push token.\n\n`platform`: `android` | `ios`"
           }
         },
@@ -579,9 +1319,31 @@
           "name": "Remove Device Token (call before logout)",
           "request": {
             "method": "DELETE",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"token\": \"fcm_device_token_from_firebase\"\n}", "options": { "raw": { "language": "json" } }},
-            "url": { "raw": "{{baseUrl}}/notifications/device-token", "host": ["{{baseUrl}}"], "path": ["notifications","device-token"] },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"fcm_device_token_from_firebase\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications/device-token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "device-token"
+              ]
+            },
             "description": "Call this before logout to stop push notifications on this device."
           }
         }
@@ -594,7 +1356,16 @@
           "name": "Download Welcome Letter (PDF)",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/documents/welcome-letter", "host": ["{{baseUrl}}"], "path": ["documents","welcome-letter"] },
+            "url": {
+              "raw": "{{baseUrl}}/documents/welcome-letter",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "documents",
+                "welcome-letter"
+              ]
+            },
             "description": "Returns PDF binary.\n\n**Flutter:** Set `responseType: ResponseType.bytes`, save with `path_provider`."
           }
         },
@@ -602,14 +1373,39 @@
           "name": "Download Agreement (PDF)",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/documents/agreement", "host": ["{{baseUrl}}"], "path": ["documents","agreement"] }
+            "url": {
+              "raw": "{{baseUrl}}/documents/agreement",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "documents",
+                "agreement"
+              ]
+            }
           }
         },
         {
           "name": "Download Payment Receipt (PDF)",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/documents/receipt/:transactionId", "host": ["{{baseUrl}}"], "path": ["documents","receipt",":transactionId"], "variable": [{"key":"transactionId","value":"transaction-uuid"}] }
+            "url": {
+              "raw": "{{baseUrl}}/documents/receipt/:transactionId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "documents",
+                "receipt",
+                ":transactionId"
+              ],
+              "variable": [
+                {
+                  "key": "transactionId",
+                  "value": "transaction-uuid"
+                }
+              ]
+            }
           }
         }
       ]
@@ -621,23 +1417,80 @@
           "name": "List Tickets",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/support/tickets?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["support","tickets"], "query": [{"key":"page","value":"1"},{"key":"pageSize","value":"20"}] }
+            "url": {
+              "raw": "{{baseUrl}}/support/tickets?page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "support",
+                "tickets"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            }
           }
         },
         {
           "name": "Create Ticket",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"subject\": \"Cannot login to my account\",\n  \"description\": \"I keep getting invalid credentials even with correct password.\"\n}", "options": { "raw": { "language": "json" } }},
-            "url": { "raw": "{{baseUrl}}/support/tickets", "host": ["{{baseUrl}}"], "path": ["support","tickets"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subject\": \"Cannot login to my account\",\n  \"description\": \"I keep getting invalid credentials even with correct password.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/support/tickets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "support",
+                "tickets"
+              ]
+            }
           }
         },
         {
           "name": "Get Ticket Detail",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/support/tickets/:id", "host": ["{{baseUrl}}"], "path": ["support","tickets",":id"], "variable": [{"key":"id","value":"ticket-uuid"}] },
+            "url": {
+              "raw": "{{baseUrl}}/support/tickets/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "support",
+                "tickets",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "ticket-uuid"
+                }
+              ]
+            },
             "description": "Returns full ticket with all messages (conversation thread)."
           }
         },
@@ -645,9 +1498,39 @@
           "name": "Reply to Ticket",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"message\": \"I have tried resetting but still facing the issue.\"\n}", "options": { "raw": { "language": "json" } }},
-            "url": { "raw": "{{baseUrl}}/support/tickets/:id/reply", "host": ["{{baseUrl}}"], "path": ["support","tickets",":id","reply"], "variable": [{"key":"id","value":"ticket-uuid"}] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"I have tried resetting but still facing the issue.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/support/tickets/:id/reply",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "support",
+                "tickets",
+                ":id",
+                "reply"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "ticket-uuid"
+                }
+              ]
+            }
           }
         }
       ]
@@ -657,49 +1540,202 @@
       "item": [
         {
           "name": "Health Check",
-          "request": { "auth": { "type": "noauth" }, "method": "GET", "url": { "raw": "{{baseUrl}}/public/health", "host": ["{{baseUrl}}"], "path": ["public","health"] } }
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/public/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "health"
+              ]
+            }
+          }
         },
         {
           "name": "App Version Check",
           "request": {
-            "auth": { "type": "noauth" }, "method": "GET",
-            "url": { "raw": "{{baseUrl}}/public/app-version?platform=android&version=1.0.0", "host": ["{{baseUrl}}"], "path": ["public","app-version"], "query": [{"key":"platform","value":"android"},{"key":"version","value":"1.0.0"}] },
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/public/app-version?platform=android&version=1.0.0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "app-version"
+              ],
+              "query": [
+                {
+                  "key": "platform",
+                  "value": "android"
+                },
+                {
+                  "key": "version",
+                  "value": "1.0.0"
+                }
+              ]
+            },
             "description": "Call on every app startup to check for updates.\n\n**Response:**\n```json\n{\n  \"data\": {\n    \"updateAvailable\": true,\n    \"forceUpdate\": false,\n    \"latestVersion\": \"1.2.0\",\n    \"storeUrl\": \"https://play.google.com/...\"\n  }\n}\n```\n\nIf `forceUpdate: true` → show mandatory update dialog."
           }
         },
         {
           "name": "Branding Assets",
-          "request": { "auth": { "type": "noauth" }, "method": "GET", "url": { "raw": "{{baseUrl}}/public/branding", "host": ["{{baseUrl}}"], "path": ["public","branding"] }, "description": "Returns logo, splash image URLs for the app." }
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/public/branding",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "branding"
+              ]
+            },
+            "description": "Returns logo, splash image URLs for the app."
+          }
         },
         {
           "name": "Public Properties",
-          "request": { "auth": { "type": "noauth" }, "method": "GET", "url": { "raw": "{{baseUrl}}/public/properties?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["public","properties"], "query": [{"key":"page","value":"1"},{"key":"pageSize","value":"20"}] } }
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/public/properties?page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "properties"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            }
+          }
         },
         {
           "name": "Commission Calculator",
           "request": {
-            "auth": { "type": "noauth" }, "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"areaInGaj\": 500,\n  \"rank\": 1\n}", "options": { "raw": { "language": "json" } }},
-            "url": { "raw": "{{baseUrl}}/public/commission-calculator", "host": ["{{baseUrl}}"], "path": ["public","commission-calculator"] }
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"areaInGaj\": 500,\n  \"rank\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/public/commission-calculator",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "commission-calculator"
+              ]
+            }
           }
         },
         {
           "name": "EMI Calculator",
           "request": {
-            "auth": { "type": "noauth" }, "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"principal\": 5000000,\n  \"annualRate\": 8.5,\n  \"tenureMonths\": 240\n}", "options": { "raw": { "language": "json" } }},
-            "url": { "raw": "{{baseUrl}}/public/emi-calculator", "host": ["{{baseUrl}}"], "path": ["public","emi-calculator"] }
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"principal\": 5000000,\n  \"annualRate\": 8.5,\n  \"tenureMonths\": 240\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/public/emi-calculator",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "emi-calculator"
+              ]
+            }
           }
         },
         {
           "name": "Contact Form",
           "request": {
-            "auth": { "type": "noauth" }, "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Visitor Name\",\n  \"email\": \"visitor@gmail.com\",\n  \"phone\": \"9876543210\",\n  \"message\": \"I want to know more about investment plans.\"\n}", "options": { "raw": { "language": "json" } }},
-            "url": { "raw": "{{baseUrl}}/public/contact", "host": ["{{baseUrl}}"], "path": ["public","contact"] }
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Visitor Name\",\n  \"email\": \"visitor@gmail.com\",\n  \"phone\": \"9876543210\",\n  \"message\": \"I want to know more about investment plans.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/public/contact",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "contact"
+              ]
+            }
           }
         }
       ]

@@ -18,15 +18,20 @@ export async function listAssociatesHandler(req, res, next) {
   try {
     const pagination = parsePagination(req.query);
     const filters = {
-      status: req.query.status || undefined,
-      search: req.query.search || undefined,
-      city: req.query.city || undefined,
-      state: req.query.state || undefined,
-      phone: req.query.phone || undefined,
-      panNumber: req.query.panNumber || undefined,
+      status:        req.query.status        || undefined,
+      search:        req.query.search        || undefined,
+      rank:          req.query.rank          || undefined,
+      city:          req.query.city          || undefined,
+      state:         req.query.state         || undefined,
+      phone:         req.query.phone         || undefined,
+      panNumber:     req.query.panNumber     || undefined,
       sponsorUserId: req.query.sponsorUserId || undefined,
-      dobFrom: req.query.dobFrom || undefined,
-      dobTo: req.query.dobTo || undefined,
+      fromDate:      req.query.fromDate      || undefined,
+      toDate:        req.query.toDate        || undefined,
+      approveFrom:   req.query.approveFrom   || undefined,
+      approveTo:     req.query.approveTo     || undefined,
+      dobFrom:       req.query.dobFrom       || undefined,
+      dobTo:         req.query.dobTo         || undefined,
     };
     const { items, totalItems, page, pageSize } = await adminListAssociates(filters, pagination);
     return paginatedResponse(res, items, totalItems, page, pageSize, 'Associates retrieved');

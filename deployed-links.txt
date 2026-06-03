@@ -2,7 +2,7 @@ Admin
 https://admin-investors-world-realty.vercel.app
 https://admin-investors-world-realty.vercel.app/login
 
-Email:- notespoint2023@gmail.com
+Email:- admindevelopertest@yopmail.com
 Password:- Admin@123456
 
 Server
