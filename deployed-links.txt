@@ -1,6 +1,6 @@
 Admin
-https://admin-investors-world-realty.vercel.app
-https://admin-investors-world-realty.vercel.app/login
+https://adminiwr.harshkumarjangir.in
+https://adminiwr.harshkumarjangir.in/login
 
 Email:- admindevelopertest@yopmail.com
 Password:- Admin@123456
