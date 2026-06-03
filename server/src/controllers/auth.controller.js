@@ -43,8 +43,7 @@ export async function refresh(req, res, next) {
 export async function logout(req, res, next) {
   try {
     const accessToken = req.headers.authorization.split(' ')[1];
-    const { refreshToken, deviceToken } = req.body;
-    await logoutAssociate(accessToken, refreshToken, deviceToken);
+    await logoutAssociate(accessToken);
     return successResponse(res, null, 'Logged out successfully');
   } catch (err) {
     return next(err);

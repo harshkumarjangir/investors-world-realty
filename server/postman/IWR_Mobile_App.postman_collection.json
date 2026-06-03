@@ -47,7 +47,7 @@
       "description": "2-step login: Step 1 sends OTP to email, Step 2 verifies OTP and returns tokens.\nOTP is always printed to server console regardless of environment.",
       "item": [
         {
-          "name": "1. Login (Direct — No OTP)",
+          "name": "1. Login (30-day token, no refresh needed)",
           "event": [
             {
               "listen": "test",
@@ -56,8 +56,8 @@
                   "var j = pm.response.json();",
                   "if (j.status === 'success' && j.data && j.data.accessToken) {",
                   "  pm.collectionVariables.set('accessToken', j.data.accessToken);",
-                  "  pm.collectionVariables.set('refreshToken', j.data.refreshToken);",
-                  "  console.log('✅ Tokens saved! User:', j.data.user.name, '| Rank:', j.data.user.rank);",
+                  "  console.log('✅ 30-day token saved! User:', j.data.user.name, '| Rank:', j.data.user.rank);",
+                  "  console.log('ℹ️  No refresh token — this token lasts 30 days');",
                   "} else {",
                   "  console.log('❌ Login failed:', j.message);",
                   "}"
@@ -95,11 +95,11 @@
                 "login"
               ]
             },
-            "description": "Single-step login — credentials in, tokens out. No OTP.\n\nResponse includes accessToken + refreshToken + user object with rank.\n\nOTP is only used for registration email verification, NOT for login.\n\nAfter 5 failed attempts → account locked 30 min (HTTP 423)."
+            "description": "Single-step login. Returns a 30-day access token — user stays logged in for a month.\n\nNo refresh token for associates. When the 30-day token expires, user logs in again.\n\nResponse: { accessToken, user: { id, userId, name, email, phone, status, rank, theme, language } }\n\nAfter 5 failed attempts → account locked 30 min (HTTP 423)."
           }
         },
         {
-          "name": "Refresh Token",
+          "name": "Refresh Token (Admin only — not for app)",
           "event": [
             {
               "listen": "test",
@@ -144,7 +144,7 @@
                 "refresh"
               ]
             },
-            "description": "Use this when `accessToken` expires (HTTP 401). Returns a new `accessToken`.\n\n**Flutter:** Implement a Dio interceptor that auto-calls this on 401, then retries the original request."
+            "description": "NOT needed for mobile app associates — they use a 30-day access token.\n\nThis endpoint is for admin panel only."
           }
         },
         {
@@ -159,7 +159,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\",\n  \"deviceToken\": \"test_fcm_token_123\"\n}",
+              "raw": "{\n  \"deviceToken\": \"test_fcm_token_123\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -176,7 +176,7 @@
                 "logout"
               ]
             },
-            "description": "Invalidates the refresh token and removes the FCM device token.\n\n🔒 Requires `Authorization: Bearer {{accessToken}}`\n\nCall this before navigating to the login screen."
+            "description": "Logs out the user. Blacklists the current access token and removes the FCM device token.\n\n🔒 Requires Authorization header.\n\n**No refreshToken needed** — associates use a 30-day access token with no refresh.\n\n`deviceToken` is required so push notifications stop after logout."
           }
         },
         {

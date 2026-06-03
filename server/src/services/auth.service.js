@@ -14,6 +14,11 @@ function generateRefreshToken(payload) {
   return jwt.sign(payload, config.JWT_REFRESH_SECRET, { expiresIn: config.JWT_REFRESH_EXPIRES_IN });
 }
 
+// Long-lived token for mobile app associates (30 days, no refresh needed)
+function generateAssociateToken(payload) {
+  return jwt.sign(payload, config.JWT_SECRET, { expiresIn: config.JWT_ASSOCIATE_EXPIRES_IN });
+}
+
 // ─── Associate Auth ───────────────────────────────────────────────────────────
 export async function loginAssociate(userId, password, deviceToken = null) {
   const redis = getRedisClient();
@@ -59,18 +64,17 @@ export async function loginAssociate(userId, password, deviceToken = null) {
     await prisma.associate.update({ where: { id: associate.id }, data: { failedAttempts: 0 } });
   }
 
-  // ── Direct login — no OTP, return tokens immediately ──────────────────────
+  // ── Long-lived token — no refresh token for mobile app ────────────────────
   const tokenPayload = {
     id: associate.id,
     userId: associate.userId,
     type: 'associate',
   };
 
-  const accessToken  = generateAccessToken(tokenPayload);
-  const refreshToken = generateRefreshToken(tokenPayload);
+  // 30-day access token — user stays logged in for a month without re-auth
+  const accessToken = generateAssociateToken(tokenPayload);
 
-  await redis.set(keys.refreshSession(refreshToken), associate.id, 'EX', TTL.REFRESH_TOKEN);
-
+  // No refresh token stored — when the 30d token expires, user logs in again
   // Persist device token if provided
   if (deviceToken) {
     await upsertDeviceToken(associate.id, deviceToken);
@@ -78,7 +82,6 @@ export async function loginAssociate(userId, password, deviceToken = null) {
 
   return {
     accessToken,
-    refreshToken,
     user: {
       id: associate.id,
       userId: associate.userId,
@@ -147,52 +150,31 @@ export async function verifyAssociateOtp(associateId, otp) {
 }
 
 export async function refreshAssociateToken(refreshToken) {
-  const redis = getRedisClient();
-
-  let decoded;
-  try {
-    decoded = jwt.verify(refreshToken, config.JWT_REFRESH_SECRET);
-  } catch {
-    throw Object.assign(new Error('Invalid or expired refresh token'), { statusCode: 401 });
-  }
-
-  const stored = await redis.get(keys.refreshSession(refreshToken));
-  if (!stored) {
-    throw Object.assign(new Error('Refresh token not found or expired'), { statusCode: 401 });
-  }
-
-  const accessToken = generateAccessToken({
-    id: decoded.id,
-    userId: decoded.userId,
-    type: 'associate',
-  });
-
-  return { accessToken };
+  // Associates use long-lived 30-day tokens — no refresh needed.
+  // This endpoint is for admin use only.
+  throw Object.assign(
+    new Error('Token refresh is not available for associates. Please log in again when your token expires.'),
+    { statusCode: 400 },
+  );
 }
 
-export async function logoutAssociate(accessToken, refreshToken, deviceToken = null) {
+export async function logoutAssociate(accessToken) {
   const redis = getRedisClient();
 
-  // Blacklist access token
+  // Blacklist the access token so it can't be reused
   try {
     const decoded = jwt.decode(accessToken);
     if (decoded?.exp) {
       const ttl = decoded.exp - Math.floor(Date.now() / 1000);
       if (ttl > 0) {
-        await redis.set(keys.authBlacklist(accessToken), '1', 'EX', ttl);
+        await redis.set(keys.authBlacklist(accessToken), '1', 'EX', Math.min(ttl, 30 * 24 * 3600));
       }
     }
   } catch { /* ignore */ }
 
-  // Remove refresh token
-  if (refreshToken) {
-    await redis.del(keys.refreshSession(refreshToken));
-  }
-
-  // Remove device token
-  if (deviceToken) {
-    await prisma.deviceToken.deleteMany({ where: { token: deviceToken } });
-  }
+  // Device token stays registered — push notifications continue to the device.
+  // FCM token is only removed if the user explicitly disables notifications
+  // or the app is uninstalled (handled by Firebase).
 }
 
 // ─── OTP ──────────────────────────────────────────────────────────────────────

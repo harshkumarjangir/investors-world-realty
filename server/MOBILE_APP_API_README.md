@@ -60,11 +60,11 @@ Authorization: Bearer <access_token>
 
 ## 🔐 1. Authentication
 
-Login is now **single-step** — credentials in, tokens out. No OTP for login.
+Login is **single-step** — credentials in, **30-day token** out. No OTP, no refresh token needed.
 
-OTP is only used for **registration email verification** and **forgot password**.
+> OTP is only used for **forgot password**. Not for login.
 
-### 1.1 Login (Direct — Returns Tokens Immediately)
+### 1.1 Login
 ```
 POST /auth/login
 ```
@@ -83,12 +83,11 @@ POST /auth/login
   "status": "success",
   "data": {
     "accessToken": "eyJhbG...",
-    "refreshToken": "eyJhbG...",
     "user": {
       "id": "uuid",
       "userId": "IW100001",
       "name": "Rajesh Kumar",
-      "email": "developertest@yopmail.com",
+      "email": "rajesh@example.com",
       "phone": "9999900001",
       "status": "ACTIVE",
       "rank": 1,
@@ -99,54 +98,37 @@ POST /auth/login
 }
 ```
 **Notes:**
-- Tokens returned directly — no OTP step
+- **No refresh token** — access token lasts **30 days**
+- When expired, user logs in again
 - `deviceToken` = Firebase FCM token (optional)
-- `platform` = "android" | "ios"
+- `platform` = `"android"` | `"ios"`
 - After 5 failed attempts → account locked 30 min (HTTP 423)
 
 ---
 
-### 1.3 Refresh Token
-```
-POST /auth/refresh
-```
-**Body:**
-```json
-{ "refreshToken": "your_refresh_token" }
-```
-**Response:** `{ "accessToken": "new_token" }`
-
-**Flutter Implementation:** Use a Dio interceptor to auto-refresh on 401 responses.
-
----
-
-### 1.4 Logout
+### 1.2 Logout
 ```
 POST /auth/logout  🔒
 ```
 **Body:**
 ```json
 {
-  "refreshToken": "your_refresh_token",
   "deviceToken": "fcm_token_to_unregister"
 }
 ```
 
 ---
 
-### 1.5 Forgot Password (Send OTP)
+### 1.3 Forgot Password (Send OTP)
 ```
 POST /auth/forgot-password
 ```
-**Body:**
-```json
-{ "identifier": "user@example.com" }
-```
-**Notes:** `identifier` can be phone number or email. OTP is always logged to server console.
+**Body:** `{ "identifier": "user@example.com" }`
+identifier = email or phone.
 
 ---
 
-### 1.6 Reset Password (with OTP)
+### 1.4 Reset Password (Verify OTP + New Password)
 ```
 POST /auth/reset-password
 ```
@@ -158,21 +140,14 @@ POST /auth/reset-password
   "newPassword": "NewPass@123"
 }
 ```
-**Password rules:** Min 8 chars, 1 uppercase, 1 number, 1 special character.
 
 ---
 
-### 1.7 Change Password 🔒
+### 1.5 Change Password 🔒
 ```
 POST /auth/change-password
 ```
-**Body:**
-```json
-{
-  "currentPassword": "Test@1234",
-  "newPassword": "NewPass@456"
-}
-```
+**Body:** `{ "currentPassword": "Test@1234", "newPassword": "NewPass@456" }`
 
 ---
 
