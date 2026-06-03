@@ -8,28 +8,32 @@ const RANK_NAMES = [
   'National Business Head', 'Vice President Sales', 'President Sales', 'President Club',
 ];
 
-// ─── Dashboard ────────────────────────────────────────────────────────────────
+// ─── getDashboard ─────────────────────────────────────────────────────────────
+// Single endpoint that returns ALL dashboard data:
+// cards, userDetails, advancePayment, referral link + QR code
+// Replaces 4 separate endpoints: /dashboard, /advance-payment, /referral-link, /referral-qr
 
 export async function getDashboard(associateId) {
-  const associate = await prisma.associate.findUnique({
-    where: { id: associateId },
-    include: {
-      package: { select: { name: true } },
-      wallet: {
-        include: {
-          transactions: {
-            where: { status: 'COMPLETED' },
-            orderBy: { createdAt: 'desc' },
+  // Fetch associate + wallet + sponsored count in parallel
+  const [associate, sponsoredCount] = await Promise.all([
+    prisma.associate.findUnique({
+      where: { id: associateId },
+      include: {
+        wallet: {
+          include: {
+            transactions: {
+              where: { status: 'COMPLETED' },
+              orderBy: { createdAt: 'desc' },
+            },
           },
         },
+        treeNode: { select: { position: true, level: true } },
       },
-      treeNode: { select: { position: true, level: true } },
-      sponsored: {
-        where: { status: 'ACTIVE', deletedAt: null },
-        select: { id: true },
-      },
-    },
-  });
+    }),
+    prisma.associate.count({
+      where: { sponsorId: associateId, status: 'ACTIVE', deletedAt: null },
+    }),
+  ]);
 
   if (!associate) {
     throw Object.assign(new Error('Associate not found'), { statusCode: 404 });
@@ -37,115 +41,90 @@ export async function getDashboard(associateId) {
 
   const transactions = associate.wallet?.transactions ?? [];
 
-  // Last completed transaction amount
-  const lastPayment = transactions.length > 0 ? Number(transactions[0].amount) : 0;
-
-  // Sum of all income-type credits
+  // ── Cards ──────────────────────────────────────────────────────────────────
   const incomeTypes = ['DIRECT_INCOME', 'LEVEL_INCOME', 'MATCHING_INCOME', 'REWARD_INCOME'];
-  const totalPayment = transactions
-    .filter((t) => incomeTypes.includes(t.type))
-    .reduce((sum, t) => sum + Number(t.amount), 0);
+  const lastPayment  = transactions.length > 0 ? Number(transactions[0].amount) : 0;
+  const totalPayment = transactions.filter((t) => incomeTypes.includes(t.type)).reduce((s, t) => s + Number(t.amount), 0);
+  const selfAmount   = transactions.filter((t) => t.type === 'DIRECT_INCOME').reduce((s, t) => s + Number(t.amount), 0);
+  const totalAmount  = transactions.filter((t) => Number(t.amount) > 0).reduce((s, t) => s + Number(t.amount), 0);
 
-  // Self invested (property commissions earned personally)
-  const selfAmount = transactions
-    .filter((t) => t.type === 'DIRECT_INCOME')
-    .reduce((sum, t) => sum + Number(t.amount), 0);
+  // ── Advance Payment (safe — model may not exist on older deployments) ──────
+  let advCredit = 0, advDebit = 0;
+  try {
+    if (prisma.advancePayment) {
+      const advanceAgg = await prisma.advancePayment.groupBy({
+        by: ['type'],
+        where: { associateId },
+        _sum: { amount: true },
+      });
+      advCredit = Number(advanceAgg.find((a) => a.type === 'CREDIT')?._sum?.amount ?? 0);
+      advDebit  = Number(advanceAgg.find((a) => a.type === 'DEBIT')?._sum?.amount ?? 0);
+    }
+  } catch {
+    // AdvancePayment table not yet migrated — return zeros
+  }
 
-  // Total network amount — sum of all credits across wallet
-  const totalAmount = transactions
-    .filter((t) => Number(t.amount) > 0)
-    .reduce((sum, t) => sum + Number(t.amount), 0);
-
-  // Advance payment status from AdvancePayment ledger
-  const advanceAgg = await prisma.advancePayment.groupBy({
-    by: ['type'],
-    where: { associateId },
-    _sum: { amount: true },
-  });
-  const advCredit = Number(advanceAgg.find((a) => a.type === 'CREDIT')?._sum?.amount ?? 0);
-  const advDebit  = Number(advanceAgg.find((a) => a.type === 'DEBIT')?._sum?.amount ?? 0);
-  const advBalance = advCredit - advDebit;
-
-  // Masked PAN
-  const maskedPan = associate.panNumber
-    ? `XXXXX${associate.panNumber.slice(-4)}`
-    : null;
-
-  // Total active downlines (direct only)
-  const totalActivations = associate.sponsored.length;
-
-  // Referral link
+  // ── Referral ───────────────────────────────────────────────────────────────
   const referralLink = `${config.APP_BASE_URL}/register?ref=${associate.userId}`;
+  let qrCode = null;
+  try {
+    qrCode = await QRCode.toDataURL(referralLink);
+  } catch {
+    // QR generation failed — not critical
+  }
+
+  // ── Masked PAN ─────────────────────────────────────────────────────────────
+  const maskedPan = associate.panNumber ? `XXXXX${associate.panNumber.slice(-4)}` : null;
 
   return {
-    // ── Top Cards ──────────────────────────────────────
     cards: {
       lastPayment,
       totalPayment,
       selfAmount,
       totalAmount,
     },
-    // ── User Details ───────────────────────────────────
     userDetails: {
-      userId: associate.userId,
-      name: associate.name,
-      joiningDate: associate.joiningDate,
-      activationDate: associate.activationDate,
-      panNumber: maskedPan,
-      totalActivations,
-      rank: associate.rank,
-      rankName: RANK_NAMES[associate.rank] || 'Unknown',
-      totalAreaSold: associate.totalAreaSold,
-      profilePhoto: associate.profilePhoto || null,
-      status: associate.status,
+      userId:          associate.userId,
+      name:            associate.name,
+      joiningDate:     associate.joiningDate,
+      activationDate:  associate.activationDate,
+      panNumber:       maskedPan,
+      totalActivations: sponsoredCount,
+      rank:            associate.rank,
+      rankName:        RANK_NAMES[associate.rank] || 'Unknown',
+      totalAreaSold:   associate.totalAreaSold,
+      profilePhoto:    associate.profilePhoto || null,
+      status:          associate.status,
     },
-    // ── Advance Payment Status ─────────────────────────
     advancePayment: {
-      credit: advCredit,
-      debit: advDebit,
-      balance: advBalance,
+      credit:  advCredit,
+      debit:   advDebit,
+      balance: advCredit - advDebit,
     },
-    // ── Referral ───────────────────────────────────────
     referral: {
       referralLink,
       userId: associate.userId,
+      qrCode,           // base64 PNG — display with Image.memory(base64Decode(qrCode.split(',')[1]))
     },
   };
 }
 
-// ─── Advance Payment (separate endpoint) ──────────────────────────────────────
+// ─── Kept for backward compat — delegate to getDashboard ─────────────────────
 
 export async function getAdvancePayment(associateId) {
-  const advanceAgg = await prisma.advancePayment.groupBy({
-    by: ['type'],
-    where: { associateId },
-    _sum: { amount: true },
-  });
-
-  const credit  = Number(advanceAgg.find((a) => a.type === 'CREDIT')?._sum?.amount ?? 0);
-  const debit   = Number(advanceAgg.find((a) => a.type === 'DEBIT')?._sum?.amount ?? 0);
-  const balance = credit - debit;
-
-  return { credit, debit, balance };
+  const dash = await getDashboard(associateId);
+  return dash.advancePayment;
 }
-
-// ─── Referral Link ────────────────────────────────────────────────────────────
 
 export async function getReferralLink(associateId) {
   const associate = await prisma.associate.findUnique({
     where: { id: associateId },
     select: { userId: true },
   });
-
-  if (!associate) {
-    throw Object.assign(new Error('Associate not found'), { statusCode: 404 });
-  }
-
+  if (!associate) throw Object.assign(new Error('Associate not found'), { statusCode: 404 });
   const referralLink = `${config.APP_BASE_URL}/register?ref=${associate.userId}`;
   return { referralLink, userId: associate.userId };
 }
-
-// ─── Referral QR ─────────────────────────────────────────────────────────────
 
 export async function getReferralQR(associateId) {
   const { referralLink } = await getReferralLink(associateId);

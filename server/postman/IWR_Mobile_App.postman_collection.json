@@ -288,7 +288,7 @@
       "description": "Dashboard data. All endpoints require Authorization header.",
       "item": [
         {
-          "name": "Get Dashboard",
+          "name": "Get Dashboard (all data in one call)",
           "request": {
             "method": "GET",
             "url": {
@@ -301,58 +301,7 @@
                 "dashboard"
               ]
             },
-            "description": "Returns all dashboard data in one call.\n\n**Response shape:**\n```json\n{\n  \"data\": {\n    \"cards\": {\n      \"lastPayment\": 5000,\n      \"totalPayment\": 25000,\n      \"selfAmount\": 10000,\n      \"totalAmount\": 50000\n    },\n    \"userDetails\": {\n      \"userId\": \"IW100001\",\n      \"name\": \"Rajesh Kumar\",\n      \"joiningDate\": \"2024-01-15T00:00:00.000Z\",\n      \"activationDate\": \"2024-01-16T00:00:00.000Z\",\n      \"panNumber\": \"XXXXX234F\",\n      \"totalActivations\": 3,\n      \"rank\": 2,\n      \"rankName\": \"Business Adviser\",\n      \"totalAreaSold\": 1200,\n      \"profilePhoto\": \"/uploads/profiles/uuid.jpg\",\n      \"status\": \"ACTIVE\"\n    },\n    \"advancePayment\": {\n      \"credit\": 30000,\n      \"debit\": 5000,\n      \"balance\": 25000\n    },\n    \"referral\": {\n      \"referralLink\": \"https://app.investorsworld.com/register?ref=IW100001\",\n      \"userId\": \"IW100001\"\n    }\n  }\n}\n```\n\n**Card fields:**\n- `lastPayment` — most recent completed transaction\n- `totalPayment` — sum of all income credits (direct+level+matching+reward)\n- `selfAmount` — direct income commissions\n- `totalAmount` — all wallet credits combined"
-          }
-        },
-        {
-          "name": "Get Advance Payment Status",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/associate/advance-payment",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "associate",
-                "advance-payment"
-              ]
-            },
-            "description": "Returns the advance payment ledger balance for the associate.\n\n**Response:**\n```json\n{\n  \"data\": {\n    \"credit\": 30000,\n    \"debit\": 5000,\n    \"balance\": 25000\n  }\n}\n```"
-          }
-        },
-        {
-          "name": "Get Referral Link",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/associate/referral-link",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "associate",
-                "referral-link"
-              ]
-            },
-            "description": "Returns the associate's unique referral/registration link.\n\n**Response:**\n```json\n{\n  \"data\": {\n    \"referralLink\": \"https://app.investorsworld.com/register?ref=IW100001\",\n    \"userId\": \"IW100001\"\n  }\n}\n```\n\nUse `share_plus` package to share this link."
-          }
-        },
-        {
-          "name": "Get Referral QR Code",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/associate/referral-qr",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "associate",
-                "referral-qr"
-              ]
-            },
-            "description": "Returns referral link as a base64 QR code image.\n\n**Response:**\n```json\n{\n  \"data\": {\n    \"qrCode\": \"data:image/png;base64,...\",\n    \"referralLink\": \"https://...\"\n  }\n}\n```\n\nDisplay using `Image.memory(base64Decode(qrCode.split(',')[1]))`"
+            "description": "Returns ALL dashboard data in a single API call.\n\nIncludes: cards, userDetails, advancePayment, referral link + QR code.\n\n**Response:**\n```json\n{\n  \"data\": {\n    \"cards\": {\n      \"lastPayment\": 5000,\n      \"totalPayment\": 25000,\n      \"selfAmount\": 10000,\n      \"totalAmount\": 50000\n    },\n    \"userDetails\": {\n      \"userId\": \"IW100001\",\n      \"name\": \"Rajesh Kumar\",\n      \"joiningDate\": \"2024-01-15T00:00:00.000Z\",\n      \"activationDate\": \"2024-01-16T00:00:00.000Z\",\n      \"panNumber\": \"XXXXX234F\",\n      \"totalActivations\": 3,\n      \"rank\": 2,\n      \"rankName\": \"Business Adviser\",\n      \"totalAreaSold\": 1200,\n      \"profilePhoto\": \"/uploads/profiles/uuid.jpg\",\n      \"status\": \"ACTIVE\"\n    },\n    \"advancePayment\": {\n      \"credit\": 30000,\n      \"debit\": 5000,\n      \"balance\": 25000\n    },\n    \"referral\": {\n      \"referralLink\": \"https://app.investorsworld.com/register?ref=IW100001\",\n      \"userId\": \"IW100001\",\n      \"qrCode\": \"data:image/png;base64,...\"\n    }\n  }\n}\n```\n\nQR code: display with `Image.memory(base64Decode(qrCode.split(',')[1]))`"
           }
         }
       ]
