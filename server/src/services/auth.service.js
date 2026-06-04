@@ -244,22 +244,24 @@ export async function verifyForgotOtp(identifier, otp) {
     throw Object.assign(new Error('Associate not found'), { statusCode: 404 });
   }
 
-  // Issue a short-lived reset token (10 minutes)
-  const resetToken = crypto.randomBytes(32).toString('hex');
-  await redis.set(`reset_token:${resetToken}`, associate.id, 'EX', 600); // 10 min
+  // Store a verified flag keyed by identifier — valid for 10 minutes
+  await redis.set(`password_reset_verified:${identifier}`, associate.id, 'EX', 600);
 
-  console.log(`[FORGOT-PASSWORD] OTP verified for ${associate.userId} — reset token issued`);
+  console.log(`[FORGOT-PASSWORD] OTP verified for ${associate.userId} — can now reset password`);
 
-  return { resetToken, message: 'OTP verified. Use resetToken to set new password.' };
+  return { message: 'OTP verified. You can now reset your password.' };
 }
 
-export async function resetPasswordWithToken(resetToken, newPassword) {
+export async function resetPasswordWithToken(identifier, newPassword) {
   const redis = getRedisClient();
 
-  // Lookup the reset token
-  const associateId = await redis.get(`reset_token:${resetToken}`);
+  // Check the verified flag
+  const associateId = await redis.get(`password_reset_verified:${identifier}`);
   if (!associateId) {
-    throw Object.assign(new Error('Reset token is invalid or expired. Please start over.'), { statusCode: 400 });
+    throw Object.assign(
+      new Error('OTP not verified or session expired. Please request a new OTP.'),
+      { statusCode: 400 },
+    );
   }
 
   if (!validatePasswordStrength(newPassword)) {
@@ -276,8 +278,8 @@ export async function resetPasswordWithToken(resetToken, newPassword) {
     data: { password: hashed, failedAttempts: 0 },
   });
 
-  // Invalidate the reset token so it can't be reused
-  await redis.del(`reset_token:${resetToken}`);
+  // Clear the verified flag so it can't be reused
+  await redis.del(`password_reset_verified:${identifier}`);
 
   console.log(`[FORGOT-PASSWORD] Password reset completed for associate ${associateId}`);
 }

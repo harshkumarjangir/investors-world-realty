@@ -91,8 +91,8 @@ export async function verifyForgotOtpHandler(req, res, next) {
 
 export async function resetPasswordHandler(req, res, next) {
   try {
-    const { resetToken, newPassword } = req.body;
-    await resetPasswordWithToken(resetToken, newPassword);
+    const { identifier, newPassword } = req.body;
+    await resetPasswordWithToken(identifier, newPassword);
     return successResponse(res, null, 'Password reset successfully');
   } catch (err) {
     return next(err);

@@ -29,11 +29,6 @@
       "key": "associateId",
       "value": "",
       "description": "Set automatically after login step 1"
-    },
-    {
-      "key": "resetToken",
-      "value": "",
-      "description": "Set after verify-forgot-otp"
     }
   ],
   "auth": {
@@ -220,16 +215,15 @@
           }
         },
         {
-          "name": "Step 2 — Verify Forgot OTP (Get Reset Token)",
+          "name": "Step 2 — Verify OTP",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
                   "var j = pm.response.json();",
-                  "if (j.status === 'success' && j.data && j.data.resetToken) {",
-                  "  pm.collectionVariables.set('resetToken', j.data.resetToken);",
-                  "  console.log('✅ Reset token saved — valid for 10 minutes');",
+                  "if (j.status === 'success') {",
+                  "  console.log('✅ OTP verified — proceed to Step 3 with same identifier');",
                   "}"
                 ]
               }
@@ -265,11 +259,11 @@
                 "verify-forgot-otp"
               ]
             },
-            "description": "Screen 2: User enters the OTP received by email.\n\nVerifies OTP and returns a `resetToken` (valid for 10 minutes).\n\n**Response:**\n```json\n{\n  \"data\": {\n    \"resetToken\": \"abc123...\",\n    \"message\": \"OTP verified. Use resetToken to set new password.\"\n  }\n}\n```\n\nSave `resetToken` — needed for Step 3."
+            "description": "Screen 2: User enters the 6-digit OTP.\n\nVerifies OTP for the given identifier.\n\n**Response:**\n```json\n{ \"data\": null, \"message\": \"OTP verified. You can now reset your password.\" }\n```\n\nNo token returned. Proceed to Step 3 with the same `identifier`."
           }
         },
         {
-          "name": "Step 3 — Reset Password (New Password)",
+          "name": "Step 3 — Reset Password",
           "request": {
             "auth": {
               "type": "noauth"
@@ -283,7 +277,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"resetToken\": \"{{resetToken}}\",\n  \"newPassword\": \"NewPass@123\"\n}",
+              "raw": "{\n  \"identifier\": \"developertest@yopmail.com\",\n  \"newPassword\": \"NewPass@123\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -300,7 +294,7 @@
                 "reset-password"
               ]
             },
-            "description": "Screen 3: User types their new password.\n\nUses the `resetToken` from Step 2. Token expires in 10 minutes and is invalidated after use.\n\nPassword rules: min 8 chars, 1 uppercase, 1 number, 1 special character."
+            "description": "Screen 3: User types their new password.\n\nUses the same `identifier` (email/phone) from Step 1.\n\nServer checks that OTP was verified in Step 2 (valid for 10 minutes).\n\nPassword rules: min 8 chars, 1 uppercase, 1 number, 1 special character.\n\nAfter success, the session is cleared — the same OTP cannot be reused."
           }
         },
         {

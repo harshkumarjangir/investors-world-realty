@@ -67,11 +67,11 @@ router.post('/verify-forgot-otp',
   verifyForgotOtpHandler,
 );
 
-// Step 3 — Set new password using reset token
+// Step 3 — Set new password using identifier (OTP must have been verified in Step 2)
 router.post('/reset-password',
   publicRateLimit,
   [
-    body('resetToken').trim().notEmpty().withMessage('Reset token is required'),
+    body('identifier').trim().notEmpty().withMessage('Email or phone is required'),
     body('newPassword').notEmpty().withMessage('New password is required'),
   ],
   validate,
