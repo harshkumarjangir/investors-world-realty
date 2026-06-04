@@ -748,6 +748,30 @@ No body required.
 
 ---
 
+## 🛡️ Admin — Support Tickets 🔒 (Admin)
+
+Requires `support:read` / `support:write` permissions.
+
+### GET `/admin/support?page=1&pageSize=20&status=OPEN&search=TKT`
+Query `status`: `ALL` | `OPEN` | `IN_PROGRESS` | `RESOLVED` | `CLOSED`  
+Query `search`: ticket number, subject, associate name, userId, or email
+
+### GET `/admin/support/:id`
+Returns ticket with full message thread and associate details.
+
+### POST `/admin/support/:id/reply`
+```json
+{ "message": "We have reset your password. Please try again." }
+```
+Sets status to `IN_PROGRESS` when replying to `OPEN` or `RESOLVED` tickets.
+
+### PATCH `/admin/support/:id/status`
+```json
+{ "status": "RESOLVED" }
+```
+
+---
+
 ## 🛡️ Admin — Contact Inquiries 🔒 (Admin)
 
 ### GET `/admin/contact?page=1&pageSize=20`

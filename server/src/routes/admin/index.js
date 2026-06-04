@@ -14,6 +14,7 @@ import transactionRoutes from './transactions.js';
 import bookingRoutes from './bookings.js';
 import appVersionRoutes from './appVersion.js';
 import contactRoutes from './contact.js';
+import supportRoutes from './support.js';
 import commissionRoutes from './commissions.js';
 import mastersRoutes from './masters.js';
 
@@ -34,6 +35,7 @@ router.use('/transactions', transactionRoutes);
 router.use('/bookings', bookingRoutes);
 router.use('/app-version', appVersionRoutes);
 router.use('/contact', contactRoutes);
+router.use('/support', supportRoutes);
 router.use('/commissions', commissionRoutes);
 router.use('/masters', mastersRoutes);
 

@@ -166,3 +166,151 @@ export async function replyToTicket(associateId, ticketId, message) {
 
   return newMessage;
 }
+
+// ─── Admin: list all tickets ──────────────────────────────────────────────────
+
+export async function listAllTickets(filters = {}, pagination = {}) {
+  const { status, search } = filters;
+  const { page = 1, pageSize = 20, skip = 0, take = 20 } = pagination;
+
+  const where = {};
+  if (status && status !== 'ALL') {
+    where.status = status;
+  }
+  if (search?.trim()) {
+    const q = search.trim();
+    where.OR = [
+      { ticketNumber: { contains: q, mode: 'insensitive' } },
+      { subject: { contains: q, mode: 'insensitive' } },
+      {
+        associate: {
+          OR: [
+            { name: { contains: q, mode: 'insensitive' } },
+            { userId: { contains: q, mode: 'insensitive' } },
+            { email: { contains: q, mode: 'insensitive' } },
+          ],
+        },
+      },
+    ];
+  }
+
+  const [records, totalItems] = await Promise.all([
+    prisma.supportTicket.findMany({
+      where,
+      orderBy: { updatedAt: 'desc' },
+      skip,
+      take,
+      select: {
+        id: true,
+        ticketNumber: true,
+        subject: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        associate: {
+          select: { id: true, userId: true, name: true, email: true, phone: true },
+        },
+        _count: { select: { messages: true } },
+      },
+    }),
+    prisma.supportTicket.count({ where }),
+  ]);
+
+  const items = records.map((r) => ({
+    id: r.id,
+    ticketNumber: r.ticketNumber,
+    subject: r.subject,
+    status: r.status,
+    createdAt: r.createdAt,
+    updatedAt: r.updatedAt,
+    messageCount: r._count.messages,
+    associate: r.associate,
+  }));
+
+  return { items, totalItems, page, pageSize };
+}
+
+// ─── Admin: ticket detail ─────────────────────────────────────────────────────
+
+export async function getTicketByIdAdmin(ticketId) {
+  const ticket = await prisma.supportTicket.findUnique({
+    where: { id: ticketId },
+    include: {
+      associate: {
+        select: { id: true, userId: true, name: true, email: true, phone: true },
+      },
+      messages: { orderBy: { createdAt: 'asc' } },
+    },
+  });
+
+  if (!ticket) {
+    throw Object.assign(new Error('Ticket not found'), { statusCode: 404 });
+  }
+
+  return ticket;
+}
+
+// ─── Admin: reply ─────────────────────────────────────────────────────────────
+
+export async function adminReplyToTicket(adminId, ticketId, message) {
+  const ticket = await prisma.supportTicket.findUnique({
+    where: { id: ticketId },
+    select: { id: true, status: true },
+  });
+
+  if (!ticket) {
+    throw Object.assign(new Error('Ticket not found'), { statusCode: 404 });
+  }
+
+  if (ticket.status === 'CLOSED') {
+    throw Object.assign(new Error('Cannot reply to a closed ticket'), { statusCode: 400 });
+  }
+
+  let nextStatus = ticket.status;
+  if (ticket.status === 'OPEN' || ticket.status === 'RESOLVED') {
+    nextStatus = 'IN_PROGRESS';
+  }
+
+  await prisma.$transaction([
+    prisma.ticketMessage.create({
+      data: {
+        ticketId,
+        senderId: adminId,
+        senderType: 'admin',
+        message,
+      },
+    }),
+    prisma.supportTicket.update({
+      where: { id: ticketId },
+      data: { status: nextStatus, updatedAt: new Date() },
+    }),
+  ]);
+
+  return getTicketByIdAdmin(ticketId);
+}
+
+// ─── Admin: update status ─────────────────────────────────────────────────────
+
+const VALID_STATUSES = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'];
+
+export async function updateTicketStatus(ticketId, status) {
+  if (!VALID_STATUSES.includes(status)) {
+    throw Object.assign(new Error('Invalid ticket status'), { statusCode: 400 });
+  }
+
+  const ticket = await prisma.supportTicket.findUnique({ where: { id: ticketId } });
+  if (!ticket) {
+    throw Object.assign(new Error('Ticket not found'), { statusCode: 404 });
+  }
+
+  return prisma.supportTicket.update({
+    where: { id: ticketId },
+    data: { status },
+    include: {
+      associate: {
+        select: { id: true, userId: true, name: true, email: true, phone: true },
+      },
+      messages: { orderBy: { createdAt: 'asc' } },
+    },
+  });
+}

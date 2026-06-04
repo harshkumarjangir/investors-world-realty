@@ -14,6 +14,7 @@ import Transactions from './pages/Transactions.jsx';
 import Reports from './pages/Reports.jsx';
 import Properties from './pages/Properties.jsx';
 import KYC from './pages/KYC.jsx';
+import Support from './pages/Support.jsx';
 import Notifications from './pages/Notifications.jsx';
 import Config from './pages/Config.jsx';
 import Commissions from './pages/Commissions.jsx';
@@ -48,6 +49,7 @@ export default function App() {
               <Route path="reports" element={<Reports />} />
               <Route path="properties" element={<Properties />} />
               <Route path="kyc" element={<KYC />} />
+              <Route path="support" element={<Support />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="commissions" element={<Commissions />} />
               <Route path="promotions" element={<Promotions />} />

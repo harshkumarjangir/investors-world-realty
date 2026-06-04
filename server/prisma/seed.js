@@ -10,12 +10,7 @@ async function main() {
   console.log('🌱 Seeding database...');
 
   // ─── Admin Roles ──────────────────────────────────────────────────────────
-  const superAdminRole = await prisma.adminRole.upsert({
-    where: { name: 'Super Admin' },
-    update: {},
-    create: {
-      name: 'Super Admin',
-      permissions: [
+  const superAdminPermissions = [
         'dashboard:read',
         'associates:read', 'associates:write', 'associates:delete',
         'genealogy:read',
@@ -28,17 +23,27 @@ async function main() {
         'config:read', 'config:write',
         'transactions:read',
         'contact:read',
+        'support:read', 'support:write',
         'admins:read', 'admins:write',
-      ],
-    },
+  ];
+
+  const superAdminRole = await prisma.adminRole.upsert({
+    where: { name: 'Super Admin' },
+    update: { permissions: superAdminPermissions },
+    create: { name: 'Super Admin', permissions: superAdminPermissions },
   });
 
-  for (const role of [
-    { name: 'Manager', permissions: ['dashboard:read','associates:read','associates:write','genealogy:read','payouts:read','payouts:write','reports:read','reports:export','properties:read','properties:write','kyc:read','kyc:write','transactions:read'] },
-    { name: 'Support',  permissions: ['dashboard:read','associates:read','kyc:read','kyc:write','contact:read','transactions:read'] },
+  const otherRoles = [
+    { name: 'Manager', permissions: ['dashboard:read','associates:read','associates:write','genealogy:read','payouts:read','payouts:write','reports:read','reports:export','properties:read','properties:write','kyc:read','kyc:write','transactions:read','support:read','support:write'] },
+    { name: 'Support',  permissions: ['dashboard:read','associates:read','kyc:read','kyc:write','contact:read','transactions:read','support:read','support:write'] },
     { name: 'Accounts', permissions: ['dashboard:read','payouts:read','payouts:write','reports:read','reports:export','funds:read','funds:write','transactions:read'] },
-  ]) {
-    await prisma.adminRole.upsert({ where: { name: role.name }, update: {}, create: role });
+  ];
+  for (const role of otherRoles) {
+    await prisma.adminRole.upsert({
+      where: { name: role.name },
+      update: { permissions: role.permissions },
+      create: role,
+    });
   }
   console.log('✅ Admin roles seeded');
 
