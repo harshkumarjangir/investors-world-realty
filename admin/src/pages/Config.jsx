@@ -6,7 +6,7 @@ import { useI18n } from '../common/i18n.jsx';
 const CONFIG_TABS = [
   { key: 'incomePlans', endpoint: '/admin/config/income-plans' },
   { key: 'categories', endpoint: '/admin/config/categories' },
-  { key: 'geography', endpoint: '/admin/config/states' },
+  { key: 'geography' },
   { key: 'roles', endpoint: '/admin/config/roles' },
 ];
 
@@ -27,6 +27,7 @@ export default function Config() {
   const currentTab = CONFIG_TABS.find((tb) => tb.key === activeTab);
 
   const fetchItems = async () => {
+    if (activeTab === 'geography' || !currentTab?.endpoint) return;
     try {
       setLoading(true);
       const res = await api.get(currentTab.endpoint, { params: { page, pageSize: 20 } });
@@ -91,30 +92,34 @@ export default function Config() {
         ))}
       </div>
 
-      {/* Add Button */}
-      <div className="flex justify-end">
-        <button
-          onClick={handleAdd}
-          className="inline-flex items-center gap-2 rounded-lg bg-gold-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-gold-600"
-        >
-          <Plus size={16} />
-          Add {tabLabels[activeTab]}
-        </button>
-      </div>
+      {activeTab === 'geography' ? (
+        <GeographyPanel />
+      ) : (
+        <>
+          {/* Add Button */}
+          <div className="flex justify-end">
+            <button
+              onClick={handleAdd}
+              className="inline-flex items-center gap-2 rounded-lg bg-gold-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-gold-600"
+            >
+              <Plus size={16} />
+              Add {tabLabels[activeTab]}
+            </button>
+          </div>
 
-      {/* Form Modal */}
-      {showForm && (
-        <ConfigForm
-          tab={activeTab}
-          endpoint={currentTab.endpoint}
-          item={editingItem}
-          onClose={() => { setShowForm(false); setEditingItem(null); }}
-          onSuccess={() => { setShowForm(false); setEditingItem(null); fetchItems(); }}
-        />
-      )}
+          {/* Form Modal */}
+          {showForm && (
+            <ConfigForm
+              tab={activeTab}
+              endpoint={currentTab.endpoint}
+              item={editingItem}
+              onClose={() => { setShowForm(false); setEditingItem(null); }}
+              onSuccess={() => { setShowForm(false); setEditingItem(null); fetchItems(); }}
+            />
+          )}
 
-      {/* Items Table */}
-      <div className="rounded-xl bg-white shadow-sm border border-gray-100 overflow-hidden">
+          {/* Items Table */}
+          <div className="rounded-xl bg-white shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
@@ -174,25 +179,319 @@ export default function Config() {
         </div>
       </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-500">Page {page} of {totalPages}</p>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-            >
-              Previous
-            </button>
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-              className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-            >
-              Next
-            </button>
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-gray-500">Page {page} of {totalPages}</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+function GeographyPanel() {
+  const { t } = useI18n();
+  const [states, setStates] = useState([]);
+  const [selectedState, setSelectedState] = useState(null);
+  const [cities, setCities] = useState([]);
+  const [loadingStates, setLoadingStates] = useState(true);
+  const [loadingCities, setLoadingCities] = useState(false);
+  const [formMode, setFormMode] = useState(null);
+  const [editingItem, setEditingItem] = useState(null);
+  const [formName, setFormName] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  const fetchStates = async () => {
+    try {
+      setLoadingStates(true);
+      const res = await api.get('/public/states');
+      const list = res.data?.data || [];
+      setStates(list);
+      if (selectedState) {
+        const still = list.find((s) => s.id === selectedState.id);
+        setSelectedState(still || null);
+      }
+    } catch (err) {
+      console.error('Failed to load states', err);
+      setStates([]);
+    } finally {
+      setLoadingStates(false);
+    }
+  };
+
+  const fetchCities = async (state) => {
+    if (!state) {
+      setCities([]);
+      return;
+    }
+    try {
+      setLoadingCities(true);
+      const res = await api.get('/public/cities', { params: { state: state.name } });
+      setCities(res.data?.data || []);
+    } catch (err) {
+      console.error('Failed to load cities', err);
+      setCities([]);
+    } finally {
+      setLoadingCities(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStates();
+  }, []);
+
+  useEffect(() => {
+    fetchCities(selectedState);
+  }, [selectedState?.id]);
+
+  const openForm = (mode, item = null) => {
+    setFormMode(mode);
+    setEditingItem(item);
+    setFormName(item?.name || '');
+    setError('');
+  };
+
+  const closeForm = () => {
+    setFormMode(null);
+    setEditingItem(null);
+    setFormName('');
+    setError('');
+  };
+
+  const handleDeleteState = async (state) => {
+    if (!confirm(t('common.confirm'))) return;
+    try {
+      await api.delete(`/admin/config/states/${state.id}`);
+      if (selectedState?.id === state.id) setSelectedState(null);
+      await fetchStates();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to delete state');
+    }
+  };
+
+  const handleDeleteCity = async (city) => {
+    if (!confirm(t('common.confirm'))) return;
+    try {
+      await api.delete(`/admin/config/cities/${city.id}`);
+      await fetchCities(selectedState);
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to delete city');
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const name = formName.trim();
+    if (!name) return;
+
+    try {
+      setSubmitting(true);
+      setError('');
+
+      if (formMode === 'state-add') {
+        await api.post('/admin/config/states', { name });
+        await fetchStates();
+      } else if (formMode === 'state-edit') {
+        await api.patch(`/admin/config/states/${editingItem.id}`, { name });
+        await fetchStates();
+      } else if (formMode === 'city-add') {
+        await api.post('/admin/config/cities', { name, stateId: selectedState.id });
+        await fetchCities(selectedState);
+      } else if (formMode === 'city-edit') {
+        await api.patch(`/admin/config/cities/${editingItem.id}`, { name });
+        await fetchCities(selectedState);
+      }
+
+      closeForm();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to save');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const formTitle = {
+    'state-add': t('config.addState'),
+    'state-edit': `${t('common.edit')} ${t('config.states')}`,
+    'city-add': t('config.addCity'),
+    'city-edit': `${t('common.edit')} ${t('config.cities')}`,
+  }[formMode];
+
+  const inputCls = 'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold-400 focus:ring-2 focus:ring-gold-200';
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-2">
+      {/* States */}
+      <div className="rounded-xl bg-white shadow-sm border border-gray-100 overflow-hidden">
+        <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
+          <h2 className="font-semibold text-gray-800">{t('config.states')}</h2>
+          <button
+            onClick={() => openForm('state-add')}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-gold-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-gold-600"
+          >
+            <Plus size={14} />
+            {t('config.addState')}
+          </button>
+        </div>
+        <div className="max-h-[420px] overflow-y-auto">
+          {loadingStates ? (
+            <p className="py-8 text-center text-sm text-gray-400">{t('common.loading')}</p>
+          ) : states.length === 0 ? (
+            <p className="py-8 text-center text-sm text-gray-400">{t('common.noData')}</p>
+          ) : (
+            <ul className="divide-y divide-gray-50">
+              {states.map((state) => (
+                <li
+                  key={state.id}
+                  className={`flex items-center justify-between px-4 py-2.5 cursor-pointer hover:bg-gray-50 ${
+                    selectedState?.id === state.id ? 'bg-gold-50 border-l-2 border-gold-500' : ''
+                  }`}
+                >
+                  <button
+                    type="button"
+                    className="flex-1 text-left text-sm font-medium text-gray-800"
+                    onClick={() => setSelectedState(state)}
+                  >
+                    {state.name}
+                  </button>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => openForm('state-edit', state)}
+                      className="rounded p-1.5 text-gray-600 hover:bg-gray-200"
+                      title={t('common.edit')}
+                    >
+                      <Edit size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteState(state)}
+                      className="rounded p-1.5 text-red-600 hover:bg-red-50"
+                      title={t('common.delete')}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+
+      {/* Cities */}
+      <div className="rounded-xl bg-white shadow-sm border border-gray-100 overflow-hidden">
+        <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
+          <h2 className="font-semibold text-gray-800">
+            {t('config.cities')}
+            {selectedState ? ` — ${selectedState.name}` : ''}
+          </h2>
+          <button
+            onClick={() => openForm('city-add')}
+            disabled={!selectedState}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-gold-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-gold-600 disabled:opacity-50"
+          >
+            <Plus size={14} />
+            {t('config.addCity')}
+          </button>
+        </div>
+        <div className="max-h-[420px] overflow-y-auto">
+          {!selectedState ? (
+            <p className="py-8 text-center text-sm text-gray-400">{t('config.selectState')}</p>
+          ) : loadingCities ? (
+            <p className="py-8 text-center text-sm text-gray-400">{t('common.loading')}</p>
+          ) : cities.length === 0 ? (
+            <p className="py-8 text-center text-sm text-gray-400">{t('common.noData')}</p>
+          ) : (
+            <ul className="divide-y divide-gray-50">
+              {cities.map((city) => (
+                <li key={city.id} className="flex items-center justify-between px-4 py-2.5 hover:bg-gray-50">
+                  <span className="text-sm font-medium text-gray-800">{city.name}</span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => openForm('city-edit', city)}
+                      className="rounded p-1.5 text-gray-600 hover:bg-gray-200"
+                      title={t('common.edit')}
+                    >
+                      <Edit size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteCity(city)}
+                      className="rounded p-1.5 text-red-600 hover:bg-red-50"
+                      title={t('common.delete')}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+
+      {formMode && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-800">{formTitle}</h2>
+              <button type="button" onClick={closeForm} className="text-gray-400 hover:text-gray-600">
+                <X size={20} />
+              </button>
+            </div>
+            {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  {formMode.startsWith('state') ? t('config.stateName') : t('config.cityName')}
+                </label>
+                <input
+                  type="text"
+                  value={formName}
+                  onChange={(e) => setFormName(e.target.value)}
+                  required
+                  className={inputCls}
+                  autoFocus
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-3">
+                <button
+                  type="button"
+                  onClick={closeForm}
+                  className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  {t('common.cancel')}
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="rounded-lg bg-gold-500 px-4 py-2 text-sm font-medium text-white hover:bg-gold-600 disabled:opacity-50"
+                >
+                  {submitting ? t('common.loading') : t('common.save')}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
@@ -208,8 +507,6 @@ function getItemDetails(tab, item) {
       return item.type ? `${item.type} | ${item.percentage || item.value || ''}%` : '-';
     case 'categories':
       return item.description || '-';
-    case 'geography':
-      return item.state ? `${item.state} → ${item.city || 'All Cities'}` : item.cities?.join(', ') || '-';
     case 'roles':
       return item.permissions ? `${item.permissions.length} permissions` : '-';
     default:
@@ -312,8 +609,6 @@ function getInitialForm(tab, item) {
       return { name: '', type: '', percentage: '', maxCapping: '', status: 'ACTIVE' };
     case 'categories':
       return { name: '', description: '' };
-    case 'geography':
-      return { state: '', city: '' };
     case 'roles':
       return { name: '', permissions: '' };
     default:
@@ -343,11 +638,6 @@ function getFormFields(tab) {
       return [
         { name: 'name', label: 'Category Name', required: true },
         { name: 'description', label: 'Description', type: 'textarea' },
-      ];
-    case 'geography':
-      return [
-        { name: 'state', label: 'State', required: true },
-        { name: 'city', label: 'City' },
       ];
     case 'roles':
       return [

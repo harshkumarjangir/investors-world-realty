@@ -4,7 +4,8 @@ import {
   listPackagesHandler, createPackageHandler, updatePackageHandler, deletePackageHandler,
   listIncomePlansHandler, createIncomePlanHandler, updateIncomePlanHandler, deleteIncomePlanHandler,
   listCategoriesHandler, createCategoryHandler, updateCategoryHandler, deleteCategoryHandler,
-  listStatesHandler, createStateHandler, listCitiesHandler, createCityHandler,
+  createStateHandler, updateStateHandler, deleteStateHandler,
+  createCityHandler, updateCityHandler, deleteCityHandler,
   listRolesHandler, createRoleHandler, updateRoleHandler, deleteRoleHandler,
 } from '../../controllers/admin/config.controller.js';
 
@@ -28,11 +29,13 @@ router.post('/categories', requirePermission('config:write'), createCategoryHand
 router.patch('/categories/:id', requirePermission('config:write'), updateCategoryHandler);
 router.delete('/categories/:id', requirePermission('config:write'), deleteCategoryHandler);
 
-// Geographic Data
-router.get('/states', requirePermission('config:read'), listStatesHandler);
+// Geographic Data (reads: GET /public/states, GET /public/cities)
 router.post('/states', requirePermission('config:write'), createStateHandler);
-router.get('/cities', requirePermission('config:read'), listCitiesHandler);
+router.patch('/states/:id', requirePermission('config:write'), updateStateHandler);
+router.delete('/states/:id', requirePermission('config:write'), deleteStateHandler);
 router.post('/cities', requirePermission('config:write'), createCityHandler);
+router.patch('/cities/:id', requirePermission('config:write'), updateCityHandler);
+router.delete('/cities/:id', requirePermission('config:write'), deleteCityHandler);
 
 // Admin Roles
 router.get('/roles', requirePermission('admins:read'), listRolesHandler);

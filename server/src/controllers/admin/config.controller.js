@@ -70,3 +70,16 @@ export async function updateRoleHandler(req, res, next) {
 export async function deleteRoleHandler(req, res, next) {
   try { await configService.deleteAdminRole(req.params.id); return successResponse(res, null, 'Role deleted'); } catch (e) { return next(e); }
 }
+
+export async function updateStateHandler(req, res, next) {
+  try { return successResponse(res, await configService.renameState(req.params.id, req.body.name), 'State updated'); } catch (e) { return next(e); }
+}
+export async function deleteStateHandler(req, res, next) {
+  try { await configService.deleteState(req.params.id); return successResponse(res, null, 'State deleted'); } catch (e) { return next(e); }
+}
+export async function updateCityHandler(req, res, next) {
+  try { return successResponse(res, await configService.renameCity(req.params.id, req.body.name), 'City updated'); } catch (e) { return next(e); }
+}
+export async function deleteCityHandler(req, res, next) {
+  try { await configService.deleteCity(req.params.id); return successResponse(res, null, 'City deleted'); } catch (e) { return next(e); }
+}

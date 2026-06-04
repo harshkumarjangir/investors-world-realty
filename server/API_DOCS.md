@@ -644,17 +644,28 @@ No body required.
 { "name": "Penthouse" }
 ```
 
-### GET `/admin/config/states`
+### GET `/public/states` — list states (no auth)
+### GET `/public/cities?state=Rajasthan` — list cities by state name (no auth)
+
 ### POST `/admin/config/states`
 ```json
 { "name": "Goa" }
 ```
+### PATCH `/admin/config/states/:id`
+```json
+{ "name": "Goa" }
+```
+### DELETE `/admin/config/states/:id`
 
-### GET `/admin/config/cities?stateId=uuid`
 ### POST `/admin/config/cities`
 ```json
 { "name": "Panaji", "stateId": "state-uuid" }
 ```
+### PATCH `/admin/config/cities/:id`
+```json
+{ "name": "Panaji" }
+```
+### DELETE `/admin/config/cities/:id`
 
 ### GET `/admin/config/roles`
 ### POST `/admin/config/roles`

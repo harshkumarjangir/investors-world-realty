@@ -102,3 +102,26 @@ export async function deleteAdminRole(id) {
   if (inUse > 0) throw Object.assign(new Error('Cannot delete role assigned to active admins'), { statusCode: 400 });
   return prisma.adminRole.delete({ where: { id } });
 }
+
+export async function renameState(id, name) {
+  return prisma.masterState.update({ where: { id }, data: { name } });
+}
+
+export async function deleteState(id) {
+  const cities = await prisma.masterCity.count({ where: { stateId: id } });
+  if (cities > 0) {
+    throw Object.assign(
+      new Error(`Cannot delete state with ${cities} cities. Delete cities first.`),
+      { statusCode: 400 },
+    );
+  }
+  return prisma.masterState.delete({ where: { id } });
+}
+
+export async function renameCity(id, name) {
+  return prisma.masterCity.update({ where: { id }, data: { name } });
+}
+
+export async function deleteCity(id) {
+  return prisma.masterCity.delete({ where: { id } });
+}
