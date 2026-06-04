@@ -276,6 +276,27 @@ export async function adminSuspendAssociate(associateId, adminId) {
   return updated;
 }
 
+// ─── adminUnsuspendAssociate ───────────────────────────────────────────────────
+// Re-activates a SUSPENDED associate back to ACTIVE
+
+export async function adminUnsuspendAssociate(associateId, adminId) {
+  const existing = await prisma.associate.findUnique({ where: { id: associateId, deletedAt: null } });
+  if (!existing) throw Object.assign(new Error('Associate not found'), { statusCode: 404 });
+
+  if (existing.status !== 'SUSPENDED') {
+    throw Object.assign(new Error('Associate is not suspended'), { statusCode: 400 });
+  }
+
+  const updated = await prisma.associate.update({
+    where: { id: associateId },
+    data: { status: 'ACTIVE' },
+    select: { id: true, userId: true, name: true, status: true },
+  });
+
+  await logAdminAction(adminId, 'UNSUSPEND_ASSOCIATE', 'Associate', associateId, {});
+  return updated;
+}
+
 // ─── adminDeleteAssociate ──────────────────────────────────────────────────────
 
 export async function adminDeleteAssociate(associateId, adminId) {

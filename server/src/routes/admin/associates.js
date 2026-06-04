@@ -7,6 +7,7 @@ import {
   editAssociateHandler,
   activateAssociateHandler,
   suspendAssociateHandler,
+  unsuspendAssociateHandler,
   deleteAssociateHandler,
 } from '../../controllers/admin/associate.controller.js';
 
@@ -32,6 +33,7 @@ router.get('/:id', requirePermission('associates:read'), getAssociateHandler);
 router.patch('/:id', requirePermission('associates:write'), editAssociateHandler);
 router.post('/:id/activate', requirePermission('associates:write'), activateAssociateHandler);
 router.post('/:id/suspend', requirePermission('associates:write'), suspendAssociateHandler);
+router.post('/:id/unsuspend', requirePermission('associates:write'), unsuspendAssociateHandler);
 router.delete('/:id', requirePermission('associates:delete'), deleteAssociateHandler);
 
 export default router;

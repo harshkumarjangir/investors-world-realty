@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Eye, Edit, UserCheck, UserX, X, Clock, Users } from 'lucide-react';
+import { Plus, Eye, Edit, UserCheck, UserX, X, Clock, Users, Trash2 } from 'lucide-react';
 import api from '../common/api.js';
 import { useI18n } from '../common/i18n.jsx';
 
@@ -123,10 +123,24 @@ export default function Associates() {
     } catch (err) { alert(err.response?.data?.message || 'Action failed'); }
   };
 
-  const handleStatusAction = async (id, action) => {
+  const handleDelete = async (id, name) => {
+    if (!confirm(`Permanently delete associate "${name}"? This cannot be undone.`)) return;
+    try {
+      await api.delete(`/admin/associates/${id}`);
+      refreshAll();
+    } catch (err) { alert(err.response?.data?.message || 'Delete failed'); }
+  };
+
+  const handleStatusAction = async (id, currentStatus) => {
     if (!confirm(t('common.confirm'))) return;
     try {
-      await api.post(`/admin/associates/${id}/${action}`);
+      if (currentStatus === 'ACTIVE') {
+        await api.post(`/admin/associates/${id}/suspend`);
+      } else if (currentStatus === 'SUSPENDED') {
+        await api.post(`/admin/associates/${id}/unsuspend`);
+      } else if (currentStatus === 'INACTIVE') {
+        await api.post(`/admin/associates/${id}/activate`);
+      }
       refreshAll();
     } catch (err) { alert(err.response?.data?.message || 'Action failed'); }
   };
@@ -320,11 +334,12 @@ export default function Associates() {
                           <button onClick={() => navigate(`/associates/${a.id}`)} className="rounded p-1.5 text-blue-600 hover:bg-blue-50" title="View"><Eye size={15} /></button>
                           <button onClick={() => { setEditingAssociate(a); setShowAddModal(true); }} className="rounded p-1.5 text-gray-600 hover:bg-gray-100" title="Edit"><Edit size={15} /></button>
                           {a.status !== 'ACTIVE' && (
-                            <button onClick={() => handleStatusAction(a.id, 'activate')} className="rounded p-1.5 text-green-600 hover:bg-green-50" title="Activate"><UserCheck size={15} /></button>
+                            <button onClick={() => handleStatusAction(a.id, a.status)} className="rounded p-1.5 text-green-600 hover:bg-green-50" title={a.status === 'SUSPENDED' ? 'Re-activate' : 'Activate'}><UserCheck size={15} /></button>
                           )}
                           {a.status === 'ACTIVE' && (
-                            <button onClick={() => handleStatusAction(a.id, 'suspend')} className="rounded p-1.5 text-red-600 hover:bg-red-50" title="Suspend"><UserX size={15} /></button>
+                            <button onClick={() => handleStatusAction(a.id, a.status)} className="rounded p-1.5 text-red-600 hover:bg-red-50" title="Suspend"><UserX size={15} /></button>
                           )}
+                          <button onClick={() => handleDelete(a.id, a.name)} className="rounded p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600" title="Delete (soft)"><Trash2 size={15} /></button>
                         </div>
                       )}
                     </td>

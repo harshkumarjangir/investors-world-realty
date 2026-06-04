@@ -5,6 +5,7 @@ import {
   adminEditAssociate,
   adminActivateAssociate,
   adminSuspendAssociate,
+  adminUnsuspendAssociate,
   adminDeleteAssociate,
 } from '../../services/admin/associate.service.js';
 import {
@@ -69,8 +70,7 @@ export async function editAssociateHandler(req, res, next) {
 
 export async function activateAssociateHandler(req, res, next) {
   try {
-    const { packageId } = req.body;
-    const data = await adminActivateAssociate(req.params.id, packageId, req.admin.id);
+    const data = await adminActivateAssociate(req.params.id, null, req.admin.id);
     return successResponse(res, data, 'Associate activated successfully');
   } catch (err) {
     return next(err);
@@ -81,6 +81,15 @@ export async function suspendAssociateHandler(req, res, next) {
   try {
     const data = await adminSuspendAssociate(req.params.id, req.admin.id);
     return successResponse(res, data, 'Associate suspended successfully');
+  } catch (err) {
+    return next(err);
+  }
+}
+
+export async function unsuspendAssociateHandler(req, res, next) {
+  try {
+    const data = await adminUnsuspendAssociate(req.params.id, req.admin.id);
+    return successResponse(res, data, 'Associate re-activated successfully');
   } catch (err) {
     return next(err);
   }
