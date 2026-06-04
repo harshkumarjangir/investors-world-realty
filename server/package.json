@@ -19,7 +19,9 @@
     "db:seed": "node prisma/seed.js",
     "db:seed:dummy": "node prisma/seed-dummy.js",
     "db:seed:slabs": "node prisma/seed-commission-slabs.js",
+    "db:seed:cities": "node prisma/seed-cities.mjs",
     "db:reset": "node prisma/reset-and-seed.js",
+    "db:hard-delete": "node scripts/hard-delete-associate.mjs",
     "db:studio": "prisma studio"
   },
   "license": "UNLICENSED",

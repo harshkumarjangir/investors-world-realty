@@ -34,18 +34,30 @@ export async function registerHandler(req, res, next) {
   try {
     const associate = await registerAssociate(req.body);
 
-    // Log new registration for admin awareness
+    // Log new registration
     console.log(`[NEW REGISTRATION] ${associate.userId} — ${associate.name} | phone: ${associate.phone} | email: ${associate.email} | sponsor: ${req.body.sponsorId || 'none'}`);
 
+    // Send registration confirmation email (non-blocking)
+    try {
+      const { sendRegistrationEmail } = await import('../utils/email.js');
+      await sendRegistrationEmail(associate.email, {
+        name:      associate.name,
+        userId:    associate.userId,
+        sponsorId: req.body.sponsorId || null,
+      });
+    } catch (emailErr) {
+      console.error('[REGISTRATION EMAIL] Failed:', emailErr.message);
+    }
+
     return createdResponse(res, {
-      id: associate.id,
-      userId: associate.userId,
-      name: associate.name,
-      email: associate.email,
-      phone: associate.phone,
-      status: associate.status,
+      id:        associate.id,
+      userId:    associate.userId,
+      name:      associate.name,
+      email:     associate.email,
+      phone:     associate.phone,
+      status:    associate.status,
       sponsorId: req.body.sponsorId || null,
-    }, 'Registration successful. Your account is pending admin approval.');
+    }, 'Registration successful. Your account is pending admin approval. Check your email for your User ID.');
   } catch (err) {
     return next(err);
   }
@@ -57,11 +69,22 @@ export async function activateHandler(req, res, next) {
     const { associateId } = req.body;
     const updated = await activateAssociate(associateId);
 
+    // Send activation email (non-blocking)
+    try {
+      const { sendActivationEmail } = await import('../utils/email.js');
+      await sendActivationEmail(updated.email, {
+        name:   updated.name,
+        userId: updated.userId,
+      });
+    } catch (emailErr) {
+      console.error('[ACTIVATION EMAIL] Failed:', emailErr.message);
+    }
+
     return successResponse(res, {
-      id: updated.id,
-      userId: updated.userId,
-      name: updated.name,
-      status: updated.status,
+      id:             updated.id,
+      userId:         updated.userId,
+      name:           updated.name,
+      status:         updated.status,
       activationDate: updated.activationDate,
     }, 'Associate activated successfully');
   } catch (err) {

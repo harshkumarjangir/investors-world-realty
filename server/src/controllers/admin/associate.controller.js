@@ -71,6 +71,22 @@ export async function editAssociateHandler(req, res, next) {
 export async function activateAssociateHandler(req, res, next) {
   try {
     const data = await adminActivateAssociate(req.params.id, null, req.admin.id);
+
+    // Send activation email (non-blocking)
+    try {
+      const { sendActivationEmail } = await import('../../utils/email.js');
+      if (data.email) {
+        await sendActivationEmail(data.email, { name: data.name, userId: data.userId });
+      } else {
+        // Fetch email if not in returned data
+        const { default: prisma } = await import('../../utils/prisma.js');
+        const assoc = await prisma.associate.findUnique({ where: { id: req.params.id }, select: { email: true, name: true, userId: true } });
+        if (assoc) await sendActivationEmail(assoc.email, { name: assoc.name, userId: assoc.userId });
+      }
+    } catch (emailErr) {
+      console.error('[ACTIVATION EMAIL] Failed:', emailErr.message);
+    }
+
     return successResponse(res, data, 'Associate activated successfully');
   } catch (err) {
     return next(err);

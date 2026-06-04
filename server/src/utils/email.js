@@ -79,3 +79,84 @@ export async function sendOtpEmail(to, otp) {
 
   return sendEmail(to, subject, html);
 }
+
+/**
+ * Send registration confirmation email to new associate.
+ * Tells them their User ID and that they need to wait for admin approval.
+ */
+export async function sendRegistrationEmail(to, { name, userId, sponsorId }) {
+  const subject = 'Registration Received - Investors World Realty';
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 20px;">
+      <div style="background: #1e293b; padding: 24px; border-radius: 12px 12px 0 0; text-align: center;">
+        <h2 style="color: #D49428; margin: 0; font-size: 22px;">Investors World Realty</h2>
+        <p style="color: #94a3b8; font-size: 13px; margin: 4px 0 0;">Registration Confirmation</p>
+      </div>
+      <div style="background: #ffffff; padding: 30px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 12px 12px;">
+        <p style="color: #1e293b; font-size: 16px;">Dear <strong>${name}</strong>,</p>
+        <p style="color: #475569; font-size: 14px; line-height: 1.6;">
+          Thank you for registering with <strong>Investors World Realty Pvt. Ltd.</strong>
+          Your registration has been received and is currently <strong>pending admin approval</strong>.
+        </p>
+        <div style="background: #f8fafc; border: 2px solid #D49428; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+          <p style="color: #64748b; font-size: 13px; margin: 0 0 8px;">Your User ID</p>
+          <p style="color: #D49428; font-size: 28px; font-weight: bold; letter-spacing: 4px; margin: 0;">${userId}</p>
+          <p style="color: #94a3b8; font-size: 12px; margin: 8px 0 0;">Save this — you will need it to log in</p>
+        </div>
+        ${sponsorId ? `<p style="color: #475569; font-size: 13px;">Sponsor ID: <strong>${sponsorId}</strong></p>` : ''}
+        <div style="background: #fefce8; border-left: 4px solid #eab308; padding: 12px 16px; border-radius: 4px; margin: 16px 0;">
+          <p style="color: #713f12; font-size: 13px; margin: 0;">
+            ⏳ Your account is <strong>pending approval</strong>. You will receive another email once admin activates your account.
+          </p>
+        </div>
+        <p style="color: #475569; font-size: 13px; line-height: 1.6;">
+          Once approved, you can log in to the Investors World Realty mobile app using:<br/>
+          <strong>User ID:</strong> ${userId}<br/>
+          <strong>Password:</strong> The password you set during registration
+        </p>
+        <p style="color: #94a3b8; font-size: 12px; margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+          If you did not register, please ignore this email.
+        </p>
+      </div>
+    </div>
+  `;
+  return sendEmail(to, subject, html);
+}
+
+/**
+ * Send account activation email after admin approves.
+ */
+export async function sendActivationEmail(to, { name, userId }) {
+  const subject = 'Account Activated - Welcome to Investors World Realty!';
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 20px;">
+      <div style="background: #1e293b; padding: 24px; border-radius: 12px 12px 0 0; text-align: center;">
+        <h2 style="color: #D49428; margin: 0; font-size: 22px;">Investors World Realty</h2>
+        <p style="color: #94a3b8; font-size: 13px; margin: 4px 0 0;">Account Activated</p>
+      </div>
+      <div style="background: #ffffff; padding: 30px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 12px 12px;">
+        <p style="color: #1e293b; font-size: 16px;">Dear <strong>${name}</strong>,</p>
+        <div style="background: #f0fdf4; border: 2px solid #22c55e; border-radius: 8px; padding: 16px; margin: 16px 0; text-align: center;">
+          <p style="color: #15803d; font-size: 18px; font-weight: bold; margin: 0;">✅ Your account has been activated!</p>
+        </div>
+        <p style="color: #475569; font-size: 14px; line-height: 1.6;">
+          Congratulations! Your Investors World Realty associate account is now <strong>active</strong>.
+          You can now log in to the mobile app and start using all features.
+        </p>
+        <div style="background: #f8fafc; border: 2px solid #D49428; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+          <p style="color: #64748b; font-size: 13px; margin: 0 0 8px;">Your Login Details</p>
+          <p style="color: #D49428; font-size: 26px; font-weight: bold; letter-spacing: 4px; margin: 0;">${userId}</p>
+          <p style="color: #94a3b8; font-size: 12px; margin: 6px 0 0;">Use this User ID with your registered password</p>
+        </div>
+        <p style="color: #475569; font-size: 13px; line-height: 1.6;">
+          A HEARTLY WELCOME TO INVESTORS WORLD REALTY PVT. LTD.!<br/><br/>
+          We are delighted to have you as part of our family. You can now log in using the mobile app and start your journey with us.
+        </p>
+        <p style="color: #94a3b8; font-size: 12px; margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+          &copy; Investors World Realty Pvt. Ltd. | If you have questions, contact support.
+        </p>
+      </div>
+    </div>
+  `;
+  return sendEmail(to, subject, html);
+}

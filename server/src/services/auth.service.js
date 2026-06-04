@@ -44,6 +44,10 @@ export async function loginAssociate(userId, password, deviceToken = null) {
     throw Object.assign(new Error('Account suspended. Contact support'), { statusCode: 403 });
   }
 
+  if (associate.status === 'INACTIVE') {
+    throw Object.assign(new Error('Account pending admin approval. Please wait for activation.'), { statusCode: 403 });
+  }
+
   const passwordMatch = await bcrypt.compare(password, associate.password);
 
   if (!passwordMatch) {
