@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../common/AuthContext.jsx';
-import { Lock, Mail, KeyRound } from 'lucide-react';
+import { Mail, KeyRound } from 'lucide-react';
 
 export default function Login() {
   const [step, setStep] = useState(1); // 1 = email/password, 2 = OTP
@@ -51,8 +51,8 @@ export default function Login() {
       <div className="w-full max-w-md">
         {/* Logo / Brand */}
         <div className="mb-8 text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gold-500">
-            <Lock className="text-white" size={28} />
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-white shadow-lg overflow-hidden">
+            <img src="/logo.png" alt="Investors World Realty" className="w-full h-full object-cover" />
           </div>
           <h1 className="mt-4 text-2xl font-bold text-white">
             Investors World Realty

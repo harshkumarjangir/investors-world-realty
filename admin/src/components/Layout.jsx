@@ -86,7 +86,10 @@ export default function Layout() {
 
       <aside className={`fixed inset-y-0 left-0 z-30 w-64 flex flex-col transform bg-slate-900 transition-transform duration-200 ease-in-out lg:relative lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex h-16 shrink-0 items-center justify-between px-4 border-b border-slate-700">
-          <h1 className="text-lg font-bold text-white truncate">Investors World Realty</h1>
+          <div className="flex items-center gap-2.5">
+            <img src="/logo.png" alt="IWR" className="h-9 w-9 rounded-lg object-cover shrink-0" />
+            <h1 className="text-sm font-bold text-white truncate leading-tight">Investors World<br/>Realty</h1>
+          </div>
           <button className="lg:hidden text-white hover:text-gray-300" onClick={() => setSidebarOpen(false)}><X size={20} /></button>
         </div>
 
