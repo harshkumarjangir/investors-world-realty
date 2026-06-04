@@ -217,10 +217,49 @@ export function validatePasswordStrength(password) {
   return PASSWORD_REGEX.test(password);
 }
 
-export async function resetPassword(identifier, otp, newPassword) {
+// ─── Forgot Password — 3-step flow ────────────────────────────────────────────
+// Step 1: POST /auth/forgot-password      → send OTP to email/phone
+// Step 2: POST /auth/verify-forgot-otp   → verify OTP, get reset token
+// Step 3: POST /auth/reset-password      → use reset token + new password
+
+export async function verifyForgotOtp(identifier, otp) {
+  const redis = getRedisClient();
+
+  // Verify the OTP
   const valid = await verifyOtp(identifier, otp);
   if (!valid) {
     throw Object.assign(new Error('Invalid or expired OTP'), { statusCode: 400 });
+  }
+
+  // Find associate
+  const associate = await prisma.associate.findFirst({
+    where: {
+      OR: [{ phone: identifier }, { email: identifier }],
+      deletedAt: null,
+    },
+    select: { id: true, userId: true },
+  });
+
+  if (!associate) {
+    throw Object.assign(new Error('Associate not found'), { statusCode: 404 });
+  }
+
+  // Issue a short-lived reset token (10 minutes)
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  await redis.set(`reset_token:${resetToken}`, associate.id, 'EX', 600); // 10 min
+
+  console.log(`[FORGOT-PASSWORD] OTP verified for ${associate.userId} — reset token issued`);
+
+  return { resetToken, message: 'OTP verified. Use resetToken to set new password.' };
+}
+
+export async function resetPasswordWithToken(resetToken, newPassword) {
+  const redis = getRedisClient();
+
+  // Lookup the reset token
+  const associateId = await redis.get(`reset_token:${resetToken}`);
+  if (!associateId) {
+    throw Object.assign(new Error('Reset token is invalid or expired. Please start over.'), { statusCode: 400 });
   }
 
   if (!validatePasswordStrength(newPassword)) {
@@ -232,22 +271,15 @@ export async function resetPassword(identifier, otp, newPassword) {
 
   const hashed = await bcrypt.hash(newPassword, 12);
 
-  // Find by phone or email
-  const associate = await prisma.associate.findFirst({
-    where: {
-      OR: [{ phone: identifier }, { email: identifier }],
-      deletedAt: null,
-    },
-  });
-
-  if (!associate) {
-    throw Object.assign(new Error('Associate not found'), { statusCode: 404 });
-  }
-
   await prisma.associate.update({
-    where: { id: associate.id },
+    where: { id: associateId },
     data: { password: hashed, failedAttempts: 0 },
   });
+
+  // Invalidate the reset token so it can't be reused
+  await redis.del(`reset_token:${resetToken}`);
+
+  console.log(`[FORGOT-PASSWORD] Password reset completed for associate ${associateId}`);
 }
 
 export async function changePassword(associateId, currentPassword, newPassword) {

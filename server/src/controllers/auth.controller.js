@@ -4,7 +4,8 @@ import {
   refreshAssociateToken,
   logoutAssociate,
   sendOtp,
-  resetPassword,
+  verifyForgotOtp,
+  resetPasswordWithToken,
   changePassword,
 } from '../services/auth.service.js';
 import { successResponse } from '../utils/response.js';
@@ -78,10 +79,20 @@ export async function forgotPassword(req, res, next) {
   }
 }
 
+export async function verifyForgotOtpHandler(req, res, next) {
+  try {
+    const { identifier, otp } = req.body;
+    const result = await verifyForgotOtp(identifier, otp);
+    return successResponse(res, result, 'OTP verified successfully');
+  } catch (err) {
+    return next(err);
+  }
+}
+
 export async function resetPasswordHandler(req, res, next) {
   try {
-    const { identifier, otp, newPassword } = req.body;
-    await resetPassword(identifier, otp, newPassword);
+    const { resetToken, newPassword } = req.body;
+    await resetPasswordWithToken(resetToken, newPassword);
     return successResponse(res, null, 'Password reset successfully');
   } catch (err) {
     return next(err);

@@ -34,6 +34,9 @@ export async function registerHandler(req, res, next) {
   try {
     const associate = await registerAssociate(req.body);
 
+    // Log new registration for admin awareness
+    console.log(`[NEW REGISTRATION] ${associate.userId} — ${associate.name} | phone: ${associate.phone} | email: ${associate.email} | sponsor: ${req.body.sponsorId || 'none'}`);
+
     return createdResponse(res, {
       id: associate.id,
       userId: associate.userId,
@@ -41,7 +44,7 @@ export async function registerHandler(req, res, next) {
       email: associate.email,
       phone: associate.phone,
       status: associate.status,
-      sponsorId: req.body.sponsorId,
+      sponsorId: req.body.sponsorId || null,
     }, 'Registration successful. Your account is pending admin approval.');
   } catch (err) {
     return next(err);

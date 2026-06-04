@@ -9,6 +9,7 @@ import {
   refresh,
   logout,
   forgotPassword,
+  verifyForgotOtpHandler,
   resetPasswordHandler,
   changePasswordHandler,
 } from '../controllers/auth.controller.js';
@@ -45,18 +46,32 @@ router.post('/refresh',
 
 router.post('/logout', authenticate, authRateLimit, logout);
 
+// ─── Forgot Password — 3 steps ───────────────────────────────────────────────
+
+// Step 1 — Send OTP
 router.post('/forgot-password',
   publicRateLimit,
-  [body('identifier').trim().notEmpty().withMessage('Phone number or email is required')],
+  [body('identifier').trim().notEmpty().withMessage('Email or phone is required')],
   validate,
   forgotPassword,
 );
 
+// Step 2 — Verify OTP, get reset token
+router.post('/verify-forgot-otp',
+  publicRateLimit,
+  [
+    body('identifier').trim().notEmpty().withMessage('Email or phone is required'),
+    body('otp').trim().isLength({ min: 6, max: 6 }).withMessage('OTP must be 6 digits'),
+  ],
+  validate,
+  verifyForgotOtpHandler,
+);
+
+// Step 3 — Set new password using reset token
 router.post('/reset-password',
   publicRateLimit,
   [
-    body('identifier').trim().notEmpty().withMessage('Phone or email is required'),
-    body('otp').trim().isLength({ min: 6, max: 6 }).withMessage('OTP must be 6 digits'),
+    body('resetToken').trim().notEmpty().withMessage('Reset token is required'),
     body('newPassword').notEmpty().withMessage('New password is required'),
   ],
   validate,

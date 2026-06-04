@@ -1,13 +1,13 @@
 {
   "info": {
     "name": "IWR Mobile App API",
-    "description": "# Investors World Realty — Mobile App API\n\n**For Flutter Developer**\n\n## Base URLs\n- **Local Dev:** `http://localhost:5001/api/v1`\n- **Production:** `https://serveriwr.harshkumarjangir.in/api/v1`\n\n## Auth Flow (2-Step)\n1. `POST /auth/login` → sends OTP to email, returns `associateId`\n2. `POST /auth/verify-otp` → verify OTP, get `accessToken` + `refreshToken`\n3. All 🔒 endpoints need: `Authorization: Bearer {{accessToken}}`\n4. On 401: `POST /auth/refresh` → get new `accessToken`\n\n## Test Credentials\n```\nUser ID: IW100001\nPassword: Test@1234\nOTP: check server console / registered email\n```\n\n## Response Format\n```json\n{ \"status\": \"success\", \"message\": \"...\", \"data\": { ... } }\n```\n\n## Pagination Format\n```json\n{ \"status\": \"success\", \"data\": [...], \"currentPage\": 1, \"totalPages\": 5, \"totalItems\": 100, \"pageSize\": 20 }\n```",
+    "description": "# Investors World Realty — Mobile App API\n\n**For Flutter Developer**\n\n## Base URLs\n- **Local Dev:** `http://localhost:5000/api/v1`\n- **Production:** `https://serveriwr.harshkumarjangir.in/api/v1`\n\n## Auth Flow (2-Step)\n1. `POST /auth/login` → sends OTP to email, returns `associateId`\n2. `POST /auth/verify-otp` → verify OTP, get `accessToken` + `refreshToken`\n3. All 🔒 endpoints need: `Authorization: Bearer {{accessToken}}`\n4. On 401: `POST /auth/refresh` → get new `accessToken`\n\n## Test Credentials\n```\nUser ID: IW100001\nPassword: Test@1234\nOTP: check server console / registered email\n```\n\n## Response Format\n```json\n{ \"status\": \"success\", \"message\": \"...\", \"data\": { ... } }\n```\n\n## Pagination Format\n```json\n{ \"status\": \"success\", \"data\": [...], \"currentPage\": 1, \"totalPages\": 5, \"totalItems\": 100, \"pageSize\": 20 }\n```",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:5001/api/v1",
+      "value": "http://localhost:5000/api/v1",
       "description": "Local dev URL"
     },
     {
@@ -29,6 +29,11 @@
       "key": "associateId",
       "value": "",
       "description": "Set automatically after login step 1"
+    },
+    {
+      "key": "resetToken",
+      "value": "",
+      "description": "Set after verify-forgot-otp"
     }
   ],
   "auth": {
@@ -180,7 +185,7 @@
           }
         },
         {
-          "name": "Forgot Password (Send OTP)",
+          "name": "Step 1 — Forgot Password (Send OTP)",
           "request": {
             "auth": {
               "type": "noauth"
@@ -211,11 +216,25 @@
                 "forgot-password"
               ]
             },
-            "description": "`identifier` can be **email** or **phone number**.\n\nSends OTP to the associated email. Also logs OTP to server console.\n\nAlways returns success to prevent user enumeration."
+            "description": "Screen 1: User enters email or phone.\n\nSends a 6-digit OTP to the registered email.\n\nidentifier = email address or phone number.\n\nAlways returns success to prevent enumeration."
           }
         },
         {
-          "name": "Reset Password (Verify OTP + New Password)",
+          "name": "Step 2 — Verify Forgot OTP (Get Reset Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var j = pm.response.json();",
+                  "if (j.status === 'success' && j.data && j.data.resetToken) {",
+                  "  pm.collectionVariables.set('resetToken', j.data.resetToken);",
+                  "  console.log('✅ Reset token saved — valid for 10 minutes');",
+                  "}"
+                ]
+              }
+            }
+          ],
           "request": {
             "auth": {
               "type": "noauth"
@@ -229,7 +248,42 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"identifier\": \"developertest@yopmail.com\",\n  \"otp\": \"123456\",\n  \"newPassword\": \"NewPass@123\"\n}",
+              "raw": "{\n  \"identifier\": \"developertest@yopmail.com\",\n  \"otp\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify-forgot-otp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "verify-forgot-otp"
+              ]
+            },
+            "description": "Screen 2: User enters the OTP received by email.\n\nVerifies OTP and returns a `resetToken` (valid for 10 minutes).\n\n**Response:**\n```json\n{\n  \"data\": {\n    \"resetToken\": \"abc123...\",\n    \"message\": \"OTP verified. Use resetToken to set new password.\"\n  }\n}\n```\n\nSave `resetToken` — needed for Step 3."
+          }
+        },
+        {
+          "name": "Step 3 — Reset Password (New Password)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resetToken\": \"{{resetToken}}\",\n  \"newPassword\": \"NewPass@123\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -246,7 +300,7 @@
                 "reset-password"
               ]
             },
-            "description": "**Password rules:** Min 8 chars, at least 1 uppercase, 1 number, 1 special character.\n\nExample valid password: `MyPass@123`"
+            "description": "Screen 3: User types their new password.\n\nUses the `resetToken` from Step 2. Token expires in 10 minutes and is invalidated after use.\n\nPassword rules: min 8 chars, 1 uppercase, 1 number, 1 special character."
           }
         },
         {
