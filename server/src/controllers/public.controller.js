@@ -48,6 +48,16 @@ export async function publicListPropertiesHandler(req, res) {
 import { getPublicAppVersion, listBrandingAssets } from '../services/admin/appVersion.service.js';
 import { checkRedisHealth } from '../utils/redis.js';
 import prisma from '../utils/prisma.js';
+import {
+  getPrivacyPolicyHtml,
+  getTermsHtml,
+  getSupportHtml,
+} from '../content/legal-pages.js';
+
+function sendHtmlPage(res, html) {
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  return res.status(200).send(html);
+}
 
 // ─── GET /api/v1/public/app-version ──────────────────────────────────────────
 export async function publicAppVersionHandler(req, res) {
@@ -86,6 +96,19 @@ export async function publicContactHandler(req, res) {
   } catch (err) {
     return errorResponse(res, err.message, err.statusCode || 500);
   }
+}
+
+// ─── GET /api/v1/public/privacy | /terms | /support (HTML for WebView) ───────
+export async function publicPrivacyHandler(req, res) {
+  return sendHtmlPage(res, getPrivacyPolicyHtml());
+}
+
+export async function publicTermsHandler(req, res) {
+  return sendHtmlPage(res, getTermsHtml());
+}
+
+export async function publicSupportPageHandler(req, res) {
+  return sendHtmlPage(res, getSupportHtml());
 }
 
 // ─── GET /api/v1/public/health ───────────────────────────────────────────────

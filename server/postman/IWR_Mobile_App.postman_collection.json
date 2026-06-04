@@ -1605,6 +1605,45 @@
           }
         },
         {
+          "name": "Privacy Policy (HTML)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/public/privacy",
+              "host": ["{{baseUrl}}"],
+              "path": ["public", "privacy"]
+            },
+            "description": "Returns Privacy Policy as HTML (text/html) for mobile WebView."
+          }
+        },
+        {
+          "name": "Terms & Conditions (HTML)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/public/terms",
+              "host": ["{{baseUrl}}"],
+              "path": ["public", "terms"]
+            },
+            "description": "Returns Terms & Conditions as HTML (text/html) for mobile WebView."
+          }
+        },
+        {
+          "name": "Support Page (HTML)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/public/support",
+              "host": ["{{baseUrl}}"],
+              "path": ["public", "support"]
+            },
+            "description": "Returns help & support page as HTML. In-app tickets use POST /support/tickets (auth)."
+          }
+        },
+        {
           "name": "Public Properties",
           "request": {
             "auth": {

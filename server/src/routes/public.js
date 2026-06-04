@@ -7,6 +7,9 @@ import {
   publicBrandingHandler,
   publicContactHandler,
   publicHealthHandler,
+  publicPrivacyHandler,
+  publicTermsHandler,
+  publicSupportPageHandler,
 } from '../controllers/public.controller.js';
 import { calculateEMIHandler } from '../controllers/emi.controller.js';
 import prisma from '../utils/prisma.js';
@@ -33,6 +36,11 @@ router.post('/contact', publicRateLimit, publicContactHandler);
 
 // GET /api/v1/public/health
 router.get('/health', publicHealthHandler);
+
+// GET /api/v1/public/privacy | /terms | /support — HTML pages for mobile WebView
+router.get('/privacy', publicRateLimit, publicPrivacyHandler);
+router.get('/terms', publicRateLimit, publicTermsHandler);
+router.get('/support', publicRateLimit, publicSupportPageHandler);
 
 // ─── Location Endpoints (for Flutter dropdowns — no auth required) ────────────
 

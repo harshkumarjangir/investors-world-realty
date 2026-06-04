@@ -357,6 +357,15 @@ Returns JSON with document URLs.
 ### GET `/public/app-version?platform=android&version=1.0.0`
 ### GET `/public/branding`
 
+### GET `/public/privacy`
+Returns **HTML** (`Content-Type: text/html`) — Privacy Policy for in-app WebView.
+
+### GET `/public/terms`
+Returns **HTML** — Terms & Conditions for in-app WebView.
+
+### GET `/public/support`
+Returns **HTML** — Help & support page (contact info, FAQs). In-app tickets use `POST /support/tickets` (auth required).
+
 ### POST `/public/contact`
 ```json
 {

@@ -610,6 +610,16 @@ POST /support/tickets/:id/reply
 | POST | `/public/commission-calculator` | Gap commission estimate |
 | POST | `/public/emi-calculator` | EMI calculation |
 | POST | `/public/contact` | Contact form |
+| GET | `/public/privacy` | Privacy Policy (**HTML**, not JSON) |
+| GET | `/public/terms` | Terms & Conditions (**HTML**) |
+| GET | `/public/support` | Help & support page (**HTML**) |
+
+**Flutter WebView example:**
+```dart
+// Load in WebView — response is raw HTML
+final url = '$baseUrl/public/privacy';
+// or: webViewController.loadRequest(Uri.parse(url));
+```
 
 ---
 
