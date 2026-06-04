@@ -131,6 +131,24 @@ model Associate {
   panNumber      String?
   profilePhoto   String? // file path
 
+  // Extended profile fields
+  fatherHusbandName String?
+  gender            String?   // Male, Female, Other
+  profession        String?
+  maritalStatus     String?   // Single, Married, Divorced, Widowed
+  aadhaarNo         String?
+
+  // Nominee details
+  nomineeName       String?
+  nomineeRelation   String?
+  nomineeDob        DateTime?
+
+  // Bank details (inline — also captured via KYC but stored here for quick access)
+  bankName          String?
+  bankBranchName    String?
+  bankAccountNo     String?
+  bankIfscCode      String?
+
   sponsorId      String?
   sponsor        Associate?      @relation("Sponsorship", fields: [sponsorId], references: [id])
   sponsored      Associate[]     @relation("Sponsorship")

@@ -386,7 +386,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"phone\": \"9876543211\",\n  \"email\": \"newemail@example.com\",\n  \"address\": \"456 New Street\",\n  \"city\": \"Delhi\",\n  \"state\": \"Delhi\",\n  \"pincode\": \"110001\"\n}",
+              "raw": "{\n  \"phone\": \"9876543211\",\n  \"email\": \"newemail@example.com\",\n  \"address\": \"123 Main Street\",\n  \"city\": \"Jaipur\",\n  \"state\": \"Rajasthan\",\n  \"pincode\": \"302001\",\n  \"fatherHusbandName\": \"Ramesh Kumar\",\n  \"gender\": \"Male\",\n  \"profession\": \"Businessman\",\n  \"maritalStatus\": \"Married\",\n  \"aadhaarNo\": \"123456789012\",\n  \"nomineeName\": \"Sunita Kumar\",\n  \"nomineeRelation\": \"Wife\",\n  \"nomineeDob\": \"1992-06-15\",\n  \"bankName\": \"HDFC Bank\",\n  \"bankBranchName\": \"Mansarovar Branch\",\n  \"bankAccountNo\": \"50100123456789\",\n  \"bankIfscCode\": \"HDFC0001234\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -403,7 +403,7 @@
                 "profile"
               ]
             },
-            "description": "Updatable fields: `phone`, `email`, `address`, `city`, `state`, `pincode`.\n\nAll fields are optional — only send what needs to be changed."
+            "description": "Update profile fields. All fields are optional — only send what needs to change.\n\n**Updatable fields:**\n- Basic: `phone`, `email`, `address`, `city`, `state`, `pincode`\n- Extended: `fatherHusbandName`, `gender` (Male/Female/Other), `profession`, `maritalStatus` (Single/Married/Divorced/Widowed), `aadhaarNo`\n- Nominee: `nomineeName`, `nomineeRelation`, `nomineeDob` (YYYY-MM-DD)\n- Bank: `bankName`, `bankBranchName`, `bankAccountNo`, `bankIfscCode`"
           }
         },
         {

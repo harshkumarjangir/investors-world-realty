@@ -66,6 +66,19 @@ export async function getProfile(associateId) {
     activationDate: associate.activationDate,
     theme: associate.theme,
     language: associate.language,
+    // Extended profile
+    fatherHusbandName: associate.fatherHusbandName || null,
+    gender:            associate.gender || null,
+    profession:        associate.profession || null,
+    maritalStatus:     associate.maritalStatus || null,
+    aadhaarNo:         associate.aadhaarNo || null,
+    nomineeName:       associate.nomineeName || null,
+    nomineeRelation:   associate.nomineeRelation || null,
+    nomineeDob:        associate.nomineeDob || null,
+    bankName:          associate.bankName || null,
+    bankBranchName:    associate.bankBranchName || null,
+    bankAccountNo:     associate.bankAccountNo || null,
+    bankIfscCode:      associate.bankIfscCode || null,
     sponsor: associate.sponsor || null,
     treeNode: associate.treeNode || null,
     kycStatus,
@@ -74,12 +87,25 @@ export async function getProfile(associateId) {
 
 // ─── Update Profile ───────────────────────────────────────────────────────────
 
-const ALLOWED_UPDATE_FIELDS = ['phone', 'email', 'address', 'city', 'state', 'pincode'];
+const ALLOWED_UPDATE_FIELDS = [
+  'phone', 'email', 'address', 'city', 'state', 'pincode',
+  // Extended profile
+  'fatherHusbandName', 'gender', 'profession', 'maritalStatus', 'aadhaarNo',
+  'nomineeName', 'nomineeRelation', 'nomineeDob',
+  'bankName', 'bankBranchName', 'bankAccountNo', 'bankIfscCode',
+];
 
 export async function updateProfile(associateId, data) {
   const updateData = {};
   for (const field of ALLOWED_UPDATE_FIELDS) {
-    if (data[field] !== undefined) updateData[field] = data[field];
+    if (data[field] !== undefined) {
+      // nomineeDob needs to be cast to Date
+      if (field === 'nomineeDob' && data[field]) {
+        updateData[field] = new Date(data[field]);
+      } else {
+        updateData[field] = data[field];
+      }
+    }
   }
 
   if (Object.keys(updateData).length === 0) {
