@@ -118,7 +118,7 @@ export async function adminGetAssociate(associateId) {
     where: { id: associateId },
     include: {
       kycDocuments: {
-        select: { type: true, status: true, documentNumber: true, documentUrl: true, createdAt: true },
+        select: { type: true, status: true, documentNumber: true, documentUrl: true, documentUrlBack: true, createdAt: true },
       },
       wallet: {
         select: { balance: true, totalCredits: true, totalDebits: true },

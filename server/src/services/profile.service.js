@@ -21,7 +21,7 @@ export async function getProfile(associateId) {
       kycDocuments: {
         select: {
           type: true, status: true, documentNumber: true,
-          documentUrl: true, createdAt: true, updatedAt: true,
+          documentUrl: true, documentUrlBack: true, createdAt: true, updatedAt: true,
         },
       },
     },
@@ -35,13 +35,13 @@ export async function getProfile(associateId) {
   const kycStatus = { pan: null, aadhaar: null, bank: null };
   for (const doc of associate.kycDocuments) {
     if (doc.type === 'PAN') {
-      kycStatus.pan = { status: doc.status, number: doc.documentNumber, url: doc.documentUrl };
+      kycStatus.pan = { status: doc.status, number: doc.documentNumber, url: doc.documentUrl, urlBack: doc.documentUrlBack };
     } else if (doc.type === 'AADHAAR') {
-      kycStatus.aadhaar = { status: doc.status, number: doc.documentNumber, url: doc.documentUrl };
+      kycStatus.aadhaar = { status: doc.status, number: doc.documentNumber, url: doc.documentUrl, urlBack: doc.documentUrlBack };
     } else if (doc.type === 'BANK') {
       let bankDetails = {};
       try { bankDetails = JSON.parse(doc.documentNumber); } catch { bankDetails = {}; }
-      kycStatus.bank = { status: doc.status, ...bankDetails };
+      kycStatus.bank = { status: doc.status, ...bankDetails, chequeUrl: doc.documentUrl };
     }
   }
 
@@ -150,21 +150,25 @@ export async function updateProfile(associateId, data) {
 export async function submitKYCAll(associateId, {
   panNumber,
   panDocumentUrl,
+  panDocumentBackUrl,
   aadhaarNumber,
   aadhaarDocumentUrl,
+  aadhaarDocumentBackUrl,
   bankAccountNumber,
   bankIfsc,
   bankName,
   bankBranch,
+  chequeDocumentUrl,
 }) {
   const results = {};
 
   // 1. PAN Submission
-  if (panNumber || panDocumentUrl) {
+  if (panNumber || panDocumentUrl || panDocumentBackUrl) {
     const existingPan = await prisma.kYCDocument.findUnique({
       where: { associateId_type: { associateId, type: 'PAN' } },
     });
     const finalUrl = panDocumentUrl || existingPan?.documentUrl || '';
+    const finalUrlBack = panDocumentBackUrl || existingPan?.documentUrlBack || null;
     const finalNumber = panNumber || existingPan?.documentNumber || '';
     if (!finalNumber) {
       throw Object.assign(new Error('PAN number is required'), { statusCode: 400 });
@@ -174,21 +178,23 @@ export async function submitKYCAll(associateId, {
       update: {
         documentNumber: finalNumber,
         documentUrl: finalUrl,
+        documentUrlBack: finalUrlBack,
         status: 'PENDING',
         rejectionReason: null,
         verifiedBy: null,
         verifiedAt: null,
       },
-      create: { associateId, type: 'PAN', documentNumber: finalNumber, documentUrl: finalUrl, status: 'PENDING' },
+      create: { associateId, type: 'PAN', documentNumber: finalNumber, documentUrl: finalUrl, documentUrlBack: finalUrlBack, status: 'PENDING' },
     });
   }
 
   // 2. Aadhaar Submission
-  if (aadhaarNumber || aadhaarDocumentUrl) {
+  if (aadhaarNumber || aadhaarDocumentUrl || aadhaarDocumentBackUrl) {
     const existingAadhaar = await prisma.kYCDocument.findUnique({
       where: { associateId_type: { associateId, type: 'AADHAAR' } },
     });
     const finalUrl = aadhaarDocumentUrl || existingAadhaar?.documentUrl || '';
+    const finalUrlBack = aadhaarDocumentBackUrl || existingAadhaar?.documentUrlBack || null;
     const finalNumber = aadhaarNumber || existingAadhaar?.documentNumber || '';
     if (!finalNumber) {
       throw Object.assign(new Error('Aadhaar number is required'), { statusCode: 400 });
@@ -198,17 +204,18 @@ export async function submitKYCAll(associateId, {
       update: {
         documentNumber: finalNumber,
         documentUrl: finalUrl,
+        documentUrlBack: finalUrlBack,
         status: 'PENDING',
         rejectionReason: null,
         verifiedBy: null,
         verifiedAt: null,
       },
-      create: { associateId, type: 'AADHAAR', documentNumber: finalNumber, documentUrl: finalUrl, status: 'PENDING' },
+      create: { associateId, type: 'AADHAAR', documentNumber: finalNumber, documentUrl: finalUrl, documentUrlBack: finalUrlBack, status: 'PENDING' },
     });
   }
 
   // 3. Bank Submission
-  if (bankAccountNumber || bankIfsc || bankName) {
+  if (bankAccountNumber || bankIfsc || bankName || chequeDocumentUrl) {
     const existingBank = await prisma.kYCDocument.findUnique({
       where: { associateId_type: { associateId, type: 'BANK' } },
     });
@@ -235,16 +242,19 @@ export async function submitKYCAll(associateId, {
       branch: finalBranch,
     });
 
+    const finalChequeUrl = chequeDocumentUrl || existingBank?.documentUrl || '';
+
     results.bank = await prisma.kYCDocument.upsert({
       where: { associateId_type: { associateId, type: 'BANK' } },
       update: {
         documentNumber: bankDetails,
+        documentUrl: finalChequeUrl,
         status: 'PENDING',
         rejectionReason: null,
         verifiedBy: null,
         verifiedAt: null,
       },
-      create: { associateId, type: 'BANK', documentNumber: bankDetails, documentUrl: '', status: 'PENDING' },
+      create: { associateId, type: 'BANK', documentNumber: bankDetails, documentUrl: finalChequeUrl, status: 'PENDING' },
     });
   }
 

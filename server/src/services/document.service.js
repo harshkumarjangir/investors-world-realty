@@ -345,6 +345,7 @@ export async function getKYCDocumentURLs(associateId) {
     select: {
       type: true,
       documentUrl: true,
+      documentUrlBack: true,
       status: true,
     },
   });
@@ -355,6 +356,7 @@ export async function getKYCDocumentURLs(associateId) {
     const key = doc.type.toLowerCase(); // PAN → pan, AADHAAR → aadhaar, BANK → bank
     result[key] = {
       url: doc.documentUrl,
+      urlBack: doc.documentUrlBack,
       status: doc.status,
     };
   });

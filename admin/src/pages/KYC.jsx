@@ -117,6 +117,7 @@ export default function KYC() {
                 <th className="px-3 py-3 text-left font-medium text-gray-600">Address Proof Back</th>
                 <th className="px-3 py-3 text-left font-medium text-gray-600">Photograph</th>
                 <th className="px-3 py-3 text-left font-medium text-gray-600">Pan</th>
+                <th className="px-3 py-3 text-left font-medium text-gray-600">Pan Back</th>
                 <th className="px-3 py-3 text-left font-medium text-gray-600">Pan No.</th>
                 <th className="px-3 py-3 text-left font-medium text-gray-600">Approve</th>
                 <th className="px-3 py-3 text-left font-medium text-gray-600">Remark</th>
@@ -125,13 +126,14 @@ export default function KYC() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={16} className="py-8 text-center text-gray-400">{t('common.loading')}</td></tr>
+                <tr><td colSpan={17} className="py-8 text-center text-gray-400">{t('common.loading')}</td></tr>
               ) : kycList.length === 0 ? (
-                <tr><td colSpan={16} className="py-8 text-center text-gray-400">{t('common.noData')}</td></tr>
+                <tr><td colSpan={17} className="py-8 text-center text-gray-400">{t('common.noData')}</td></tr>
               ) : (
                 kycList.map((kyc) => {
                   const bank = parseBankDetails(kyc);
                   const docUrl = getDocViewUrl(kyc.documentUrl || kyc.url);
+                  const docUrlBack = getDocViewUrl(kyc.documentUrlBack || kyc.urlBack);
                   const isBank = (kyc.type || kyc.documentType) === 'BANK';
                   const isPan = (kyc.type || kyc.documentType) === 'PAN';
                   const isAadhaar = (kyc.type || kyc.documentType) === 'AADHAAR';
@@ -142,7 +144,7 @@ export default function KYC() {
                       <td className="px-3 py-2 font-medium text-gray-800">{kyc.associateName || kyc.name || '-'}</td>
                       {/* Cheque */}
                       <td className="px-3 py-2">
-                        {docUrl ? (
+                        {isBank && docUrl ? (
                           <a href={docUrl} target="_blank" rel="noopener noreferrer">
                             <img src={docUrl} alt="cheque" className="w-14 h-10 object-cover border border-gray-200 rounded" onError={(e) => { e.target.src='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="56" height="40"><rect fill="%23f3f4f6" width="56" height="40"/><text x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%239ca3af" font-size="8">No img</text></svg>'; }} />
                           </a>
@@ -158,7 +160,7 @@ export default function KYC() {
                       <td className="px-3 py-2 font-mono text-gray-600">{isBank ? (bank.ifsc || '-') : '-'}</td>
                       {/* Address Proof (Aadhaar front) */}
                       <td className="px-3 py-2">
-                        {docUrl ? (
+                        {isAadhaar && docUrl ? (
                           <a href={docUrl} target="_blank" rel="noopener noreferrer">
                             <img src={docUrl} alt="address-proof" className="w-14 h-10 object-cover border border-gray-200 rounded" onError={(e) => { e.target.src='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="56" height="40"><rect fill="%23f3f4f6" width="56" height="40"/><text x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%239ca3af" font-size="8">No img</text></svg>'; }} />
                           </a>
@@ -168,9 +170,9 @@ export default function KYC() {
                       <td className="px-3 py-2 font-mono text-gray-600">{isAadhaar ? (kyc.documentNumber || kyc.number || '-') : '-'}</td>
                       {/* Address Proof Back */}
                       <td className="px-3 py-2">
-                        {docUrl ? (
-                          <a href={docUrl} target="_blank" rel="noopener noreferrer">
-                            <img src={docUrl} alt="address-back" className="w-14 h-10 object-cover border border-gray-200 rounded" onError={(e) => { e.target.src='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="56" height="40"><rect fill="%23f3f4f6" width="56" height="40"/><text x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%239ca3af" font-size="8">No img</text></svg>'; }} />
+                        {isAadhaar && docUrlBack ? (
+                          <a href={docUrlBack} target="_blank" rel="noopener noreferrer">
+                            <img src={docUrlBack} alt="address-back" className="w-14 h-10 object-cover border border-gray-200 rounded" onError={(e) => { e.target.src='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="56" height="40"><rect fill="%23f3f4f6" width="56" height="40"/><text x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%239ca3af" font-size="8">No img</text></svg>'; }} />
                           </a>
                         ) : <span className="text-gray-300">-</span>}
                       </td>
@@ -184,9 +186,17 @@ export default function KYC() {
                       </td>
                       {/* PAN image */}
                       <td className="px-3 py-2">
-                        {docUrl ? (
+                        {isPan && docUrl ? (
                           <a href={docUrl} target="_blank" rel="noopener noreferrer">
                             <img src={docUrl} alt="pan" className="w-14 h-10 object-cover border border-gray-200 rounded" onError={(e) => { e.target.src='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="56" height="40"><rect fill="%23f3f4f6" width="56" height="40"/><text x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%239ca3af" font-size="8">No img</text></svg>'; }} />
+                          </a>
+                        ) : <span className="text-gray-300">-</span>}
+                      </td>
+                      {/* PAN Back image */}
+                      <td className="px-3 py-2">
+                        {isPan && docUrlBack ? (
+                          <a href={docUrlBack} target="_blank" rel="noopener noreferrer">
+                            <img src={docUrlBack} alt="pan-back" className="w-14 h-10 object-cover border border-gray-200 rounded" onError={(e) => { e.target.src='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="56" height="40"><rect fill="%23f3f4f6" width="56" height="40"/><text x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%239ca3af" font-size="8">No img</text></svg>'; }} />
                           </a>
                         ) : <span className="text-gray-300">-</span>}
                       </td>

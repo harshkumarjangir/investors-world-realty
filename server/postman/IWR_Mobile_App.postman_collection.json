@@ -371,7 +371,7 @@
                 "profile"
               ]
             },
-            "description": "Full profile with KYC status, sponsor info, rank, tree position.\n\n**Response:**\n```json\n{\n  \"data\": {\n    \"id\": \"uuid\",\n    \"userId\": \"IW100001\",\n    \"name\": \"Rajesh Kumar\",\n    \"email\": \"developertest@yopmail.com\",\n    \"phone\": \"9999900001\",\n    \"dateOfBirth\": \"1990-05-15\",\n    \"address\": \"123 Main Street\",\n    \"city\": \"Mumbai\",\n    \"state\": \"Maharashtra\",\n    \"pincode\": \"400001\",\n    \"panNumber\": \"ABCDE1234F\",\n    \"profilePhoto\": \"/uploads/profiles/uuid.jpg\",\n    \"status\": \"ACTIVE\",\n    \"rank\": 2,\n    \"rankName\": \"Business Adviser\",\n    \"totalAreaSold\": 1200,\n    \"joiningDate\": \"2024-01-15T00:00:00.000Z\",\n    \"activationDate\": \"2024-01-16T00:00:00.000Z\",\n    \"theme\": \"light\",\n    \"language\": \"en\",\n    \"sponsor\": {\n      \"userId\": \"IW100000\",\n      \"name\": \"Sponsor Name\",\n      \"phone\": \"9999900000\",\n      \"email\": \"sponsor@example.com\"\n    },\n    \"treeNode\": { \"position\": \"LEFT\", \"level\": 1 },\n    \"kycStatus\": {\n      \"pan\":     { \"status\": \"APPROVED\", \"number\": \"ABCDE1234F\", \"url\": \"/uploads/kyc/pan.jpg\" },\n      \"aadhaar\": { \"status\": \"PENDING\",  \"number\": \"123456789012\", \"url\": \"/uploads/kyc/aadhar.jpg\" },\n      \"bank\":    { \"status\": \"APPROVED\", \"accountNumber\": \"1234567890\", \"ifsc\": \"SBIN0001234\", \"bankName\": \"SBI\", \"branch\": \"Main Branch\" }\n    }\n  }\n}\n```\n\nKYC status values: `PENDING` | `APPROVED` | `REJECTED` | `null` (not submitted)"
+            "description": "Full profile with KYC status, sponsor info, rank, tree position.\n\n**Response:**\n```json\n{\n  \"data\": {\n    \"id\": \"uuid\",\n    \"userId\": \"IW100001\",\n    \"name\": \"Rajesh Kumar\",\n    \"email\": \"developertest@yopmail.com\",\n    \"phone\": \"9999900001\",\n    \"dateOfBirth\": \"1990-05-15\",\n    \"address\": \"123 Main Street\",\n    \"city\": \"Mumbai\",\n    \"state\": \"Maharashtra\",\n    \"pincode\": \"400001\",\n    \"panNumber\": \"ABCDE1234F\",\n    \"profilePhoto\": \"/uploads/profiles/uuid.jpg\",\n    \"status\": \"ACTIVE\",\n    \"rank\": 2,\n    \"rankName\": \"Business Adviser\",\n    \"totalAreaSold\": 1200,\n    \"joiningDate\": \"2024-01-15T00:00:00.000Z\",\n    \"activationDate\": \"2024-01-16T00:00:00.000Z\",\n    \"theme\": \"light\",\n    \"language\": \"en\",\n    \"sponsor\": {\n      \"userId\": \"IW100000\",\n      \"name\": \"Sponsor Name\",\n      \"phone\": \"9999900000\",\n      \"email\": \"sponsor@example.com\"\n    },\n    \"treeNode\": { \"position\": \"LEFT\", \"level\": 1 },\n    \"kycStatus\": {\n      \"pan\":     { \"status\": \"APPROVED\", \"number\": \"ABCDE1234F\", \"url\": \"/uploads/kyc/pan.jpg\", \"urlBack\": \"/uploads/kyc/pan_back.jpg\" },\n      \"aadhaar\": { \"status\": \"PENDING\",  \"number\": \"123456789012\", \"url\": \"/uploads/kyc/aadhar.jpg\", \"urlBack\": \"/uploads/kyc/aadhar_back.jpg\" },\n      \"bank\":    { \"status\": \"APPROVED\", \"accountNumber\": \"1234567890\", \"ifsc\": \"SBIN0001234\", \"bankName\": \"SBI\", \"branch\": \"Main Branch\", \"chequeUrl\": \"/uploads/kyc/cheque.jpg\" }\n    }\n  }\n}\n```\n\nKYC status values: `PENDING` | `APPROVED` | `REJECTED` | `null` (not submitted)"
           }
         },
         {
@@ -500,7 +500,13 @@
                   "key": "panDocument",
                   "type": "file",
                   "src": "",
-                  "description": "Optional PAN document file (JPEG/PNG/PDF, max 5MB)"
+                  "description": "Optional PAN front document file (JPEG/PNG/PDF, max 5MB)"
+                },
+                {
+                  "key": "panDocumentBack",
+                  "type": "file",
+                  "src": "",
+                  "description": "Optional PAN back document file (JPEG/PNG/PDF, max 5MB)"
                 },
                 {
                   "key": "panNumber",
@@ -512,7 +518,13 @@
                   "key": "aadhaarDocument",
                   "type": "file",
                   "src": "",
-                  "description": "Optional Aadhaar document file (JPEG/PNG/PDF, max 5MB)"
+                  "description": "Optional Aadhaar front document file (JPEG/PNG/PDF, max 5MB)"
+                },
+                {
+                  "key": "aadhaarDocumentBack",
+                  "type": "file",
+                  "src": "",
+                  "description": "Optional Aadhaar back document file (JPEG/PNG/PDF, max 5MB)"
                 },
                 {
                   "key": "aadhaarNumber",
@@ -543,6 +555,12 @@
                   "value": "Main Branch",
                   "type": "text",
                   "description": "Optional bank branch name"
+                },
+                {
+                  "key": "chequeDocument",
+                  "type": "file",
+                  "src": "",
+                  "description": "Optional bank cheque document file (JPEG/PNG/PDF, max 5MB)"
                 }
               ]
             },

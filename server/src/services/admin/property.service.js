@@ -82,7 +82,7 @@ export async function adminUploadPropertyImages(propertyId, files) {
       prisma.propertyImage.create({
         data: {
           propertyId,
-          url: file.path,
+          url: file.path.replace(/\\/g, '/'),
           sortOrder: existingCount + index,
         },
       }),
@@ -116,7 +116,7 @@ export async function adminUploadPropertyVideo(propertyId, file) {
   const video = await prisma.propertyVideo.create({
     data: {
       propertyId,
-      url: file.path,
+      url: file.path.replace(/\\/g, '/'),
       format,
     },
   });

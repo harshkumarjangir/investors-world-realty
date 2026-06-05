@@ -18,7 +18,7 @@ export async function updateProfileHandler(req, res, next) {
   try {
     const updateData = { ...req.body };
     if (req.file) {
-      updateData.profilePhoto = req.file.path;
+      updateData.profilePhoto = req.file.path.replace(/\\/g, '/');
     }
     const data = await updateProfile(req.associate.id, updateData);
     return successResponse(res, data, 'Profile updated');
@@ -38,17 +38,20 @@ export async function submitKYCHandler(req, res, next) {
       bankBranch,
     } = req.body;
 
-    const panDocumentUrl = req.files?.panDocument?.[0]?.path || null;
-    const aadhaarDocumentUrl = req.files?.aadhaarDocument?.[0]?.path || null;
+    const panDocumentUrl = req.files?.panDocument?.[0]?.path?.replace(/\\/g, '/') || null;
+    const panDocumentBackUrl = req.files?.panDocumentBack?.[0]?.path?.replace(/\\/g, '/') || null;
+    const aadhaarDocumentUrl = req.files?.aadhaarDocument?.[0]?.path?.replace(/\\/g, '/') || null;
+    const aadhaarDocumentBackUrl = req.files?.aadhaarDocumentBack?.[0]?.path?.replace(/\\/g, '/') || null;
+    const chequeDocumentUrl = req.files?.chequeDocument?.[0]?.path?.replace(/\\/g, '/') || null;
 
     // Cross validations
-    if (panDocumentUrl && !panNumber) {
+    if ((panDocumentUrl || panDocumentBackUrl) && !panNumber) {
       return next(Object.assign(new Error('panNumber is required when uploading PAN document'), { statusCode: 400 }));
     }
-    if (aadhaarDocumentUrl && !aadhaarNumber) {
+    if ((aadhaarDocumentUrl || aadhaarDocumentBackUrl) && !aadhaarNumber) {
       return next(Object.assign(new Error('aadhaarNumber is required when uploading Aadhaar document'), { statusCode: 400 }));
     }
-    if (bankAccountNumber || bankIfsc || bankName || bankBranch) {
+    if (bankAccountNumber || bankIfsc || bankName || bankBranch || chequeDocumentUrl) {
       if (!bankAccountNumber || !bankIfsc || !bankName) {
         return next(
           Object.assign(
@@ -62,11 +65,14 @@ export async function submitKYCHandler(req, res, next) {
     if (
       !panNumber &&
       !panDocumentUrl &&
+      !panDocumentBackUrl &&
       !aadhaarNumber &&
       !aadhaarDocumentUrl &&
+      !aadhaarDocumentBackUrl &&
       !bankAccountNumber &&
       !bankIfsc &&
-      !bankName
+      !bankName &&
+      !chequeDocumentUrl
     ) {
       return next(Object.assign(new Error('No KYC details provided to submit'), { statusCode: 400 }));
     }
@@ -74,12 +80,15 @@ export async function submitKYCHandler(req, res, next) {
     const data = await submitKYCAll(req.associate.id, {
       panNumber,
       panDocumentUrl,
+      panDocumentBackUrl,
       aadhaarNumber,
       aadhaarDocumentUrl,
+      aadhaarDocumentBackUrl,
       bankAccountNumber,
       bankIfsc,
       bankName,
       bankBranch,
+      chequeDocumentUrl,
     });
 
     return successResponse(res, data, 'KYC submitted successfully');

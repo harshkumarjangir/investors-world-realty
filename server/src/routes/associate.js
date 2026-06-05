@@ -70,7 +70,10 @@ router.post(
   '/kyc',
   uploadKYCDocument.fields([
     { name: 'panDocument', maxCount: 1 },
+    { name: 'panDocumentBack', maxCount: 1 },
     { name: 'aadhaarDocument', maxCount: 1 },
+    { name: 'aadhaarDocumentBack', maxCount: 1 },
+    { name: 'chequeDocument', maxCount: 1 },
   ]),
   [
     body('panNumber')

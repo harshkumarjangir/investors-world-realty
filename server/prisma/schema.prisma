@@ -432,6 +432,7 @@ model KYCDocument {
   type            KYCType
   documentNumber  String
   documentUrl     String // file path
+  documentUrlBack String? // file path for back side of document (optional)
   status          KYCStatus @default(PENDING)
   rejectionReason String?
   verifiedBy      String?
