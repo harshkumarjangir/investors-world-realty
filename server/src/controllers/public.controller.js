@@ -98,7 +98,7 @@ export async function publicContactHandler(req, res) {
 // ─── GET /api/v1/public/privacy | /terms | /support (JSON format) ─────────────
 export async function publicPrivacyHandler(req, res) {
   return res.json({
-    success: true,
+    status: 'success',
     message: 'Privacy Policy fetched successfully',
     data: {
       title: 'Privacy Policy',
@@ -109,7 +109,7 @@ export async function publicPrivacyHandler(req, res) {
 
 export async function publicTermsHandler(req, res) {
   return res.json({
-    success: true,
+    status: 'success',
     message: 'Terms & Conditions fetched successfully',
     data: {
       title: 'Terms & Conditions',
@@ -120,7 +120,7 @@ export async function publicTermsHandler(req, res) {
 
 export async function publicSupportPageHandler(req, res) {
   return res.json({
-    success: true,
+    status: 'success',
     message: 'Help & Support fetched successfully',
     data: {
       title: 'Help & Support',

@@ -196,11 +196,11 @@ describe('API: Public Properties', () => {
 // ─── Public Legal Pages ───────────────────────────────────────────────────────
 
 describe('API: Public Legal Pages', () => {
-  it('GET /api/v1/public/privacy returns JSON with success, message, and data containing title and content', async () => {
+  it('GET /api/v1/public/privacy returns JSON with status, message, and data containing title and content', async () => {
     const res = await request(app).get('/api/v1/public/privacy');
     expect(res.status).toBe(200);
     expect(res.headers['content-type']).toMatch(/json/);
-    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('status', 'success');
     expect(res.body).toHaveProperty('message', 'Privacy Policy fetched successfully');
     expect(res.body).toHaveProperty('data');
     expect(res.body.data).toHaveProperty('title', 'Privacy Policy');
@@ -209,11 +209,11 @@ describe('API: Public Legal Pages', () => {
     expect(res.body.data.content).toContain('<h1>Privacy Policy</h1>');
   });
 
-  it('GET /api/v1/public/terms returns JSON with success, message, and data containing title and content', async () => {
+  it('GET /api/v1/public/terms returns JSON with status, message, and data containing title and content', async () => {
     const res = await request(app).get('/api/v1/public/terms');
     expect(res.status).toBe(200);
     expect(res.headers['content-type']).toMatch(/json/);
-    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('status', 'success');
     expect(res.body).toHaveProperty('message', 'Terms & Conditions fetched successfully');
     expect(res.body).toHaveProperty('data');
     expect(res.body.data).toHaveProperty('title', 'Terms & Conditions');
@@ -222,11 +222,11 @@ describe('API: Public Legal Pages', () => {
     expect(res.body.data.content).toContain('<h1>Terms &amp; Conditions</h1>');
   });
 
-  it('GET /api/v1/public/support returns JSON with success, message, and data containing title and content', async () => {
+  it('GET /api/v1/public/support returns JSON with status, message, and data containing title and content', async () => {
     const res = await request(app).get('/api/v1/public/support');
     expect(res.status).toBe(200);
     expect(res.headers['content-type']).toMatch(/json/);
-    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('status', 'success');
     expect(res.body).toHaveProperty('message', 'Help & Support fetched successfully');
     expect(res.body).toHaveProperty('data');
     expect(res.body.data).toHaveProperty('title', 'Help & Support');
