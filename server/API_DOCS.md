@@ -148,38 +148,25 @@ No body required for any of these.
 
 ### GET `/associate/profile`
 
-### PATCH `/associate/profile`
-```json
-{
-  "phone": "9876543211",
-  "email": "newemail@example.com",
-  "address": "456 New Street",
-  "city": "Delhi",
-  "state": "Delhi",
-  "pincode": "110001"
-}
-```
+### PATCH `/associate/profile` (multipart/form-data)
+Updates profile text details and optionally uploads/updates a profile photo.
+- Field (File, Optional): `photo` (JPEG/PNG, max 2MB)
+- Fields (Text, Optional): `phone`, `email`, `address`, `city`, `state`, `pincode`, `fatherHusbandName`, `gender`, `profession`, `maritalStatus`, `aadhaarNo`, `nomineeName`, `nomineeRelation`, `nomineeDob`, `bankName`, `bankBranchName`, `bankAccountNo`, `bankIfscCode`
 
-### POST `/associate/profile/photo` (multipart/form-data)
-- Field: `photo` (JPEG/PNG, max 2MB)
+---
 
-### POST `/associate/kyc/pan` (multipart/form-data)
-- Field: `document` (JPEG/PNG/PDF, max 5MB)
-- Field: `documentNumber` = `ABCDE1234F`
+## 🆔 KYC 🔒
 
-### POST `/associate/kyc/aadhaar` (multipart/form-data)
-- Field: `document` (JPEG/PNG/PDF, max 5MB)
-- Field: `documentNumber` = `123456789012`
-
-### POST `/associate/kyc/bank`
-```json
-{
-  "accountNumber": "1234567890",
-  "ifsc": "SBIN0001234",
-  "bankName": "State Bank of India",
-  "branch": "Main Branch"
-}
-```
+### POST `/associate/kyc` (multipart/form-data)
+Submit PAN, Aadhaar, and/or Bank details and documents together.
+- Field (File, Optional): `panDocument` (JPEG/PNG/PDF, max 5MB)
+- Field (File, Optional): `aadhaarDocument` (JPEG/PNG/PDF, max 5MB)
+- Field (Text, Optional): `panNumber`
+- Field (Text, Optional): `aadhaarNumber`
+- Field (Text, Optional): `bankAccountNumber`
+- Field (Text, Optional): `bankIfsc`
+- Field (Text, Optional): `bankName`
+- Field (Text, Optional): `bankBranch`
 
 ---
 

@@ -378,20 +378,49 @@
           "name": "Update Profile",
           "request": {
             "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
             "body": {
-              "mode": "raw",
-              "raw": "{\n  \"phone\": \"9876543211\",\n  \"email\": \"newemail@example.com\",\n  \"address\": \"123 Main Street\",\n  \"city\": \"Jaipur\",\n  \"state\": \"Rajasthan\",\n  \"pincode\": \"302001\",\n  \"fatherHusbandName\": \"Ramesh Kumar\",\n  \"gender\": \"Male\",\n  \"profession\": \"Businessman\",\n  \"maritalStatus\": \"Married\",\n  \"aadhaarNo\": \"123456789012\",\n  \"nomineeName\": \"Sunita Kumar\",\n  \"nomineeRelation\": \"Wife\",\n  \"nomineeDob\": \"1992-06-15\",\n  \"bankName\": \"HDFC Bank\",\n  \"bankBranchName\": \"Mansarovar Branch\",\n  \"bankAccountNo\": \"50100123456789\",\n  \"bankIfscCode\": \"HDFC0001234\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "photo",
+                  "type": "file",
+                  "src": "",
+                  "description": "Optional profile photo file (JPEG or PNG, max 2MB)"
+                },
+                {
+                  "key": "phone",
+                  "value": "9876543211",
+                  "type": "text",
+                  "description": "Optional phone number"
+                },
+                {
+                  "key": "email",
+                  "value": "newemail@example.com",
+                  "type": "text",
+                  "description": "Optional email"
+                },
+                {
+                  "key": "address",
+                  "value": "123 Main Street",
+                  "type": "text",
+                  "description": "Optional address"
+                },
+                {
+                  "key": "city",
+                  "value": "Jaipur",
+                  "type": "text"
+                },
+                {
+                  "key": "state",
+                  "value": "Rajasthan",
+                  "type": "text"
+                },
+                {
+                  "key": "pincode",
+                  "value": "302001",
+                  "type": "text"
                 }
-              }
+              ]
             },
             "url": {
               "raw": "{{baseUrl}}/associate/profile",
@@ -403,36 +432,7 @@
                 "profile"
               ]
             },
-            "description": "Update profile fields. All fields are optional — only send what needs to change.\n\n**Updatable fields:**\n- Basic: `phone`, `email`, `address`, `city`, `state`, `pincode`\n- Extended: `fatherHusbandName`, `gender` (Male/Female/Other), `profession`, `maritalStatus` (Single/Married/Divorced/Widowed), `aadhaarNo`\n- Nominee: `nomineeName`, `nomineeRelation`, `nomineeDob` (YYYY-MM-DD)\n- Bank: `bankName`, `bankBranchName`, `bankAccountNo`, `bankIfscCode`"
-          }
-        },
-        {
-          "name": "Upload Profile Photo",
-          "request": {
-            "method": "POST",
-            "body": {
-              "mode": "formdata",
-              "formdata": [
-                {
-                  "key": "photo",
-                  "type": "file",
-                  "src": "",
-                  "description": "JPEG or PNG, max 2MB"
-                }
-              ]
-            },
-            "url": {
-              "raw": "{{baseUrl}}/associate/profile/photo",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "associate",
-                "profile",
-                "photo"
-              ]
-            },
-            "description": "Upload profile photo. Use `multipart/form-data`.\n\n**Flutter:**\n```dart\nFormData formData = FormData.fromMap({\n  'photo': await MultipartFile.fromFile(filePath, filename: 'photo.jpg'),\n});\nawait dio.post('/associate/profile/photo', data: formData);\n```\n\n**Response:**\n```json\n{ \"data\": { \"profilePhotoUrl\": \"/uploads/profiles/uuid.jpg\" } }\n```"
+            "description": "Update profile fields and optionally upload profile photo. Uses `multipart/form-data`. All fields are optional.\n\n**Updatable text fields:**\n- Basic: `phone`, `email`, `address`, `city`, `state`, `pincode`\n- Extended: `fatherHusbandName`, `gender` (Male/Female/Other), `profession`, `maritalStatus` (Single/Married/Divorced/Widowed), `aadhaarNo`\n- Nominee: `nomineeName`, `nomineeRelation`, `nomineeDob` (YYYY-MM-DD)\n- Bank: `bankName`, `bankBranchName`, `bankAccountNo`, `bankIfscCode`"
           }
         },
         {
@@ -490,106 +490,73 @@
       "name": "🆔 4. KYC 🔒",
       "item": [
         {
-          "name": "Upload PAN Card",
+          "name": "Submit KYC Details & Documents",
           "request": {
             "method": "POST",
             "body": {
               "mode": "formdata",
               "formdata": [
                 {
-                  "key": "document",
+                  "key": "panDocument",
                   "type": "file",
                   "src": "",
-                  "description": "JPEG/PNG/PDF, max 5MB"
+                  "description": "Optional PAN document file (JPEG/PNG/PDF, max 5MB)"
                 },
                 {
-                  "key": "documentNumber",
+                  "key": "panNumber",
                   "value": "ABCDE1234F",
                   "type": "text",
-                  "description": "PAN format: 5 letters + 4 digits + 1 letter"
-                }
-              ]
-            },
-            "url": {
-              "raw": "{{baseUrl}}/associate/kyc/pan",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "associate",
-                "kyc",
-                "pan"
-              ]
-            },
-            "description": "Submit PAN card for KYC verification.\n\n**documentNumber format:** `ABCDE1234F` (5 uppercase letters, 4 digits, 1 uppercase letter)\n\nStatus after submission: `PENDING` → admin reviews → `APPROVED` or `REJECTED`"
-          }
-        },
-        {
-          "name": "Upload Aadhaar Card",
-          "request": {
-            "method": "POST",
-            "body": {
-              "mode": "formdata",
-              "formdata": [
-                {
-                  "key": "document",
-                  "type": "file",
-                  "src": "",
-                  "description": "JPEG/PNG/PDF, max 5MB"
+                  "description": "Optional PAN document number"
                 },
                 {
-                  "key": "documentNumber",
+                  "key": "aadhaarDocument",
+                  "type": "file",
+                  "src": "",
+                  "description": "Optional Aadhaar document file (JPEG/PNG/PDF, max 5MB)"
+                },
+                {
+                  "key": "aadhaarNumber",
                   "value": "123456789012",
                   "type": "text",
-                  "description": "12-digit Aadhaar number"
+                  "description": "Optional Aadhaar document number"
+                },
+                {
+                  "key": "bankAccountNumber",
+                  "value": "1234567890",
+                  "type": "text",
+                  "description": "Optional bank account number"
+                },
+                {
+                  "key": "bankIfsc",
+                  "value": "SBIN0001234",
+                  "type": "text",
+                  "description": "Optional bank IFSC code"
+                },
+                {
+                  "key": "bankName",
+                  "value": "State Bank of India",
+                  "type": "text",
+                  "description": "Optional bank name"
+                },
+                {
+                  "key": "bankBranch",
+                  "value": "Main Branch",
+                  "type": "text",
+                  "description": "Optional bank branch name"
                 }
               ]
             },
             "url": {
-              "raw": "{{baseUrl}}/associate/kyc/aadhaar",
+              "raw": "{{baseUrl}}/associate/kyc",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "associate",
-                "kyc",
-                "aadhaar"
+                "kyc"
               ]
             },
-            "description": "Submit Aadhaar card for address proof verification.\n\n**documentNumber:** exactly 12 digits"
-          }
-        },
-        {
-          "name": "Update Bank Details",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"accountNumber\": \"1234567890\",\n  \"ifsc\": \"SBIN0001234\",\n  \"bankName\": \"State Bank of India\",\n  \"branch\": \"Main Branch\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/associate/kyc/bank",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "associate",
-                "kyc",
-                "bank"
-              ]
-            },
-            "description": "Submit bank account details for payout processing.\n\n**IFSC format:** 4 uppercase letters + `0` + 6 alphanumeric chars (e.g., `SBIN0001234`)\n\nBank details are returned inside `kycStatus.bank` in the profile response."
+            "description": "Consolidated KYC API. Submit PAN, Aadhaar, and Bank details/documents in a single request.\n\nAll parameters are optional. You can upload files (MIME: jpeg, png, pdf) up to 5MB."
           }
         },
         {

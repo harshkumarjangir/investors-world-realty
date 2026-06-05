@@ -278,31 +278,30 @@ GET /associate/profile
 ### 3.2 Update Profile
 ```
 PATCH /associate/profile
-```
-**Body:**
-```json
-{
-  "phone": "9876543211",
-  "address": "456 New Street",
-  "city": "Delhi",
-  "state": "Delhi",
-  "pincode": "110001"
-}
-```
-
-### 3.3 Upload Profile Photo
-```
-POST /associate/profile/photo
 Content-Type: multipart/form-data
 ```
-**Form Fields:** `photo` — JPEG/PNG, max 2MB
+Updates profile details and optionally uploads a profile photo in a single request.
+**Parameters:**
+* **Form Field (File, Optional):** `photo` — JPEG/PNG, max 2MB
+* **Form Fields (Text, Optional):**
+  * `phone` — New phone number
+  * `email` — New email address
+  * `address` — New address
+  * `city` — New city
+  * `state` — New state
+  * `pincode` — New pincode
+  * `fatherHusbandName`, `gender`, `profession`, `maritalStatus`, `aadhaarNo`
+  * `nomineeName`, `nomineeRelation`, `nomineeDob`
+  * `bankName`, `bankBranchName`, `bankAccountNo`, `bankIfscCode`
 
-### 3.4 Get Settings
+---
+
+### 3.3 Get Settings
 ```
 GET /associate/settings
 ```
 
-### 3.5 Update Settings
+### 3.4 Update Settings
 ```
 PATCH /associate/settings
 ```
@@ -312,35 +311,25 @@ PATCH /associate/settings
 
 ## 🆔 4. KYC 🔒
 
-### 4.1 Upload PAN
+### 4.1 Submit KYC Details & Documents
 ```
-POST /associate/kyc/pan
+POST /associate/kyc
 Content-Type: multipart/form-data
 ```
-**Form Fields:** `document` (file), `documentNumber` (e.g., "ABCDE1234F")
+Submit PAN, Aadhaar, and Bank details/documents in a single consolidated API. You can submit one, two, or all of them together.
+**Parameters:**
+* **Form Fields (Files, Optional):**
+  * `panDocument` — JPEG/PNG/PDF file, max 5MB (requires `panNumber` text field to be provided)
+  * `aadhaarDocument` — JPEG/PNG/PDF file, max 5MB (requires `aadhaarNumber` text field to be provided)
+* **Form Fields (Text, Optional):**
+  * `panNumber` — PAN number (matches `/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/`)
+  * `aadhaarNumber` — Aadhaar number (exactly 12 digits)
+  * `bankAccountNumber` — Bank account number (requires `bankIfsc` and `bankName`)
+  * `bankIfsc` — Bank IFSC code (requires `bankAccountNumber` and `bankName`)
+  * `bankName` — Bank name (requires `bankAccountNumber` and `bankIfsc`)
+  * `bankBranch` — Bank branch name (optional)
 
-### 4.2 Upload Aadhaar
-```
-POST /associate/kyc/aadhaar
-Content-Type: multipart/form-data
-```
-**Form Fields:** `document` (file), `documentNumber` (12-digit)
-
-### 4.3 Update Bank Details
-```
-POST /associate/kyc/bank
-```
-**Body:**
-```json
-{
-  "accountNumber": "1234567890",
-  "ifsc": "SBIN0001234",
-  "bankName": "State Bank of India",
-  "branch": "Main Branch"
-}
-```
-
-### 4.4 Get KYC Documents
+### 4.2 Get KYC Documents
 ```
 GET /documents/kyc
 ```

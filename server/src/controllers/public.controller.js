@@ -97,15 +97,36 @@ export async function publicContactHandler(req, res) {
 
 // ─── GET /api/v1/public/privacy | /terms | /support (JSON format) ─────────────
 export async function publicPrivacyHandler(req, res) {
-  return res.json({ htmlcode: getPrivacyPolicyHtml() });
+  return res.json({
+    success: true,
+    message: 'Privacy Policy fetched successfully',
+    data: {
+      title: 'Privacy Policy',
+      content: getPrivacyPolicyHtml(),
+    },
+  });
 }
 
 export async function publicTermsHandler(req, res) {
-  return res.json({ htmlcode: getTermsHtml() });
+  return res.json({
+    success: true,
+    message: 'Terms & Conditions fetched successfully',
+    data: {
+      title: 'Terms & Conditions',
+      content: getTermsHtml(),
+    },
+  });
 }
 
 export async function publicSupportPageHandler(req, res) {
-  return res.json({ htmlcode: getSupportHtml() });
+  return res.json({
+    success: true,
+    message: 'Help & Support fetched successfully',
+    data: {
+      title: 'Help & Support',
+      content: getSupportHtml(),
+    },
+  });
 }
 
 // ─── GET /api/v1/public/health ───────────────────────────────────────────────

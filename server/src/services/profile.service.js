@@ -89,6 +89,7 @@ export async function getProfile(associateId) {
 
 const ALLOWED_UPDATE_FIELDS = [
   'phone', 'email', 'address', 'city', 'state', 'pincode',
+  'profilePhoto',
   // Extended profile
   'fatherHusbandName', 'gender', 'profession', 'maritalStatus', 'aadhaarNo',
   'nomineeName', 'nomineeRelation', 'nomineeDob',
@@ -137,47 +138,115 @@ export async function updateProfile(associateId, data) {
     data: updateData,
     select: {
       id: true, userId: true, name: true, email: true, phone: true,
-      address: true, city: true, state: true, pincode: true, updatedAt: true,
+      address: true, city: true, state: true, pincode: true, profilePhoto: true, updatedAt: true,
     },
   });
 
   return updated;
 }
 
-// ─── Update Profile Photo ─────────────────────────────────────────────────────
+// ─── Submit KYC (Consolidated) ────────────────────────────────────────────────
 
-export async function updateProfilePhoto(associateId, filePath) {
-  const updated = await prisma.associate.update({
-    where: { id: associateId },
-    data: { profilePhoto: filePath },
-    select: { id: true, profilePhoto: true },
-  });
-  return { profilePhotoUrl: updated.profilePhoto };
-}
+export async function submitKYCAll(associateId, {
+  panNumber,
+  panDocumentUrl,
+  aadhaarNumber,
+  aadhaarDocumentUrl,
+  bankAccountNumber,
+  bankIfsc,
+  bankName,
+  bankBranch,
+}) {
+  const results = {};
 
-// ─── Submit KYC ───────────────────────────────────────────────────────────────
-
-export async function submitKYC(associateId, type, documentNumber, documentUrl) {
-  const validTypes = ['PAN', 'AADHAAR', 'BANK'];
-  if (!validTypes.includes(type)) {
-    throw Object.assign(
-      new Error(`Invalid KYC type. Must be one of: ${validTypes.join(', ')}`),
-      { statusCode: 400 },
-    );
+  // 1. PAN Submission
+  if (panNumber || panDocumentUrl) {
+    const existingPan = await prisma.kYCDocument.findUnique({
+      where: { associateId_type: { associateId, type: 'PAN' } },
+    });
+    const finalUrl = panDocumentUrl || existingPan?.documentUrl || '';
+    const finalNumber = panNumber || existingPan?.documentNumber || '';
+    if (!finalNumber) {
+      throw Object.assign(new Error('PAN number is required'), { statusCode: 400 });
+    }
+    results.pan = await prisma.kYCDocument.upsert({
+      where: { associateId_type: { associateId, type: 'PAN' } },
+      update: {
+        documentNumber: finalNumber,
+        documentUrl: finalUrl,
+        status: 'PENDING',
+        rejectionReason: null,
+        verifiedBy: null,
+        verifiedAt: null,
+      },
+      create: { associateId, type: 'PAN', documentNumber: finalNumber, documentUrl: finalUrl, status: 'PENDING' },
+    });
   }
 
-  const doc = await prisma.kYCDocument.upsert({
-    where: { associateId_type: { associateId, type } },
-    update: {
-      documentNumber,
-      documentUrl,
-      status: 'PENDING',
-      rejectionReason: null,
-      verifiedBy: null,
-      verifiedAt: null,
-    },
-    create: { associateId, type, documentNumber, documentUrl, status: 'PENDING' },
-  });
+  // 2. Aadhaar Submission
+  if (aadhaarNumber || aadhaarDocumentUrl) {
+    const existingAadhaar = await prisma.kYCDocument.findUnique({
+      where: { associateId_type: { associateId, type: 'AADHAAR' } },
+    });
+    const finalUrl = aadhaarDocumentUrl || existingAadhaar?.documentUrl || '';
+    const finalNumber = aadhaarNumber || existingAadhaar?.documentNumber || '';
+    if (!finalNumber) {
+      throw Object.assign(new Error('Aadhaar number is required'), { statusCode: 400 });
+    }
+    results.aadhaar = await prisma.kYCDocument.upsert({
+      where: { associateId_type: { associateId, type: 'AADHAAR' } },
+      update: {
+        documentNumber: finalNumber,
+        documentUrl: finalUrl,
+        status: 'PENDING',
+        rejectionReason: null,
+        verifiedBy: null,
+        verifiedAt: null,
+      },
+      create: { associateId, type: 'AADHAAR', documentNumber: finalNumber, documentUrl: finalUrl, status: 'PENDING' },
+    });
+  }
 
-  return doc;
+  // 3. Bank Submission
+  if (bankAccountNumber || bankIfsc || bankName) {
+    const existingBank = await prisma.kYCDocument.findUnique({
+      where: { associateId_type: { associateId, type: 'BANK' } },
+    });
+    let oldDetails = {};
+    if (existingBank) {
+      try { oldDetails = JSON.parse(existingBank.documentNumber); } catch { oldDetails = {}; }
+    }
+    const finalAccountNumber = bankAccountNumber || oldDetails.accountNumber;
+    const finalIfsc = bankIfsc || oldDetails.ifsc;
+    const finalBankName = bankName || oldDetails.bankName;
+    const finalBranch = bankBranch !== undefined ? bankBranch : oldDetails.branch || '';
+
+    if (!finalAccountNumber || !finalIfsc || !finalBankName) {
+      throw Object.assign(
+        new Error('bankAccountNumber, bankIfsc, and bankName are required for bank details'),
+        { statusCode: 400 },
+      );
+    }
+
+    const bankDetails = JSON.stringify({
+      accountNumber: finalAccountNumber,
+      ifsc: finalIfsc,
+      bankName: finalBankName,
+      branch: finalBranch,
+    });
+
+    results.bank = await prisma.kYCDocument.upsert({
+      where: { associateId_type: { associateId, type: 'BANK' } },
+      update: {
+        documentNumber: bankDetails,
+        status: 'PENDING',
+        rejectionReason: null,
+        verifiedBy: null,
+        verifiedAt: null,
+      },
+      create: { associateId, type: 'BANK', documentNumber: bankDetails, documentUrl: '', status: 'PENDING' },
+    });
+  }
+
+  return results;
 }

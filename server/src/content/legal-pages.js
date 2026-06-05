@@ -49,10 +49,7 @@ function pageShell({ title, body }) {
 
 export function getPrivacyPolicyHtml() {
   const updated = new Date().toISOString().slice(0, 10);
-  return pageShell({
-    title: 'Privacy Policy',
-    body: `
-    <h1>Privacy Policy</h1>
+  return `<h1>Privacy Policy</h1>
     <p class="meta">Last updated: ${updated}</p>
     <p>${COMPANY} ("we", "us", or "our") operates the Investors World Realty mobile application and related services. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our app.</p>
 
@@ -94,17 +91,12 @@ export function getPrivacyPolicyHtml() {
     <h2>9. Contact Us</h2>
     <p>${COMPANY}<br/>
     Email: <a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a><br/>
-    Website: <a href="${WEBSITE}">${WEBSITE}</a></p>
-    `,
-  });
+    Website: <a href="${WEBSITE}">${WEBSITE}</a></p>`;
 }
 
 export function getTermsHtml() {
   const updated = new Date().toISOString().slice(0, 10);
-  return pageShell({
-    title: 'Terms &amp; Conditions',
-    body: `
-    <h1>Terms &amp; Conditions</h1>
+  return `<h1>Terms &amp; Conditions</h1>
     <p class="meta">Last updated: ${updated}</p>
     <p>By downloading, registering for, or using the Investors World Realty mobile application, you agree to these Terms &amp; Conditions with ${COMPANY}.</p>
 
@@ -151,16 +143,11 @@ export function getTermsHtml() {
     <p>These terms are governed by the laws of India. Disputes shall be subject to the exclusive jurisdiction of courts in Rajasthan, India, unless otherwise required by law.</p>
 
     <h2>11. Contact</h2>
-    <p>Questions about these terms: <a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a></p>
-    `,
-  });
+    <p>Questions about these terms: <a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a></p>`;
 }
 
 export function getSupportHtml() {
-  return pageShell({
-    title: 'Help &amp; Support',
-    body: `
-    <h1>Help &amp; Support</h1>
+  return `<h1>Help &amp; Support</h1>
     <p>We're here to help you with your Investors World Realty associate account, wallet, genealogy, properties, and technical issues.</p>
 
     <h2>In-App Support</h2>
@@ -190,7 +177,5 @@ export function getSupportHtml() {
     <h2>General Inquiries</h2>
     <p>Visitors and prospects may also use the public contact form on our website or email us directly at <a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a>.</p>
 
-    <p class="meta">&copy; ${new Date().getFullYear()} ${COMPANY}</p>
-    `,
-  });
+    <p class="meta">&copy; ${new Date().getFullYear()} ${COMPANY}</p>`;
 }

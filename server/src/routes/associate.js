@@ -16,10 +16,7 @@ import {
 import {
   getProfileHandler,
   updateProfileHandler,
-  uploadPhotoHandler,
-  submitPANHandler,
-  submitAadhaarHandler,
-  submitBankHandler,
+  submitKYCHandler,
 } from '../controllers/profile.controller.js';
 
 import {
@@ -46,6 +43,7 @@ router.get('/profile', getProfileHandler);
 
 router.patch(
   '/profile',
+  uploadProfilePhoto.single('photo'),
   [
     body('phone')
       .optional()
@@ -67,63 +65,32 @@ router.patch(
   updateProfileHandler,
 );
 
-router.post(
-  '/profile/photo',
-  uploadProfilePhoto.single('photo'),
-  uploadPhotoHandler,
-);
-
 // ─── KYC ─────────────────────────────────────────────────────────────────────
 router.post(
-  '/kyc/pan',
-  uploadKYCDocument.single('document'),
+  '/kyc',
+  uploadKYCDocument.fields([
+    { name: 'panDocument', maxCount: 1 },
+    { name: 'aadhaarDocument', maxCount: 1 },
+  ]),
   [
-    body('documentNumber')
+    body('panNumber')
+      .optional({ checkFalsy: true })
       .trim()
-      .notEmpty()
-      .withMessage('PAN number is required')
       .matches(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/)
       .withMessage('Invalid PAN format (e.g. ABCDE1234F)'),
-  ],
-  validate,
-  submitPANHandler,
-);
-
-router.post(
-  '/kyc/aadhaar',
-  uploadKYCDocument.single('document'),
-  [
-    body('documentNumber')
+    body('aadhaarNumber')
+      .optional({ checkFalsy: true })
       .trim()
-      .notEmpty()
-      .withMessage('Aadhaar number is required')
       .matches(/^\d{12}$/)
       .withMessage('Aadhaar number must be 12 digits'),
-  ],
-  validate,
-  submitAadhaarHandler,
-);
-
-router.post(
-  '/kyc/bank',
-  [
-    body('accountNumber')
+    body('bankIfsc')
+      .optional({ checkFalsy: true })
       .trim()
-      .notEmpty()
-      .withMessage('Account number is required'),
-    body('ifsc')
-      .trim()
-      .notEmpty()
-      .withMessage('IFSC code is required')
       .matches(/^[A-Z]{4}0[A-Z0-9]{6}$/)
       .withMessage('Invalid IFSC code format'),
-    body('bankName')
-      .trim()
-      .notEmpty()
-      .withMessage('Bank name is required'),
   ],
   validate,
-  submitBankHandler,
+  submitKYCHandler,
 );
 
 // ─── Settings ─────────────────────────────────────────────────────────────────

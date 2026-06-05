@@ -80,6 +80,18 @@ describe('API: Auth Guards (401 without token)', () => {
     expect(res.status).toBe(401);
     expect(res.body.status).toBe('error');
   });
+
+  it('PATCH /api/v1/associate/profile without token returns 401', async () => {
+    const res = await request(app).patch('/api/v1/associate/profile');
+    expect(res.status).toBe(401);
+    expect(res.body.status).toBe('error');
+  });
+
+  it('POST /api/v1/associate/kyc without token returns 401', async () => {
+    const res = await request(app).post('/api/v1/associate/kyc');
+    expect(res.status).toBe(401);
+    expect(res.body.status).toBe('error');
+  });
 });
 
 // ─── Auth Login Validation ────────────────────────────────────────────────────
@@ -184,31 +196,43 @@ describe('API: Public Properties', () => {
 // ─── Public Legal Pages ───────────────────────────────────────────────────────
 
 describe('API: Public Legal Pages', () => {
-  it('GET /api/v1/public/privacy returns JSON with htmlcode', async () => {
+  it('GET /api/v1/public/privacy returns JSON with success, message, and data containing title and content', async () => {
     const res = await request(app).get('/api/v1/public/privacy');
     expect(res.status).toBe(200);
     expect(res.headers['content-type']).toMatch(/json/);
-    expect(res.body).toHaveProperty('htmlcode');
-    expect(res.body.htmlcode).toContain('<!DOCTYPE html>');
-    expect(res.body.htmlcode).toContain('Privacy Policy');
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('message', 'Privacy Policy fetched successfully');
+    expect(res.body).toHaveProperty('data');
+    expect(res.body.data).toHaveProperty('title', 'Privacy Policy');
+    expect(res.body.data).toHaveProperty('content');
+    expect(res.body.data.content).not.toContain('<!DOCTYPE html>');
+    expect(res.body.data.content).toContain('<h1>Privacy Policy</h1>');
   });
 
-  it('GET /api/v1/public/terms returns JSON with htmlcode', async () => {
+  it('GET /api/v1/public/terms returns JSON with success, message, and data containing title and content', async () => {
     const res = await request(app).get('/api/v1/public/terms');
     expect(res.status).toBe(200);
     expect(res.headers['content-type']).toMatch(/json/);
-    expect(res.body).toHaveProperty('htmlcode');
-    expect(res.body.htmlcode).toContain('<!DOCTYPE html>');
-    expect(res.body.htmlcode).toContain('Terms &amp; Conditions');
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('message', 'Terms & Conditions fetched successfully');
+    expect(res.body).toHaveProperty('data');
+    expect(res.body.data).toHaveProperty('title', 'Terms & Conditions');
+    expect(res.body.data).toHaveProperty('content');
+    expect(res.body.data.content).not.toContain('<!DOCTYPE html>');
+    expect(res.body.data.content).toContain('<h1>Terms &amp; Conditions</h1>');
   });
 
-  it('GET /api/v1/public/support returns JSON with htmlcode', async () => {
+  it('GET /api/v1/public/support returns JSON with success, message, and data containing title and content', async () => {
     const res = await request(app).get('/api/v1/public/support');
     expect(res.status).toBe(200);
     expect(res.headers['content-type']).toMatch(/json/);
-    expect(res.body).toHaveProperty('htmlcode');
-    expect(res.body.htmlcode).toContain('<!DOCTYPE html>');
-    expect(res.body.htmlcode).toContain('Help &amp; Support');
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('message', 'Help & Support fetched successfully');
+    expect(res.body).toHaveProperty('data');
+    expect(res.body.data).toHaveProperty('title', 'Help & Support');
+    expect(res.body.data).toHaveProperty('content');
+    expect(res.body.data.content).not.toContain('<!DOCTYPE html>');
+    expect(res.body.data.content).toContain('<h1>Help &amp; Support</h1>');
   });
 });
 
