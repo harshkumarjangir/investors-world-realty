@@ -147,7 +147,7 @@ export function getTermsHtml() {
 }
 
 export function getSupportHtml() {
-  return `<h1>Help &amp; Support</h1>
+  return `<h1>Help &amp; Center</h1>
     <p>We're here to help you with your Investors World Realty associate account, wallet, genealogy, properties, and technical issues.</p>
 
     <h2>In-App Support</h2>

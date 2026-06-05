@@ -74,6 +74,8 @@ async function main() {
   await prisma.propertyImage.deleteMany({});
   await prisma.propertyVideo.deleteMany({});
   await prisma.property.deleteMany({});
+  await prisma.schemeImage.deleteMany({});
+  await prisma.scheme.deleteMany({});
   // Only delete dummy associates (IW100011+), preserving rank-ladder IW100001–IW100010
   const dummyAssociates = await prisma.associate.findMany({
     where: { userId: { gte: 'IW100011' } },
@@ -225,6 +227,29 @@ async function main() {
   }
   console.log('  ✅ 50 income records created');
 
+  // ─── Create Schemes ────────────────────────────────────────────────────────
+  console.log('\nCreating dummy schemes...');
+  const schemes = [];
+  const schemeNames = ['Royal Enclave', 'Green Meadows', 'Sunrise Heights', 'Palm County'];
+  for (let i = 0; i < schemeNames.length; i++) {
+    const loc = cities[i % cities.length];
+    const scheme = await prisma.scheme.create({
+      data: {
+        schemeName: schemeNames[i],
+        state: loc.state,
+        city: loc.city,
+        address: `${500 + i * 20} Royal Boulevard, ${loc.city}`,
+        pinCode: `${302001 + i}`,
+        schemeType: i % 2 === 0 ? 'Residential' : 'Commercial',
+        featuredScheme: i === 0,
+        description: `Premium development project ${schemeNames[i]} located in prime location of ${loc.city} with modern facilities.`,
+        shortDescription: `Beautiful ${schemeNames[i]} project in ${loc.city}.`,
+      },
+    });
+    schemes.push(scheme);
+  }
+  console.log(`  ✅ ${schemes.length} schemes created`);
+
   // ─── Create Properties ─────────────────────────────────────────────────────
   console.log('\nCreating properties...');
   const propertyTypes = ['Villa', 'Apartment', 'Plot', 'Commercial', 'Farmhouse'];
@@ -235,9 +260,11 @@ async function main() {
     const randomAmenities = amenitiesList
       .sort(() => Math.random() - 0.5)
       .slice(0, Math.floor(Math.random() * 6) + 3);
+    const scheme = schemes[i % schemes.length];
 
     await prisma.property.create({
       data: {
+        schemeId: scheme.id,
         name: propertyNames[i],
         description: `Premium ${propertyTypes[i % propertyTypes.length].toLowerCase()} project in ${loc.city}. Features modern amenities, excellent connectivity, and premium finishes. Ideal for investment and living.`,
         location: `Sector ${10 + i * 3}, ${loc.city}`,
