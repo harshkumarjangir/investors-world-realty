@@ -358,13 +358,28 @@ Returns JSON with document URLs.
 ### GET `/public/branding`
 
 ### GET `/public/privacy`
-Returns **HTML** (`Content-Type: text/html`) — Privacy Policy for in-app WebView.
+Returns **JSON** (`Content-Type: application/json`) — Privacy Policy for in-app WebView.
+```json
+{
+  "htmlcode": "<!DOCTYPE html>..."
+}
+```
 
 ### GET `/public/terms`
-Returns **HTML** — Terms & Conditions for in-app WebView.
+Returns **JSON** (`Content-Type: application/json`) — Terms & Conditions for in-app WebView.
+```json
+{
+  "htmlcode": "<!DOCTYPE html>..."
+}
+```
 
 ### GET `/public/support`
-Returns **HTML** — Help & support page (contact info, FAQs). In-app tickets use `POST /support/tickets` (auth required).
+Returns **JSON** (`Content-Type: application/json`) — Help & support page. In-app tickets use `POST /support/tickets` (auth required).
+```json
+{
+  "htmlcode": "<!DOCTYPE html>..."
+}
+```
 
 ### POST `/public/contact`
 ```json

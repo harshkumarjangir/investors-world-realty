@@ -37,7 +37,7 @@ router.post('/contact', publicRateLimit, publicContactHandler);
 // GET /api/v1/public/health
 router.get('/health', publicHealthHandler);
 
-// GET /api/v1/public/privacy | /terms | /support — HTML pages for mobile WebView
+// GET /api/v1/public/privacy | /terms | /support — JSON responses containing HTML for mobile WebView
 router.get('/privacy', publicRateLimit, publicPrivacyHandler);
 router.get('/terms', publicRateLimit, publicTermsHandler);
 router.get('/support', publicRateLimit, publicSupportPageHandler);

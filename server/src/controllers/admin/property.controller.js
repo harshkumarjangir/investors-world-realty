@@ -12,14 +12,14 @@ import { successResponse, createdResponse, paginatedResponse, parsePagination } 
 
 export async function listPropertiesAdminHandler(req, res, next) {
   try {
-    const { location, type, status } = req.query;
+    const { location, type, status, schemeId } = req.query;
     const pagination = parsePagination(req.query);
 
-    const where = {};
+    const where = { deletedAt: null };
     if (location) where.city = { contains: location, mode: 'insensitive' };
     if (type) where.type = type;
     if (status) where.status = status;
-    // Admin sees all properties including soft-deleted
+    if (schemeId) where.schemeId = schemeId;
 
     const [totalItems, properties] = await Promise.all([
       prisma.property.count({ where }),
@@ -29,6 +29,7 @@ export async function listPropertiesAdminHandler(req, res, next) {
         take: pagination.take,
         orderBy: { createdAt: 'desc' },
         include: {
+          scheme: { select: { id: true, schemeName: true, city: true, state: true } },
           images: { take: 1, orderBy: { sortOrder: 'asc' } },
         },
       }),
@@ -36,6 +37,8 @@ export async function listPropertiesAdminHandler(req, res, next) {
 
     const items = properties.map((p) => ({
       id: p.id,
+      schemeId: p.schemeId,
+      schemeName: p.scheme?.schemeName || null,
       name: p.name,
       location: p.location,
       city: p.city,
@@ -57,13 +60,19 @@ export async function listPropertiesAdminHandler(req, res, next) {
 
 export async function createPropertyHandler(req, res, next) {
   try {
-    const { name, description, location, city, state, area, price, type, amenities } = req.body;
+    const { schemeId, name, description, location, city, state, area, price, type, amenities } = req.body;
 
-    if (!name || !description || !location || !city || !state || !area || !price || !type) {
-      return res.status(400).json({ status: 'error', message: 'name, description, location, city, state, area, price, and type are required', data: null });
+    if (!schemeId || !name || !description || !area || !price || !type) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'schemeId, name, description, area, price, and type are required',
+        data: null,
+      });
     }
 
-    const property = await adminCreateProperty({ name, description, location, city, state, area, price, type, amenities });
+    const property = await adminCreateProperty({
+      schemeId, name, description, location, city, state, area, price, type, amenities,
+    });
     return createdResponse(res, property, 'Property created successfully');
   } catch (err) {
     return next(err);

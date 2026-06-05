@@ -54,10 +54,7 @@ import {
   getSupportHtml,
 } from '../content/legal-pages.js';
 
-function sendHtmlPage(res, html) {
-  res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  return res.status(200).send(html);
-}
+
 
 // ─── GET /api/v1/public/app-version ──────────────────────────────────────────
 export async function publicAppVersionHandler(req, res) {
@@ -98,17 +95,17 @@ export async function publicContactHandler(req, res) {
   }
 }
 
-// ─── GET /api/v1/public/privacy | /terms | /support (HTML for WebView) ───────
+// ─── GET /api/v1/public/privacy | /terms | /support (JSON format) ─────────────
 export async function publicPrivacyHandler(req, res) {
-  return sendHtmlPage(res, getPrivacyPolicyHtml());
+  return res.json({ htmlcode: getPrivacyPolicyHtml() });
 }
 
 export async function publicTermsHandler(req, res) {
-  return sendHtmlPage(res, getTermsHtml());
+  return res.json({ htmlcode: getTermsHtml() });
 }
 
 export async function publicSupportPageHandler(req, res) {
-  return sendHtmlPage(res, getSupportHtml());
+  return res.json({ htmlcode: getSupportHtml() });
 }
 
 // ─── GET /api/v1/public/health ───────────────────────────────────────────────

@@ -3,7 +3,7 @@ import { sendToTopic } from '../utils/firebase.js';
 
 // ─── List Properties ──────────────────────────────────────────────────────────
 export async function listProperties(filters = {}, pagination = {}) {
-  const { location, minPrice, maxPrice, type, status } = filters;
+  const { location, minPrice, maxPrice, type, status, schemeId } = filters;
   const { skip = 0, take = 20, page = 1, pageSize = 20 } = pagination;
 
   const where = {
@@ -27,6 +27,7 @@ export async function listProperties(filters = {}, pagination = {}) {
           },
         }
       : {}),
+    ...(schemeId ? { schemeId } : {}),
   };
 
   const [totalItems, properties] = await Promise.all([
@@ -38,6 +39,7 @@ export async function listProperties(filters = {}, pagination = {}) {
       orderBy: [{ isFeatured: 'desc' }, { createdAt: 'desc' }],
       select: {
         id: true,
+        schemeId: true,
         name: true,
         location: true,
         city: true,
@@ -46,6 +48,7 @@ export async function listProperties(filters = {}, pagination = {}) {
         type: true,
         status: true,
         isFeatured: true,
+        scheme: { select: { id: true, schemeName: true, schemeType: true } },
         images: {
           orderBy: { sortOrder: 'asc' },
           take: 1,
@@ -57,6 +60,9 @@ export async function listProperties(filters = {}, pagination = {}) {
 
   const items = properties.map((p) => ({
     id: p.id,
+    schemeId: p.schemeId,
+    schemeName: p.scheme?.schemeName || null,
+    schemeType: p.scheme?.schemeType || null,
     name: p.name,
     location: p.location,
     city: p.city,
@@ -76,6 +82,7 @@ export async function getPropertyById(propertyId) {
   const property = await prisma.property.findFirst({
     where: { id: propertyId, deletedAt: null },
     include: {
+      scheme: { select: { id: true, schemeName: true, city: true, state: true, address: true, schemeType: true } },
       images: { orderBy: { sortOrder: 'asc' } },
       videos: { orderBy: { createdAt: 'asc' } },
       bookings: {

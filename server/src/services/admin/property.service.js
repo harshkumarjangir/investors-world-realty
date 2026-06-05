@@ -9,20 +9,41 @@ import { sendNotificationToAll } from '../notification.service.js';
  * @param {object} data - { name, description, location, city, state, area, price, type, amenities }
  * @returns {Promise<object>} Created Property record
  */
+function parseAmenities(amenities) {
+  if (Array.isArray(amenities)) return amenities;
+  if (typeof amenities === 'string' && amenities.trim()) {
+    return amenities.split(',').map((s) => s.trim()).filter(Boolean);
+  }
+  return [];
+}
+
 export async function adminCreateProperty(data) {
-  const { name, description, location, city, state, area, price, type, amenities } = data;
+  const { schemeId, name, description, location, city, state, area, price, type, amenities } = data;
+
+  if (!schemeId) {
+    throw Object.assign(new Error('schemeId is required — select a scheme first'), { statusCode: 400 });
+  }
+
+  const scheme = await prisma.scheme.findUnique({ where: { id: schemeId } });
+  if (!scheme) {
+    throw Object.assign(new Error('Scheme not found'), { statusCode: 404 });
+  }
 
   const property = await prisma.property.create({
     data: {
+      schemeId,
       name,
       description,
-      location,
-      city,
-      state,
+      location: location || scheme.address,
+      city: city || scheme.city || '',
+      state: state || scheme.state || '',
       area: Number(area),
       price: Number(price),
       type,
-      amenities: Array.isArray(amenities) ? amenities : [],
+      amenities: parseAmenities(amenities),
+    },
+    include: {
+      scheme: { select: { id: true, schemeName: true, city: true, state: true } },
     },
   });
 
@@ -122,7 +143,7 @@ export async function adminEditProperty(propertyId, data, adminId) {
     throw Object.assign(new Error('Property not found'), { statusCode: 404 });
   }
 
-  const allowedFields = ['name', 'description', 'location', 'city', 'state', 'area', 'price', 'type', 'amenities', 'isFeatured'];
+  const allowedFields = ['schemeId', 'name', 'description', 'location', 'city', 'state', 'area', 'price', 'type', 'amenities', 'isFeatured'];
   const updateData = {};
 
   for (const field of allowedFields) {
@@ -130,7 +151,16 @@ export async function adminEditProperty(propertyId, data, adminId) {
       if (field === 'area' || field === 'price') {
         updateData[field] = Number(data[field]);
       } else if (field === 'amenities') {
-        updateData[field] = Array.isArray(data[field]) ? data[field] : [];
+        updateData[field] = parseAmenities(data[field]);
+      } else if (field === 'schemeId') {
+        if (!data[field]) {
+          throw Object.assign(new Error('schemeId cannot be empty'), { statusCode: 400 });
+        }
+        const scheme = await prisma.scheme.findUnique({ where: { id: data[field] } });
+        if (!scheme) {
+          throw Object.assign(new Error('Scheme not found'), { statusCode: 404 });
+        }
+        updateData[field] = data[field];
       } else {
         updateData[field] = data[field];
       }

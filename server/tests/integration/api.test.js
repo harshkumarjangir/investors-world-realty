@@ -181,6 +181,38 @@ describe('API: Public Properties', () => {
   });
 });
 
+// ─── Public Legal Pages ───────────────────────────────────────────────────────
+
+describe('API: Public Legal Pages', () => {
+  it('GET /api/v1/public/privacy returns JSON with htmlcode', async () => {
+    const res = await request(app).get('/api/v1/public/privacy');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/json/);
+    expect(res.body).toHaveProperty('htmlcode');
+    expect(res.body.htmlcode).toContain('<!DOCTYPE html>');
+    expect(res.body.htmlcode).toContain('Privacy Policy');
+  });
+
+  it('GET /api/v1/public/terms returns JSON with htmlcode', async () => {
+    const res = await request(app).get('/api/v1/public/terms');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/json/);
+    expect(res.body).toHaveProperty('htmlcode');
+    expect(res.body.htmlcode).toContain('<!DOCTYPE html>');
+    expect(res.body.htmlcode).toContain('Terms &amp; Conditions');
+  });
+
+  it('GET /api/v1/public/support returns JSON with htmlcode', async () => {
+    const res = await request(app).get('/api/v1/public/support');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/json/);
+    expect(res.body).toHaveProperty('htmlcode');
+    expect(res.body.htmlcode).toContain('<!DOCTYPE html>');
+    expect(res.body.htmlcode).toContain('Help &amp; Support');
+  });
+});
+
+
 // ─── EMI Calculator ───────────────────────────────────────────────────────────
 
 describe('API: EMI Calculator', () => {

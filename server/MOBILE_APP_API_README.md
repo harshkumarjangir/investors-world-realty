@@ -610,16 +610,18 @@ POST /support/tickets/:id/reply
 | POST | `/public/commission-calculator` | Gap commission estimate |
 | POST | `/public/emi-calculator` | EMI calculation |
 | POST | `/public/contact` | Contact form |
-| GET | `/public/privacy` | Privacy Policy (**HTML**, not JSON) |
-| GET | `/public/terms` | Terms & Conditions (**HTML**) |
-| GET | `/public/support` | Help & support page (**HTML**) |
+| GET | `/public/privacy` | Privacy Policy (JSON with `htmlcode`) |
+| GET | `/public/terms` | Terms & Conditions (JSON with `htmlcode`) |
+| GET | `/public/support` | Help & support page (JSON with `htmlcode`) |
 
 **Flutter WebView example:**
 ```dart
-// Load in WebView — response is raw HTML
-final url = '$baseUrl/public/privacy';
-// or: webViewController.loadRequest(Uri.parse(url));
+// Fetch JSON, decode, and load string in WebView
+final response = await dio.get('$baseUrl/public/privacy');
+final htmlCode = response.data['htmlcode'];
+webViewController.loadHtmlString(htmlCode);
 ```
+
 
 ---
 

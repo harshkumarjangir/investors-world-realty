@@ -1605,7 +1605,7 @@
           }
         },
         {
-          "name": "Privacy Policy (HTML)",
+          "name": "Privacy Policy (JSON)",
           "request": {
             "auth": { "type": "noauth" },
             "method": "GET",
@@ -1614,11 +1614,11 @@
               "host": ["{{baseUrl}}"],
               "path": ["public", "privacy"]
             },
-            "description": "Returns Privacy Policy as HTML (text/html) for mobile WebView."
+            "description": "Returns Privacy Policy as JSON containing the HTML code in the 'htmlcode' key."
           }
         },
         {
-          "name": "Terms & Conditions (HTML)",
+          "name": "Terms & Conditions (JSON)",
           "request": {
             "auth": { "type": "noauth" },
             "method": "GET",
@@ -1627,11 +1627,11 @@
               "host": ["{{baseUrl}}"],
               "path": ["public", "terms"]
             },
-            "description": "Returns Terms & Conditions as HTML (text/html) for mobile WebView."
+            "description": "Returns Terms & Conditions as JSON containing the HTML code in the 'htmlcode' key."
           }
         },
         {
-          "name": "Support Page (HTML)",
+          "name": "Support Page (JSON)",
           "request": {
             "auth": { "type": "noauth" },
             "method": "GET",
@@ -1640,7 +1640,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["public", "support"]
             },
-            "description": "Returns help & support page as HTML. In-app tickets use POST /support/tickets (auth)."
+            "description": "Returns help & support page as JSON containing the HTML code in the 'htmlcode' key."
           }
         },
         {
