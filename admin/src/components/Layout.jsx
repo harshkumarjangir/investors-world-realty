@@ -17,12 +17,6 @@ import {
   X,
   UserCircle,
   BookOpen,
-  ChevronDown,
-  ChevronRight,
-  Search,
-  Newspaper,
-  Key,
-  Building2,
   Headphones,
 } from 'lucide-react';
 import { useAuth } from '../common/AuthContext.jsx';
@@ -46,29 +40,9 @@ const navItems = [
   { key: 'nav.transactions', icon: ArrowLeftRight, path: '/transactions', permission: 'transactions:read' },
 ];
 
-const mastersSubItems = [
-  { label: 'Account Master' },
-  { label: 'Scheme' },
-  { label: 'Scheme Image' },
-  { label: 'Plc Charge' },
-  { label: 'Flat/Plot Master' },
-  { label: 'Scheme Details' },
-  { label: 'Plc Charge List' },
-  { label: 'Plot Type List' },
-  { label: 'Plot List' },
-];
-
-const myAccountSubItems = [
-  { label: 'Search', icon: Search },
-  { label: 'Add News', icon: Newspaper },
-  { label: 'Fetch Password', icon: Key },
-  { label: 'Company Detail', icon: Building2 },
-];
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [mastersOpen, setMastersOpen] = useState(false);
-  const [myAccountOpen, setMyAccountOpen] = useState(false);
   const { admin, logout, hasPermission } = useAuth();
   const { t, lang, switchLang } = useI18n();
   const navigate = useNavigate();
@@ -90,7 +64,7 @@ export default function Layout() {
         <div className="flex h-16 shrink-0 items-center justify-between px-4 border-b border-slate-700">
           <div className="flex items-center gap-2.5">
             <img src="/logo.png" alt="IWR" className="h-9 w-9 rounded-lg object-cover shrink-0" />
-            <h1 className="text-sm font-bold text-white truncate leading-tight">Investors World<br/>Realty</h1>
+            <h1 className="text-sm font-bold text-white truncate leading-tight">Investors World<br />Realty</h1>
           </div>
           <button className="lg:hidden text-white hover:text-gray-300" onClick={() => setSidebarOpen(false)}><X size={20} /></button>
         </div>
@@ -110,55 +84,22 @@ export default function Layout() {
               );
             })}
 
-            {/* My Account collapsible */}
+            {/* My Account NavLink */}
             <li>
-              <button onClick={() => setMyAccountOpen(!myAccountOpen)}
-                className={`w-full flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${isMyAccountActive ? 'bg-gold-500 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}>
-                <span className="flex items-center gap-3"><UserCircle size={18} />My Account</span>
-                {myAccountOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-              </button>
-              {myAccountOpen && (
-                <ul className="mt-1 ml-4 space-y-0.5">
-                  {myAccountSubItems.map((sub) => {
-                    const SubIcon = sub.icon;
-                    return (
-                      <li key={sub.label}>
-                        <NavLink to="/my-account" onClick={() => setSidebarOpen(false)}
-                          className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                          <SubIcon size={13} className="shrink-0" /> {sub.label}
-                        </NavLink>
-                      </li>
-                    );
-                  })}
-                  <li>
-                    <button onClick={handleLogout}
-                      className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-red-400 hover:bg-slate-800 hover:text-red-300 transition-colors">
-                      <LogOut size={13} className="shrink-0" /> Logout
-                    </button>
-                  </li>
-                </ul>
-              )}
+              <NavLink to="/my-account" onClick={() => setSidebarOpen(false)}
+                className={({ isActive }) => `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${isActive ? 'bg-gold-500 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}>
+                <UserCircle size={18} />
+                <span>My Account</span>
+              </NavLink>
             </li>
 
-            {/* Masters collapsible */}
+            {/* Masters NavLink */}
             <li>
-              <button onClick={() => setMastersOpen(!mastersOpen)}
-                className={`w-full flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${isMastersActive ? 'bg-gold-500 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}>
-                <span className="flex items-center gap-3"><BookOpen size={18} />Masters</span>
-                {mastersOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-              </button>
-              {mastersOpen && (
-                <ul className="mt-1 ml-4 space-y-0.5">
-                  {mastersSubItems.map((sub) => (
-                    <li key={sub.label}>
-                      <NavLink to="/masters" onClick={() => setSidebarOpen(false)}
-                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                        <span className="text-slate-500">•••</span> {sub.label}
-                      </NavLink>
-                    </li>
-                  ))}
-                </ul>
-              )}
+              <NavLink to="/masters" onClick={() => setSidebarOpen(false)}
+                className={({ isActive }) => `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${isActive ? 'bg-gold-500 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}>
+                <BookOpen size={18} />
+                <span>Masters</span>
+              </NavLink>
             </li>
           </ul>
         </nav>
