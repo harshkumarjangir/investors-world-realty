@@ -44,7 +44,8 @@ function videoFilter(req, file, cb) {
 export const uploadProfilePhoto = multer({
   storage: diskStorage('uploads/profiles'),
   fileFilter: imageFilter,
-  limits: { fileSize: 2 * 1024 * 1024 },
+  limits: { fileSize: 5 * 1024 * 1024 },
+  // limits: { fileSize: 2 * 1024 * 1024 },
 });
 
 export const uploadKYCDocument = multer({
