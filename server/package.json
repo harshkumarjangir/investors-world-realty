@@ -44,9 +44,7 @@
     "nodemailer": "^8.0.7",
     "pdfkit": "^0.18.0",
     "pg": "^8.20.0",
-    "qrcode": "^1.5.4",
-    "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1"
+    "qrcode": "^1.5.4"
   },
   "devDependencies": {
     "@jest/globals": "^30.4.1",

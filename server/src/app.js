@@ -3,7 +3,6 @@ import helmet from 'helmet';
 import cors from 'cors';
 import morgan from 'morgan';
 import config from './config/index.js';
-import { setupSwagger } from './swagger.js';
 
 // ─── Route Imports ────────────────────────────────────────────────────────────
 import authRoutes from './routes/auth.js';
@@ -59,10 +58,6 @@ app.use('/api/v1/support', supportRoutes);
 app.use('/api/v1/notifications', notificationsRoutes);
 app.use('/api/v1/admin', adminRoutes);
 
-// ─── Swagger API Docs (non-production only) ──────────────────────────────────
-if (config.NODE_ENV !== 'production') {
-  setupSwagger(app);
-}
 
 // ─── 404 Handler ─────────────────────────────────────────────────────────────
 app.use((req, res) => {

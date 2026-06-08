@@ -820,8 +820,7 @@ Sets status to `IN_PROGRESS` when replying to `OPEN` or `RESOLVED` tickets.
 
 | Code | Meaning |
 |------|---------|
-| 200 | Success |
-| 201 | Created |
+| 200 | Success / Created |
 | 400 | Validation error |
 | 401 | Unauthorized (token missing/expired) |
 | 403 | Forbidden (insufficient permissions) |

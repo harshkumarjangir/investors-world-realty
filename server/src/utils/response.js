@@ -3,7 +3,7 @@ export function successResponse(res, data = null, message = 'Success', statusCod
 }
 
 export function createdResponse(res, data = null, message = 'Created successfully') {
-  return res.status(201).json({ status: 'success', message, data });
+  return res.status(200).json({ status: 'success', message, data });
 }
 
 export function errorResponse(res, message = 'An error occurred', statusCode = 400, code = null) {

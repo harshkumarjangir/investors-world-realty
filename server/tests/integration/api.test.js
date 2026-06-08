@@ -232,7 +232,7 @@ describe('API: Public Legal Pages', () => {
     expect(res.body.data).toHaveProperty('title', 'Help & Support');
     expect(res.body.data).toHaveProperty('content');
     expect(res.body.data.content).not.toContain('<!DOCTYPE html>');
-    expect(res.body.data.content).toContain('<h1>Help &amp; Support</h1>');
+    expect(res.body.data.content).toContain('<h1>Support Center</h1>');
   });
 });
 

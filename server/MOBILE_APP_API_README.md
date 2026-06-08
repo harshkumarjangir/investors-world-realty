@@ -45,8 +45,7 @@ Authorization: Bearer <access_token>
 ### Error Codes
 | Code | Meaning |
 |------|---------|
-| 200 | Success |
-| 201 | Created |
+| 200 | Success / Created |
 | 400 | Validation error |
 | 401 | Unauthorized (token expired/missing) |
 | 403 | Forbidden / Account suspended |
