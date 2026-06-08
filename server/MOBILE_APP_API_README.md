@@ -540,6 +540,12 @@ DELETE /notifications/device-token
 ```
 **Body:** `{ "token": "fcm_token" }`
 
+### 10.5 Delete Notification
+```
+DELETE /notifications/:id
+```
+_Soft delete a notification from the mobile app. It will no longer show up to the user but remains in database archives._
+
 ---
 
 ## 📄 11. Documents 🔒

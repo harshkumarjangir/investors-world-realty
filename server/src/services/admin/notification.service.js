@@ -47,38 +47,78 @@ export async function adminSendNotification(title, message, target, targetIds, a
       throw Object.assign(new Error('targetIds is required for specific target'), { statusCode: 400 });
     }
 
+    // Resolve targetIds (which can be UUIDs or userIds like IW100001) to active associates
+    const associates = await prisma.associate.findMany({
+      where: {
+        OR: [
+          { id: { in: targetIds } },
+          { userId: { in: targetIds } },
+        ],
+        deletedAt: null,
+      },
+      select: { id: true, userId: true },
+    });
+
+    if (associates.length === 0) {
+      throw Object.assign(new Error('No valid associates found for the provided IDs'), { statusCode: 400 });
+    }
+
     const results = await Promise.allSettled(
-      targetIds.map((associateId) =>
-        sendNotificationToAssociate(associateId, title, message, 'ANNOUNCEMENT', {}),
+      associates.map((a) =>
+        sendNotificationToAssociate(a.id, title, message, 'ANNOUNCEMENT', {}),
       ),
     );
 
     const succeeded = results.filter((r) => r.status === 'fulfilled').length;
     const failed = results.filter((r) => r.status === 'rejected').length;
-    result = { succeeded, failed, total: targetIds.length };
+    result = {
+      succeeded,
+      failed,
+      total: targetIds.length,
+      recipients: associates.map((a) => a.userId),
+    };
   } else if (target === 'package') {
     if (!targetIds || targetIds.length === 0) {
       throw Object.assign(new Error('targetIds (packageId) is required for package target'), { statusCode: 400 });
     }
 
-    const packageId = targetIds[0];
+    const packageInput = targetIds[0];
+    const pkg = await prisma.package.findFirst({
+      where: {
+        OR: [
+          { id: packageInput },
+          { name: { equals: packageInput, mode: 'insensitive' } },
+        ],
+      },
+      select: { id: true, name: true },
+    });
+
+    if (!pkg) {
+      throw Object.assign(new Error(`Package not found: ${packageInput}`), { statusCode: 400 });
+    }
+
     const associates = await prisma.associate.findMany({
-      where: { packageId, deletedAt: null },
-      select: { id: true },
+      where: { packageId: pkg.id, deletedAt: null },
+      select: { id: true, userId: true },
     });
 
     if (associates.length === 0) {
-      result = { succeeded: 0, failed: 0, total: 0 };
+      result = { succeeded: 0, failed: 0, total: 0, packageName: pkg.name };
     } else {
       const results = await Promise.allSettled(
         associates.map((a) =>
-          sendNotificationToAssociate(a.id, title, message, 'ANNOUNCEMENT', { packageId }),
+          sendNotificationToAssociate(a.id, title, message, 'ANNOUNCEMENT', { packageId: pkg.id }),
         ),
       );
 
       const succeeded = results.filter((r) => r.status === 'fulfilled').length;
       const failed = results.filter((r) => r.status === 'rejected').length;
-      result = { succeeded, failed, total: associates.length };
+      result = {
+        succeeded,
+        failed,
+        total: associates.length,
+        packageName: pkg.name,
+      };
     }
   } else {
     throw Object.assign(new Error('Invalid target. Must be one of: all, specific, package'), { statusCode: 400 });
@@ -125,14 +165,25 @@ export async function adminGetNotificationHistory(pagination) {
     prisma.adminAuditLog.count({ where }),
   ]);
 
-  const items = records.map((r) => ({
-    id: r.id,
-    adminId: r.adminId,
-    adminName: r.admin.name,
-    adminEmail: r.admin.email,
-    details: r.details,
-    createdAt: r.createdAt,
-  }));
+  const items = records.map((r) => {
+    const details = (r.details && typeof r.details === 'object') ? r.details : {};
+    return {
+      id: r.id,
+      adminId: r.adminId,
+      adminName: r.admin?.name || 'Admin',
+      adminEmail: r.admin?.email || '',
+      title: details.title || '',
+      message: details.message || '',
+      target: details.target || 'all',
+      targetDetails: details.target === 'specific'
+        ? (details.result?.recipients?.join(', ') || details.targetIds?.join(', ') || '')
+        : details.target === 'package'
+        ? (details.result?.packageName || details.targetIds?.[0] || '')
+        : 'all',
+      details: r.details,
+      createdAt: r.createdAt,
+    };
+  });
 
   return { items, totalItems, page, pageSize };
 }

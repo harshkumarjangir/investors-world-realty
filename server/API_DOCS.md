@@ -295,6 +295,7 @@ Submit PAN, Aadhaar, and/or Bank details and documents together.
 
 ### GET `/notifications?page=1&pageSize=20`
 ### PATCH `/notifications/:id/read`
+### DELETE `/notifications/:id`
 
 ---
 

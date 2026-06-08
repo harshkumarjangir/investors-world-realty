@@ -163,9 +163,16 @@ export default function Notifications() {
                     </td>
                     <td className="py-3 text-gray-800 font-medium">{n.title}</td>
                     <td className="py-3">
-                      <span className="rounded-full bg-gold-100 text-gold-600 px-2.5 py-0.5 text-xs font-medium">
-                        {n.target || 'all'}
-                      </span>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="w-fit rounded-full bg-gold-100 text-gold-600 px-2.5 py-0.5 text-xs font-medium capitalize">
+                          {n.target || 'all'}
+                        </span>
+                        {n.targetDetails && n.targetDetails !== 'all' && (
+                          <span className="text-xs text-gray-500 font-normal truncate max-w-[180px]" title={n.targetDetails}>
+                            {n.targetDetails}
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="py-3 text-gray-600">{n.adminName || n.admin || '-'}</td>
                   </tr>

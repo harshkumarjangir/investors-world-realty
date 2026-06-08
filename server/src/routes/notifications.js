@@ -6,6 +6,7 @@ import {
   removeDeviceTokenHandler,
   getNotificationsHandler,
   markAsReadHandler,
+  deleteNotificationHandler,
 } from '../controllers/notification.controller.js';
 
 const router = Router();
@@ -24,5 +25,8 @@ router.get('/', getNotificationsHandler);
 
 // PATCH  /api/v1/notifications/:id/read
 router.patch('/:id/read', markAsReadHandler);
+
+// DELETE /api/v1/notifications/:id
+router.delete('/:id', deleteNotificationHandler);
 
 export default router;

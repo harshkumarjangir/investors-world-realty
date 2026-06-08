@@ -1328,6 +1328,29 @@
             },
             "description": "Call this before logout to stop push notifications on this device."
           }
+        },
+        {
+          "name": "Delete Notification",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/notifications/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "notification-uuid"
+                }
+              ]
+            },
+            "description": "Soft delete a notification from the mobile app. It will be hidden from the user but remain visible to the admin."
+          }
         }
       ]
     },

@@ -3,6 +3,7 @@ import {
   removeDeviceToken,
   getNotifications,
   markAsRead,
+  deleteNotification,
 } from '../services/notification.service.js';
 import {
   successResponse,
@@ -75,6 +76,19 @@ export async function markAsReadHandler(req, res) {
 
     const updated = await markAsRead(associateId, notificationId);
     return successResponse(res, updated, 'Notification marked as read');
+  } catch (err) {
+    return errorResponse(res, err.message, err.statusCode || 500);
+  }
+}
+
+// ─── DELETE /:id ──────────────────────────────────────────────────────────────
+export async function deleteNotificationHandler(req, res) {
+  try {
+    const associateId = req.associate.id;
+    const notificationId = req.params.id;
+
+    const result = await deleteNotification(associateId, notificationId);
+    return successResponse(res, result, 'Notification deleted successfully');
   } catch (err) {
     return errorResponse(res, err.message, err.statusCode || 500);
   }

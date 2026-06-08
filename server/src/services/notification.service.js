@@ -85,7 +85,7 @@ export async function getNotifications(associateId, pagination = {}) {
 
   const [records, totalItems] = await Promise.all([
     prisma.notification.findMany({
-      where: { associateId },
+      where: { associateId, isDeleted: false },
       orderBy: { createdAt: 'desc' },
       skip,
       take,
@@ -99,7 +99,7 @@ export async function getNotifications(associateId, pagination = {}) {
         createdAt: true,
       },
     }),
-    prisma.notification.count({ where: { associateId } }),
+    prisma.notification.count({ where: { associateId, isDeleted: false } }),
   ]);
 
   const items = records.map((r) => ({
@@ -127,7 +127,7 @@ export async function getNotifications(associateId, pagination = {}) {
  */
 export async function markAsRead(associateId, notificationId) {
   const existing = await prisma.notification.findFirst({
-    where: { id: notificationId, associateId },
+    where: { id: notificationId, associateId, isDeleted: false },
   });
 
   if (!existing) {
@@ -149,6 +149,34 @@ export async function markAsRead(associateId, notificationId) {
   });
 
   return updated;
+}
+
+// ─── deleteNotification ────────────────────────────────────────────────────────
+
+/**
+ * Soft delete a notification (sets isDeleted to true) so it won't show to the user,
+ * but remains in the database.
+ * Throws 404 if the notification does not belong to the associate.
+ *
+ * @param {string} associateId
+ * @param {string} notificationId
+ * @returns {Promise<{ success: boolean }>}
+ */
+export async function deleteNotification(associateId, notificationId) {
+  const existing = await prisma.notification.findFirst({
+    where: { id: notificationId, associateId, isDeleted: false },
+  });
+
+  if (!existing) {
+    throw Object.assign(new Error('Notification not found'), { statusCode: 404 });
+  }
+
+  await prisma.notification.update({
+    where: { id: notificationId },
+    data: { isDeleted: true },
+  });
+
+  return { success: true };
 }
 
 // ─── sendNotificationToAssociate ──────────────────────────────────────────────
