@@ -449,7 +449,7 @@ GET /properties?location=Mumbai&minPrice=1000000&maxPrice=5000000&type=Villa&pag
 GET /properties/:id
 ```
 
-### 8.3 Book Property 🔒
+### 8.3 Book Property 🔒 (Deprecated - Use Initiate & Verify instead)
 ```
 POST /properties/:id/book
 ```
@@ -471,6 +471,76 @@ POST /properties/:id/inquiry
 POST /properties/emi-calculator
 ```
 **Body:** `{ "principal": 5000000, "annualRate": 8.5, "tenureMonths": 240 }`
+
+### 8.7 Hold Property 🔒
+```
+POST /properties/:id/hold
+```
+**Body:**
+```json
+{
+  "customerName": "Jane Doe",
+  "customerMobile": "9876543210",
+  "customerAddress": "123 Main St, Jaipur"
+}
+```
+**Description:** Places the property on hold for 48 hours. During this period, the property cannot be booked by another associate for just the booking amount (only a full payment in person recorded by an admin can override it).
+
+### 8.8 Initiate Property Booking Payment 🔒
+```
+POST /properties/:id/payment/initiate
+```
+**Body:**
+```json
+{
+  "amount": 50000,
+  "customerName": "Jane Doe",
+  "customerMobile": "9876543210",
+  "customerAddress": "123 Main St, Jaipur"
+}
+```
+**Response:**
+```json
+{
+  "status": "success",
+  "message": "Payment initiated successfully",
+  "data": {
+    "orderId": "order_Hk8sK9n2JkLmN9",
+    "amount": 5000000,
+    "currency": "INR",
+    "bookingId": "c62fb253-7c3e-46cf-a1ab-5d1c9efc9b68",
+    "keyId": "rzp_test_mock"
+  }
+}
+```
+
+### 8.9 Verify Property Booking Payment 🔒
+```
+POST /properties/payment/verify
+```
+**Body:**
+```json
+{
+  "razorpayOrderId": "order_Hk8sK9n2JkLmN9",
+  "razorpayPaymentId": "pay_Hk8tL8m9KlM7N8",
+  "razorpaySignature": "31bfa82946bd7e21a221f753c1cf3bc27ea8b9c288921820b127ea821a8cd398"
+}
+```
+**Response:**
+```json
+{
+  "status": "success",
+  "message": "Payment verified and booking confirmed successfully",
+  "data": {
+    "id": "c62fb253-7c3e-46cf-a1ab-5d1c9efc9b68",
+    "status": "CONFIRMED",
+    "receiptNo": "REC000001",
+    "amount": "50000",
+    "modeOfPayment": "Online (Razorpay)",
+    "paymentDate": "2026-06-08T11:00:00.000Z"
+  }
+}
+```
 
 ---
 

@@ -247,10 +247,38 @@ Submit PAN, Aadhaar, and/or Bank details and documents together.
 }
 ```
 
-### POST `/properties/:id/book` 🔒
+### POST `/properties/:id/book` 🔒 (Deprecated - Use Initiate & Verify instead)
 ```json
 {
   "amount": 500000
+}
+```
+
+### POST `/properties/:id/hold` 🔒
+```json
+{
+  "customerName": "Jane Doe",
+  "customerMobile": "9876543210",
+  "customerAddress": "123 Main St, Jaipur"
+}
+```
+
+### POST `/properties/:id/payment/initiate` 🔒
+```json
+{
+  "amount": 50000,
+  "customerName": "Jane Doe",
+  "customerMobile": "9876543210",
+  "customerAddress": "123 Main St, Jaipur"
+}
+```
+
+### POST `/properties/payment/verify` 🔒
+```json
+{
+  "razorpayOrderId": "order_Hk8sK9n2JkLmN9",
+  "razorpayPaymentId": "pay_Hk8tL8m9KlM7N8",
+  "razorpaySignature": "31bfa82946bd7e21a221f753c1cf3bc27ea8b9c288921820b127ea821a8cd398"
 }
 ```
 

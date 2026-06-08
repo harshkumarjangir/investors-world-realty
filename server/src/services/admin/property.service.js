@@ -187,7 +187,7 @@ export async function adminEditProperty(propertyId, data, adminId) {
  * @returns {Promise<object>} Updated Property record
  */
 export async function adminUpdatePropertyStatus(propertyId, status, adminId) {
-  const validStatuses = ['AVAILABLE', 'BOOKED', 'SOLD'];
+  const validStatuses = ['AVAILABLE', 'HOLD', 'BOOKED', 'SOLD'];
   if (!validStatuses.includes(status)) {
     throw Object.assign(new Error(`Invalid status. Must be one of: ${validStatuses.join(', ')}`), { statusCode: 400 });
   }

@@ -44,7 +44,8 @@
     "nodemailer": "^8.0.7",
     "pdfkit": "^0.18.0",
     "pg": "^8.20.0",
-    "qrcode": "^1.5.4"
+    "qrcode": "^1.5.4",
+    "razorpay": "^2.9.6"
   },
   "devDependencies": {
     "@jest/globals": "^30.4.1",

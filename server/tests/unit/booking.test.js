@@ -8,6 +8,7 @@
 
 function canTransitionBooking(currentStatus, newStatus) {
   if (currentStatus === 'PENDING' && (newStatus === 'CONFIRMED' || newStatus === 'CANCELLED')) return true;
+  if (currentStatus === 'HOLD' && (newStatus === 'CONFIRMED' || newStatus === 'EXPIRED' || newStatus === 'CANCELLED')) return true;
   return false;
 }
 
@@ -81,7 +82,7 @@ describe('Booking: Invalid Status Transitions', () => {
 // ─── Final State Verification ─────────────────────────────────────────────────
 
 describe('Booking: Final State Verification', () => {
-  const allStates = ['PENDING', 'CONFIRMED', 'CANCELLED'];
+  const allStates = ['PENDING', 'CONFIRMED', 'CANCELLED', 'HOLD', 'EXPIRED'];
 
   it('CONFIRMED is a terminal state (no outgoing transitions)', () => {
     for (const target of allStates) {
@@ -95,9 +96,23 @@ describe('Booking: Final State Verification', () => {
     }
   });
 
+  it('EXPIRED is a terminal state (no outgoing transitions)', () => {
+    for (const target of allStates) {
+      expect(canTransitionBooking('EXPIRED', target)).toBe(false);
+    }
+  });
+
   it('PENDING only transitions to CONFIRMED or CANCELLED', () => {
     expect(canTransitionBooking('PENDING', 'CONFIRMED')).toBe(true);
     expect(canTransitionBooking('PENDING', 'CANCELLED')).toBe(true);
-    expect(canTransitionBooking('PENDING', 'PENDING')).toBe(false);
+    expect(canTransitionBooking('PENDING', 'HOLD')).toBe(false);
+    expect(canTransitionBooking('PENDING', 'EXPIRED')).toBe(false);
+  });
+
+  it('HOLD transitions to CONFIRMED, EXPIRED, or CANCELLED', () => {
+    expect(canTransitionBooking('HOLD', 'CONFIRMED')).toBe(true);
+    expect(canTransitionBooking('HOLD', 'EXPIRED')).toBe(true);
+    expect(canTransitionBooking('HOLD', 'CANCELLED')).toBe(true);
+    expect(canTransitionBooking('HOLD', 'PENDING')).toBe(false);
   });
 });

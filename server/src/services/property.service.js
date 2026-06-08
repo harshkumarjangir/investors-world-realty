@@ -8,7 +8,7 @@ export async function listProperties(filters = {}, pagination = {}) {
 
   const where = {
     deletedAt: null,
-    ...(status ? { status } : { status: 'AVAILABLE' }),
+    ...(status ? { status } : { status: { in: ['AVAILABLE', 'HOLD'] } }),
     ...(type ? { type } : {}),
     ...(location
       ? {

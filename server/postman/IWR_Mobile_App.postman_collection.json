@@ -1001,7 +1001,7 @@
           }
         },
         {
-          "name": "Book Property 🔒",
+          "name": "Book Property 🔒 (Deprecated)",
           "request": {
             "method": "POST",
             "header": [
@@ -1034,6 +1034,115 @@
                   "key": "id",
                   "value": "property-uuid-here"
                 }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Hold Property 🔒",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Jane Doe\",\n  \"customerMobile\": \"9876543210\",\n  \"customerAddress\": \"123 Main St, Jaipur\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/properties/:id/hold",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "properties",
+                ":id",
+                "hold"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "property-uuid-here"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Initiate Booking Payment 🔒",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 50000,\n  \"customerName\": \"Jane Doe\",\n  \"customerMobile\": \"9876543210\",\n  \"customerAddress\": \"123 Main St, Jaipur\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/properties/:id/payment/initiate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "properties",
+                ":id",
+                "payment",
+                "initiate"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "property-uuid-here"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Verify Booking Payment 🔒",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"razorpayOrderId\": \"order_Hk8sK9n2JkLmN9\",\n  \"razorpayPaymentId\": \"pay_Hk8tL8m9KlM7N8\",\n  \"razorpaySignature\": \"31bfa82946bd7e21a221f753c1cf3bc27ea8b9c288921820b127ea821a8cd398\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/properties/payment/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "properties",
+                "payment",
+                "verify"
               ]
             }
           }

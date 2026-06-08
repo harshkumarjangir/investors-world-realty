@@ -67,6 +67,7 @@ enum PayoutStatus {
 
 enum PropertyStatus {
   AVAILABLE
+  HOLD
   BOOKED
   SOLD
 }
@@ -75,6 +76,8 @@ enum BookingStatus {
   PENDING
   CONFIRMED
   CANCELLED
+  HOLD
+  EXPIRED
 }
 
 enum KYCType {
@@ -185,6 +188,7 @@ model Associate {
   supportTickets SupportTicket[]
   bookings       Booking[]
   advancePayments AdvancePayment[]
+  heldProperties Property[]      @relation("HeldProperties")
 
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
@@ -337,6 +341,9 @@ model Property {
   amenities   Json // array of amenity strings
   status      PropertyStatus  @default(AVAILABLE)
   isFeatured  Boolean         @default(false)
+  holdExpiresAt DateTime?
+  heldByAssociateId String?
+  heldAssociate Associate?      @relation("HeldProperties", fields: [heldByAssociateId], references: [id])
 
   images      PropertyImage[]
   videos      PropertyVideo[]
@@ -414,6 +421,11 @@ model Booking {
   receiptUrl      String?
 
   status          BookingStatus  @default(PENDING)
+
+  // Razorpay integration
+  razorpayOrderId   String?        @unique
+  razorpayPaymentId String?
+  razorpaySignature String?
 
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt

@@ -2,6 +2,7 @@ import app from './app.js';
 import config from './config/index.js';
 import prisma from './utils/prisma.js';
 import { getRedisClient } from './utils/redis.js';
+import { startHoldExpirationWorker } from './utils/holdExpirationWorker.js';
 
 const PORT = config.PORT;
 
@@ -28,10 +29,11 @@ async function startServer() {
   // ─── Start HTTP server ─────────────────────────────────────────────────────
   app.listen(PORT, () => {
     console.log(`[SERVER] Investors World Realty API running on port ${PORT} (${config.NODE_ENV})`);
+    startHoldExpirationWorker();
   });
 }
 
-startServer();
+startServer(); // Trigger reload
 
 process.on('unhandledRejection', (reason) => {
   console.error('[UNHANDLED REJECTION]', reason);

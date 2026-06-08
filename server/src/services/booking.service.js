@@ -1,6 +1,7 @@
 import prisma from '../utils/prisma.js';
 import { sendToDevices } from '../utils/firebase.js';
 import { calculatePropertySaleCommission } from './propertyCommission.service.js';
+import { getRazorpayInstance, verifyRazorpaySignature } from '../utils/razorpay.js';
 
 // ─── createBooking ────────────────────────────────────────────────────────────
 
@@ -242,3 +243,227 @@ export async function adminCancelBooking(bookingId, adminId, reason = null) {
 
   return updatedBooking;
 }
+
+// ─── holdProperty ──────────────────────────────────────────────────────────────
+export async function holdProperty(associateId, propertyId, customerDetails) {
+  const { customerName, customerMobile, customerAddress } = customerDetails;
+
+  const property = await prisma.property.findFirst({
+    where: { id: propertyId, deletedAt: null },
+  });
+
+  if (!property) {
+    throw Object.assign(new Error('Property not found'), { statusCode: 404 });
+  }
+
+  if (property.status !== 'AVAILABLE') {
+    throw Object.assign(new Error(`Property is not available. Current status: ${property.status}`), { statusCode: 400 });
+  }
+
+  const holdExpiresAt = new Date();
+  holdExpiresAt.setHours(holdExpiresAt.getHours() + 48);
+
+  const [booking] = await prisma.$transaction([
+    prisma.booking.create({
+      data: {
+        associateId,
+        propertyId,
+        customerName: customerName || null,
+        customerMobile: customerMobile || null,
+        customerAddress: customerAddress || null,
+        amount: 0,
+        status: 'HOLD',
+        modeOfPayment: 'Hold',
+        paymentDate: new Date(),
+      },
+    }),
+    prisma.property.update({
+      where: { id: propertyId },
+      data: {
+        status: 'HOLD',
+        holdExpiresAt,
+        heldByAssociateId: associateId,
+      },
+    }),
+  ]);
+
+  // Push notification to associate
+  (async () => {
+    try {
+      const tokens = await prisma.deviceToken.findMany({ where: { associateId } });
+      const tokenList = tokens.map((t) => t.token);
+      if (tokenList.length > 0) {
+        await sendToDevices(tokenList, {
+          title: 'Property Placed on Hold',
+          body: `Property "${property.name}" is now on hold for 48 hours for your customer.`,
+        }, { type: 'PROPERTY_HOLD', propertyId });
+      }
+    } catch (err) {
+      console.error('[HOLD] Push notification failed:', err.message);
+    }
+  })();
+
+  return booking;
+}
+
+// ─── initiatePropertyPayment ──────────────────────────────────────────────────
+export async function initiatePropertyPayment(associateId, propertyId, { amount, customerName, customerMobile, customerAddress }) {
+  const property = await prisma.property.findFirst({
+    where: { id: propertyId, deletedAt: null },
+  });
+
+  if (!property) {
+    throw Object.assign(new Error('Property not found'), { statusCode: 404 });
+  }
+
+  if (property.status === 'BOOKED' || property.status === 'SOLD') {
+    throw Object.assign(new Error('Property is already booked or sold'), { statusCode: 400 });
+  }
+
+  if (property.status === 'HOLD') {
+    if (property.heldByAssociateId !== associateId) {
+      throw Object.assign(new Error('Property is currently on hold. Only full payment (in person) can override this hold.'), { statusCode: 400 });
+    }
+  }
+
+  // Create Razorpay Order
+  const options = {
+    amount: Math.round(parseFloat(amount) * 100),
+    currency: 'INR',
+    receipt: `rcpt_book_${Date.now()}`,
+  };
+
+  const razorpayInstance = getRazorpayInstance();
+  const order = await razorpayInstance.orders.create(options);
+
+  // Check for existing active HOLD booking for this property by this associate
+  const existingHold = await prisma.booking.findFirst({
+    where: {
+      propertyId,
+      associateId,
+      status: 'HOLD',
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  let booking;
+  if (existingHold) {
+    // Reuse/update hold booking with payment details
+    booking = await prisma.booking.update({
+      where: { id: existingHold.id },
+      data: {
+        amount: parseFloat(amount),
+        razorpayOrderId: order.id,
+        customerName: customerName || existingHold.customerName,
+        customerMobile: customerMobile || existingHold.customerMobile,
+        customerAddress: customerAddress || existingHold.customerAddress,
+      },
+    });
+  } else {
+    // Create new pending booking
+    booking = await prisma.booking.create({
+      data: {
+        associateId,
+        propertyId,
+        customerName: customerName || null,
+        customerMobile: customerMobile || null,
+        customerAddress: customerAddress || null,
+        amount: parseFloat(amount),
+        status: 'PENDING',
+        razorpayOrderId: order.id,
+      },
+    });
+  }
+
+  return {
+    orderId: order.id,
+    amount: options.amount,
+    currency: options.currency,
+    bookingId: booking.id,
+    keyId: process.env.RAZORPAY_KEY_ID || 'rzp_test_mock',
+  };
+}
+
+// ─── verifyPropertyPayment ────────────────────────────────────────────────────
+export async function verifyPropertyPayment(associateId, { razorpayOrderId, razorpayPaymentId, razorpaySignature }) {
+  // 1. Verify payment signature
+  const isValid = verifyRazorpaySignature(razorpayOrderId, razorpayPaymentId, razorpaySignature);
+  if (!isValid) {
+    throw Object.assign(new Error('Invalid payment signature'), { statusCode: 400 });
+  }
+
+  // 2. Fetch booking and property details
+  const booking = await prisma.booking.findFirst({
+    where: { razorpayOrderId },
+    include: { property: true },
+  });
+
+  if (!booking) {
+    throw Object.assign(new Error('Booking record not found for this order'), { statusCode: 404 });
+  }
+
+  // If already confirmed, return it (idempotency)
+  if (booking.status === 'CONFIRMED') {
+    return booking;
+  }
+
+  // 3. Confirm booking and update property status in transaction
+  const count = await prisma.booking.count({ where: { receiptNo: { not: null } } });
+  const receiptNo = `REC${String(count + 1).padStart(6, '0')}`;
+
+  const [updatedBooking] = await prisma.$transaction([
+    prisma.booking.update({
+      where: { id: booking.id },
+      data: {
+        status: 'CONFIRMED',
+        receiptNo,
+        razorpayPaymentId,
+        razorpaySignature,
+        paymentDate: new Date(),
+        modeOfPayment: 'Online (Razorpay)',
+      },
+    }),
+    prisma.property.update({
+      where: { id: booking.propertyId },
+      data: {
+        status: 'BOOKED',
+        holdExpiresAt: null,
+        heldByAssociateId: null,
+      },
+    }),
+  ]);
+
+  // Send push notification to buyer associate
+  (async () => {
+    try {
+      const tokens = await prisma.deviceToken.findMany({ where: { associateId: booking.associateId } });
+      const tokenList = tokens.map((t) => t.token);
+      if (tokenList.length > 0) {
+        await sendToDevices(tokenList, {
+          title: 'Booking Payment Successful',
+          body: `Your booking payment for "${booking.property.name}" has been processed successfully.`,
+        }, { type: 'BOOKING_CONFIRMED', bookingId: booking.id });
+      }
+    } catch (err) {
+      console.error('[BOOKING] Push notification failed:', err.message);
+    }
+  })();
+
+  // Calculate property sale commission (10-level upline chain)
+  (async () => {
+    try {
+      await calculatePropertySaleCommission(
+        booking.associateId,
+        booking.propertyId,
+        booking.id,
+        Number(booking.property.price),
+        Number(booking.property.area),
+      );
+    } catch (err) {
+      console.error('[COMMISSION] Property sale commission calculation failed:', err.message);
+    }
+  })();
+
+  return updatedBooking;
+}
+

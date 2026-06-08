@@ -33,6 +33,10 @@ const config = {
   // App URLs
   APP_BASE_URL: process.env.APP_BASE_URL || 'http://localhost:3000',
   ADMIN_BASE_URL: process.env.ADMIN_BASE_URL || 'http://localhost:5173',
+
+  // Razorpay
+  RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID || 'rzp_test_mock',
+  RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET || 'mock_secret',
 };
 
 export default config;

@@ -1,4 +1,5 @@
 import prisma from '../../utils/prisma.js';
+import { sendToDevices } from '../../utils/firebase.js';
 
 // ─── Generate Receipt Number ──────────────────────────────────────────────────
 async function generateReceiptNo() {
@@ -28,6 +29,20 @@ export async function createPlotBooking(data) {
   const property = await prisma.property.findUnique({ where: { id: propertyId } });
   if (!property) {
     throw Object.assign(new Error('Property not found'), { statusCode: 404 });
+  }
+
+  if (property.status === 'BOOKED' || property.status === 'SOLD') {
+    throw Object.assign(new Error('Property is already booked or sold'), { statusCode: 400 });
+  }
+
+  if (property.status === 'HOLD') {
+    const bookingAmt = parseFloat(amount || amountPaid) || 0;
+    if (associate.id !== property.heldByAssociateId && bookingAmt < Number(property.price)) {
+      throw Object.assign(
+        new Error(`Property is currently on hold. Only full payment (at least ${property.price}) can override this hold.`),
+        { statusCode: 400 }
+      );
+    }
   }
 
   const booking = await prisma.booking.create({
@@ -108,18 +123,96 @@ export async function listUnapprovedBookings(pagination) {
 
 // ─── Approve Plot Booking ─────────────────────────────────────────────────────
 export async function approvePlotBooking(bookingId) {
-  const booking = await prisma.booking.findUnique({ where: { id: bookingId } });
+  const booking = await prisma.booking.findUnique({
+    where: { id: bookingId },
+    include: { property: true },
+  });
   if (!booking) throw Object.assign(new Error('Booking not found'), { statusCode: 404 });
   if (booking.status !== 'PENDING') throw Object.assign(new Error('Booking is not pending'), { statusCode: 400 });
+
+  const property = booking.property;
+  if (property.status === 'BOOKED' || property.status === 'SOLD') {
+    throw Object.assign(new Error('Property is already booked or sold'), { statusCode: 400 });
+  }
+
+  let isHoldOverride = false;
+  let overriddenAssociateId = null;
+
+  if (property.status === 'HOLD') {
+    if (booking.associateId !== property.heldByAssociateId) {
+      if (Number(booking.amount) < Number(property.price)) {
+        throw Object.assign(
+          new Error(`Property is currently on hold. Only a full payment (at least ${property.price}) can override this hold.`),
+          { statusCode: 400 }
+        );
+      }
+      isHoldOverride = true;
+      overriddenAssociateId = property.heldByAssociateId;
+    }
+  }
 
   // Generate receipt number
   const count = await prisma.booking.count({ where: { receiptNo: { not: null } } });
   const receiptNo = `REC${String(count + 1).padStart(6, '0')}`;
 
-  const updated = await prisma.booking.update({
-    where: { id: bookingId },
-    data: { status: 'CONFIRMED', receiptNo },
-  });
+  const ops = [
+    prisma.booking.update({
+      where: { id: bookingId },
+      data: { status: 'CONFIRMED', receiptNo },
+    }),
+    prisma.property.update({
+      where: { id: booking.propertyId },
+      data: {
+        status: 'BOOKED',
+        holdExpiresAt: null,
+        heldByAssociateId: null,
+      },
+    }),
+  ];
+
+  if (isHoldOverride) {
+    ops.push(
+      prisma.booking.updateMany({
+        where: {
+          propertyId: booking.propertyId,
+          status: 'HOLD',
+        },
+        data: { status: 'EXPIRED' },
+      })
+    );
+  } else {
+    // If same associate is finalizing the booking, also make sure we close the hold booking
+    ops.push(
+      prisma.booking.updateMany({
+        where: {
+          propertyId: booking.propertyId,
+          associateId: booking.associateId,
+          status: 'HOLD',
+        },
+        data: { status: 'CONFIRMED' },
+      })
+    );
+  }
+
+  const [updated] = await prisma.$transaction(ops);
+
+  // Send notification to the associate whose hold was overridden
+  if (isHoldOverride && overriddenAssociateId) {
+    (async () => {
+      try {
+        const tokens = await prisma.deviceToken.findMany({ where: { associateId: overriddenAssociateId } });
+        const tokenList = tokens.map((t) => t.token);
+        if (tokenList.length > 0) {
+          await sendToDevices(tokenList, {
+            title: 'Hold Overridden',
+            body: `Your hold on property "${property.name}" has been overridden by a full payment purchase.`,
+          }, { type: 'HOLD_OVERRIDDEN', propertyId: property.id });
+        }
+      } catch (err) {
+        console.error('[HOLD] Push notification failed:', err.message);
+      }
+    })();
+  }
 
   return updated;
 }
