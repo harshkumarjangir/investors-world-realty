@@ -31,7 +31,7 @@ Thumbs.db
 .idea/
 
 # Uploads (stored on disk, not in repo)
-#uploads/
+uploads/
 
 # PM2
 ecosystem.config.js.bak
