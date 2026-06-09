@@ -83,7 +83,8 @@ export async function initiatePropertyPaymentHandler(req, res) {
     });
     return successResponse(res, orderData, 'Payment initiated successfully');
   } catch (err) {
-    return errorResponse(res, err.message, err.statusCode || 500);
+    const message = err.error?.description || err.message || 'An error occurred';
+    return errorResponse(res, message, err.statusCode || 500);
   }
 }
 
@@ -104,7 +105,9 @@ export async function verifyPropertyPaymentHandler(req, res) {
     });
     return successResponse(res, booking, 'Payment verified and booking confirmed successfully');
   } catch (err) {
-    return errorResponse(res, err.message, err.statusCode || 500);
+    const message = err.error?.description || err.message || 'An error occurred';
+    return errorResponse(res, message, err.statusCode || 500);
   }
 }
+
 

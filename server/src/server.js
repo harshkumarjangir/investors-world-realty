@@ -42,5 +42,5 @@ process.on('unhandledRejection', (reason) => {
 
 process.on('uncaughtException', (err) => {
   console.error('[UNCAUGHT EXCEPTION]', err);
-  process.exit(1);
+  process.exit(1); // Force nodemon reload trigger comment v2
 });

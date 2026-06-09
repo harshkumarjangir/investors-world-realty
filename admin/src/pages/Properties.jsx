@@ -11,6 +11,7 @@ const statusColors = {
   AVAILABLE: 'bg-green-100 text-green-700',
   BOOKED: 'bg-yellow-100 text-yellow-700',
   SOLD: 'bg-red-100 text-red-700',
+  HOLD: 'bg-orange-100 text-orange-700',
 };
 
 export default function Properties() {
@@ -80,6 +81,15 @@ export default function Properties() {
       fetchProperties();
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to delete');
+    }
+  };
+
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+      await api.patch(`/admin/properties/${id}/status`, { status: newStatus });
+      fetchProperties();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to update status');
     }
   };
 
@@ -212,9 +222,18 @@ export default function Properties() {
                               <td className="px-4 py-3 font-medium text-gray-800">₹{Number(p.price || 0).toLocaleString()}</td>
                               <td className="px-4 py-3 text-gray-600">{p.type || '-'}</td>
                               <td className="px-4 py-3">
-                                <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColors[p.status] || 'bg-gray-100 text-gray-700'}`}>
-                                  {p.status || 'N/A'}
-                                </span>
+                                <select
+                                  value={p.status}
+                                  onChange={(e) => handleStatusChange(p.id, e.target.value)}
+                                  className={`rounded-full px-2 py-0.5 text-xs font-medium border border-gray-200 outline-none cursor-pointer ${
+                                    statusColors[p.status] || 'bg-gray-100 text-gray-700'
+                                  }`}
+                                >
+                                  <option value="AVAILABLE">AVAILABLE</option>
+                                  <option value="HOLD">HOLD</option>
+                                  <option value="BOOKED">BOOKED</option>
+                                  <option value="SOLD">SOLD</option>
+                                </select>
                               </td>
                               <td className="px-4 py-3">
                                 <div className="flex items-center gap-1">
