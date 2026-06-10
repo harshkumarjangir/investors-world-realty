@@ -89,7 +89,7 @@ export async function getProfile(associateId) {
 
 const ALLOWED_UPDATE_FIELDS = [
   'phone', 'email', 'address', 'city', 'state', 'pincode',
-  'profilePhoto',
+  'profilePhoto', 'dateOfBirth',
   // Extended profile
   'fatherHusbandName', 'gender', 'profession', 'maritalStatus', 'aadhaarNo',
   'nomineeName', 'nomineeRelation', 'nomineeDob',
@@ -100,8 +100,8 @@ export async function updateProfile(associateId, data) {
   const updateData = {};
   for (const field of ALLOWED_UPDATE_FIELDS) {
     if (data[field] !== undefined) {
-      // nomineeDob needs to be cast to Date
-      if (field === 'nomineeDob' && data[field]) {
+      // nomineeDob and dateOfBirth need to be cast to Date
+      if ((field === 'nomineeDob' || field === 'dateOfBirth') && data[field]) {
         updateData[field] = new Date(data[field]);
       } else {
         updateData[field] = data[field];

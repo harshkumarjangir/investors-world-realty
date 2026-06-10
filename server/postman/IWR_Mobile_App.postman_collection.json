@@ -419,6 +419,97 @@
                   "key": "pincode",
                   "value": "302001",
                   "type": "text"
+                },
+                {
+                  "key": "dateOfBirth",
+                  "value": "1990-05-15",
+                  "type": "text",
+                  "description": "Optional date of birth (YYYY-MM-DD)",
+                  "disabled": true
+                },
+                {
+                  "key": "fatherHusbandName",
+                  "value": "Father/Husband Name",
+                  "type": "text",
+                  "description": "Optional father or husband name",
+                  "disabled": true
+                },
+                {
+                  "key": "gender",
+                  "value": "Male",
+                  "type": "text",
+                  "description": "Optional gender (Male/Female/Other)",
+                  "disabled": true
+                },
+                {
+                  "key": "profession",
+                  "value": "Business",
+                  "type": "text",
+                  "description": "Optional profession",
+                  "disabled": true
+                },
+                {
+                  "key": "maritalStatus",
+                  "value": "Married",
+                  "type": "text",
+                  "description": "Optional marital status",
+                  "disabled": true
+                },
+                {
+                  "key": "aadhaarNo",
+                  "value": "123456789012",
+                  "type": "text",
+                  "description": "Optional Aadhaar number",
+                  "disabled": true
+                },
+                {
+                  "key": "nomineeName",
+                  "value": "Nominee Name",
+                  "type": "text",
+                  "description": "Optional nominee name",
+                  "disabled": true
+                },
+                {
+                  "key": "nomineeRelation",
+                  "value": "Spouse",
+                  "type": "text",
+                  "description": "Optional nominee relation",
+                  "disabled": true
+                },
+                {
+                  "key": "nomineeDob",
+                  "value": "1995-10-20",
+                  "type": "text",
+                  "description": "Optional nominee date of birth (YYYY-MM-DD)",
+                  "disabled": true
+                },
+                {
+                  "key": "bankName",
+                  "value": "State Bank of India",
+                  "type": "text",
+                  "description": "Optional bank name",
+                  "disabled": true
+                },
+                {
+                  "key": "bankBranchName",
+                  "value": "Main Branch",
+                  "type": "text",
+                  "description": "Optional bank branch name",
+                  "disabled": true
+                },
+                {
+                  "key": "bankAccountNo",
+                  "value": "1234567890",
+                  "type": "text",
+                  "description": "Optional bank account number",
+                  "disabled": true
+                },
+                {
+                  "key": "bankIfscCode",
+                  "value": "SBIN0001234",
+                  "type": "text",
+                  "description": "Optional bank IFSC code",
+                  "disabled": true
                 }
               ]
             },
