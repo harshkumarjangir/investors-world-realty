@@ -43,7 +43,7 @@ router.get('/profile', getProfileHandler);
 
 router.patch(
   '/profile',
-  uploadProfilePhoto.single('photo'),
+  uploadProfilePhoto.single('profilePhoto'),
   [
     body('phone')
       .optional()

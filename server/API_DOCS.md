@@ -150,7 +150,7 @@ No body required for any of these.
 
 ### PATCH `/associate/profile` (multipart/form-data)
 Updates profile text details and optionally uploads/updates a profile photo.
-- Field (File, Optional): `photo` (JPEG/PNG, max 2MB)
+- Field (File, Optional): `profilePhoto` (JPEG/PNG, max 2MB)
 - Fields (Text, Optional): `phone`, `email`, `address`, `city`, `state`, `pincode`, `fatherHusbandName`, `gender`, `profession`, `maritalStatus`, `aadhaarNo`, `nomineeName`, `nomineeRelation`, `nomineeDob`, `bankName`, `bankBranchName`, `bankAccountNo`, `bankIfscCode`
 
 ---

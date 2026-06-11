@@ -281,7 +281,7 @@ Content-Type: multipart/form-data
 ```
 Updates profile details and optionally uploads a profile photo in a single request.
 **Parameters:**
-* **Form Field (File, Optional):** `photo` — JPEG/PNG, max 2MB
+* **Form Field (File, Optional):** `profilePhoto` — JPEG/PNG, max 2MB
 * **Form Fields (Text, Optional):**
   * `phone` — New phone number
   * `email` — New email address
@@ -733,9 +733,9 @@ Admin Password: Admin@123456
 ### File Uploads
 ```dart
 final formData = FormData.fromMap({
-  'photo': await MultipartFile.fromFile(filePath, filename: 'photo.jpg'),
+  'profilePhoto': await MultipartFile.fromFile(filePath, filename: 'photo.jpg'),
 });
-await dio.post('/associate/profile/photo', data: formData);
+await dio.patch('/associate/profile', data: formData);
 ```
 
 ### Image URLs

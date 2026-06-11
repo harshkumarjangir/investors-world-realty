@@ -382,7 +382,7 @@
               "mode": "formdata",
               "formdata": [
                 {
-                  "key": "photo",
+                  "key": "profilePhoto",
                   "type": "file",
                   "src": "",
                   "description": "Optional profile photo file (JPEG or PNG, max 2MB)"
