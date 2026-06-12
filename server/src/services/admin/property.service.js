@@ -194,7 +194,7 @@ export async function adminUpdatePropertyStatus(propertyId, status, adminId) {
 
   const property = await prisma.property.findUnique({
     where: { id: propertyId, deletedAt: null },
-    select: { id: true, name: true, status: true },
+    select: { id: true, name: true, status: true, price: true, area: true },
   });
 
   if (!property) {
@@ -211,12 +211,36 @@ export async function adminUpdatePropertyStatus(propertyId, status, adminId) {
     newStatus: status,
   });
 
-  // Send FCM notification to all users when property becomes AVAILABLE or BOOKED
-  if (status === 'AVAILABLE' || status === 'BOOKED') {
-    const notifTitle = status === 'AVAILABLE' ? 'Property Now Available' : 'Property Update';
+  // Calculate property sale commission (10-level upline chain) if transitioned to SOLD
+  if (status === 'SOLD' && property.status !== 'SOLD') {
+    try {
+      const booking = await prisma.booking.findFirst({
+        where: { propertyId, status: 'CONFIRMED' },
+        orderBy: { createdAt: 'desc' },
+      });
+      if (booking) {
+        const { calculatePropertySaleCommission } = await import('../propertyCommission.service.js');
+        await calculatePropertySaleCommission(
+          booking.associateId,
+          propertyId,
+          booking.id,
+          Number(updated.price),
+          Number(updated.area),
+        );
+      } else {
+        console.warn(`[COMMISSION] No confirmed booking found for sold property ${propertyId}. Commission not calculated.`);
+      }
+    } catch (err) {
+      console.error('[COMMISSION] Property sale commission calculation failed:', err.message);
+    }
+  }
+
+  // Send FCM notification to all users when property becomes AVAILABLE, BOOKED or SOLD
+  if (status === 'AVAILABLE' || status === 'BOOKED' || status === 'SOLD') {
+    const notifTitle = status === 'AVAILABLE' ? 'Property Now Available' : (status === 'SOLD' ? 'Property Sold' : 'Property Update');
     const notifMessage = status === 'AVAILABLE'
       ? `${property.name} is now available for booking.`
-      : `${property.name} has been booked.`;
+      : (status === 'SOLD' ? `${property.name} has been sold.` : `${property.name} has been booked.`);
 
     // Fire-and-forget
     sendNotificationToAll(notifTitle, notifMessage, 'PROPERTY', { propertyId, status }).catch((err) => {

@@ -68,7 +68,30 @@ router.get('/all', requirePermission('payouts:read'), async (req, res, next) => 
       prisma.propertySaleCommission.findMany({ where, orderBy: { createdAt: 'desc' }, skip: pagination.skip, take: pagination.take }),
       prisma.propertySaleCommission.count({ where }),
     ]);
-    return paginatedResponse(res, items, totalItems, pagination.page, pagination.pageSize);
+
+    const RANK_NAMES = [
+      '', 'Business Associate', 'Business Adviser', 'Business Head',
+      'Dist. Business Head', 'State Business Head', 'Regional Business Head',
+      'National Business Head', 'Vice President Sales', 'President Sales', 'President Club',
+    ];
+
+    const populated = await Promise.all(
+      items.map(async (item) => {
+        const assoc = await prisma.associate.findUnique({
+          where: { id: item.associateId },
+          select: { userId: true, name: true, rank: true },
+        });
+        return {
+          ...item,
+          associateCode: assoc?.userId || null,
+          associateName: assoc?.name || null,
+          associateRank: assoc?.rank || null,
+          associateRankName: assoc ? (RANK_NAMES[assoc.rank] || 'Unknown') : null,
+        };
+      })
+    );
+
+    return paginatedResponse(res, populated, totalItems, pagination.page, pagination.pageSize);
   } catch (e) { return next(e); }
 });
 

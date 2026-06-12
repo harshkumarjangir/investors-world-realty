@@ -148,28 +148,7 @@ export async function adminApproveBooking(bookingId, adminId) {
     }
   })();
 
-  // ─── Property Sale Commission (10-level upline chain) ──────────────────────
-  (async () => {
-    try {
-      // Get full property details for area
-      const property = await prisma.property.findUnique({
-        where: { id: booking.propertyId },
-        select: { price: true, area: true },
-      });
-
-      if (property) {
-        await calculatePropertySaleCommission(
-          booking.associateId,       // seller
-          booking.propertyId,        // property
-          bookingId,                 // booking
-          Number(property.price),    // price
-          Number(property.area),     // area in gaj
-        );
-      }
-    } catch (err) {
-      console.error('[COMMISSION] Property sale commission failed:', err.message);
-    }
-  })();
+  // Commission calculation removed from booking confirmation (should only run when property is sold)
 
   return updatedBooking;
 }
@@ -449,20 +428,7 @@ export async function verifyPropertyPayment(associateId, { razorpayOrderId, razo
     }
   })();
 
-  // Calculate property sale commission (10-level upline chain)
-  (async () => {
-    try {
-      await calculatePropertySaleCommission(
-        booking.associateId,
-        booking.propertyId,
-        booking.id,
-        Number(booking.property.price),
-        Number(booking.property.area),
-      );
-    } catch (err) {
-      console.error('[COMMISSION] Property sale commission calculation failed:', err.message);
-    }
-  })();
+  // Commission calculation removed from booking confirmation (should only run when property is sold)
 
   return updatedBooking;
 }

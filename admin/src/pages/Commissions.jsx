@@ -196,7 +196,13 @@ export default function Commissions() {
                   commissions.map((c) => (
                     <tr key={c.id} className="border-b border-gray-50 even:bg-gray-50">
                       <td className="px-4 py-3 text-gray-600">{new Date(c.createdAt).toLocaleDateString()}</td>
-                      <td className="px-4 py-3 text-gray-800">{c.associateId?.slice(0, 8)}...</td>
+                      <td className="px-4 py-3">
+                        <div className="font-medium text-gray-800">{c.associateName || 'Unknown'}</div>
+                        <div className="text-xs text-gray-500 font-mono">{c.associateCode || c.associateId?.slice(0, 8)}</div>
+                        {c.associateRankName && (
+                          <div className="text-xs text-amber-600 font-medium mt-0.5">L{c.associateRank}: {c.associateRankName}</div>
+                        )}
+                      </td>
                       <td className="px-4 py-3">
                         <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${c.level === 0 ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
                           {c.level === 0 ? 'Seller' : `Level ${c.level}`}

@@ -24,15 +24,15 @@ function diskStorage(destination) {
 }
 
 function imageFilter(req, file, cb) {
-  ['image/jpeg', 'image/png'].includes(file.mimetype)
+  ['image/jpeg', 'image/jpg', 'image/png'].includes(file.mimetype)
     ? cb(null, true)
-    : cb(new Error('Only JPEG and PNG images are allowed'), false);
+    : cb(new Error('Only JPEG, JPG and PNG images are allowed'), false);
 }
 
 function documentFilter(req, file, cb) {
-  ['image/jpeg', 'image/png', 'application/pdf'].includes(file.mimetype)
+  ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'].includes(file.mimetype)
     ? cb(null, true)
-    : cb(new Error('Only JPEG, PNG, and PDF files are allowed'), false);
+    : cb(new Error('Only JPEG, JPG, PNG and PDF files are allowed'), false);
 }
 
 function videoFilter(req, file, cb) {

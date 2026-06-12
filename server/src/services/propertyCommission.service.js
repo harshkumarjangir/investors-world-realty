@@ -1,5 +1,12 @@
 import prisma from '../utils/prisma.js';
 
+const RANK_NAMES = [
+  '', 'Business Associate', 'Business Adviser', 'Business Head',
+  'Dist. Business Head', 'State Business Head', 'Regional Business Head',
+  'National Business Head', 'Vice President Sales', 'President Sales', 'President Club',
+];
+
+
 /**
  * Property Sale Commission Engine — GAP Commission Model
  * 
@@ -254,7 +261,23 @@ export async function getPendingPropertyCommissions(pagination = {}) {
     prisma.propertySaleCommission.count({ where: { status: 'PENDING' } }),
   ]);
 
-  return { items: records, totalItems, page, pageSize };
+  const populated = await Promise.all(
+    records.map(async (rec) => {
+      const assoc = await prisma.associate.findUnique({
+        where: { id: rec.associateId },
+        select: { userId: true, name: true, rank: true },
+      });
+      return {
+        ...rec,
+        associateCode: assoc?.userId || null,
+        associateName: assoc?.name || null,
+        associateRank: assoc?.rank || null,
+        associateRankName: assoc ? (RANK_NAMES[assoc.rank] || 'Unknown') : null,
+      };
+    })
+  );
+
+  return { items: populated, totalItems, page, pageSize };
 }
 
 // ─── Admin: Approve Commission (credit to wallet) ─────────────────────────────
