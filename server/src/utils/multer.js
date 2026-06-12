@@ -23,16 +23,27 @@ function diskStorage(destination) {
   });
 }
 
+const ALLOWED_IMAGE_MIMES = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/webp',
+  'image/heic',
+  'image/heif',
+  'image/heic-sequence',
+  'image/heif-sequence',
+];
+
 function imageFilter(req, file, cb) {
-  ['image/jpeg', 'image/jpg', 'image/png'].includes(file.mimetype)
+  ALLOWED_IMAGE_MIMES.includes(file.mimetype)
     ? cb(null, true)
-    : cb(new Error('Only JPEG, JPG and PNG images are allowed'), false);
+    : cb(new Error('Only JPEG, JPG, PNG, WebP and HEIC/HEIF images are allowed'), false);
 }
 
 function documentFilter(req, file, cb) {
-  ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'].includes(file.mimetype)
+  [...ALLOWED_IMAGE_MIMES, 'application/pdf'].includes(file.mimetype)
     ? cb(null, true)
-    : cb(new Error('Only JPEG, JPG, PNG and PDF files are allowed'), false);
+    : cb(new Error('Only JPEG, JPG, PNG, WebP, HEIC/HEIF and PDF files are allowed'), false);
 }
 
 function videoFilter(req, file, cb) {

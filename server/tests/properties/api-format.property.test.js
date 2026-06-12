@@ -42,13 +42,31 @@ function isErrorResponseSafe(errorResponse) {
 }
 
 function validateProfilePhoto(mimetype, sizeBytes) {
-  const allowedMimes = ['image/jpeg', 'image/png'];
+  const allowedMimes = [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/webp',
+    'image/heic',
+    'image/heif',
+    'image/heic-sequence',
+    'image/heif-sequence',
+  ];
   const maxSize = 2 * 1024 * 1024; // 2MB
   return allowedMimes.includes(mimetype) && sizeBytes >= 0 && sizeBytes <= maxSize;
 }
 
 function validatePropertyImage(mimetype, sizeBytes) {
-  const allowedMimes = ['image/jpeg', 'image/png'];
+  const allowedMimes = [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/webp',
+    'image/heic',
+    'image/heif',
+    'image/heic-sequence',
+    'image/heif-sequence',
+  ];
   const maxSize = 5 * 1024 * 1024; // 5MB
   return allowedMimes.includes(mimetype) && sizeBytes >= 0 && sizeBytes <= maxSize;
 }
@@ -307,14 +325,14 @@ describe('Feature: investors-world-platform, Property 18: Error Response Safety'
 // ─── Property 22: File Upload Validation ──────────────────────────────────────
 
 describe('Feature: investors-world-platform, Property 22: File Upload Validation', () => {
-  it('profile photo: accepted iff MIME is jpeg/png AND size <= 2MB', () => {
+  it('profile photo: accepted iff MIME is jpeg/png/webp/heic/heif AND size <= 2MB', () => {
     fc.assert(
       fc.property(
-        fc.constantFrom('image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'),
+        fc.constantFrom('image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'image/heic', 'image/heif'),
         fc.integer({ min: 0, max: 10 * 1024 * 1024 }),
         (mimetype, sizeBytes) => {
           const accepted = validateProfilePhoto(mimetype, sizeBytes);
-          const validMime = mimetype === 'image/jpeg' || mimetype === 'image/png';
+          const validMime = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'].includes(mimetype);
           const validSize = sizeBytes >= 0 && sizeBytes <= 2 * 1024 * 1024;
 
           if (validMime && validSize) {
@@ -328,14 +346,14 @@ describe('Feature: investors-world-platform, Property 22: File Upload Validation
     );
   });
 
-  it('property image: accepted iff MIME is jpeg/png AND size <= 5MB', () => {
+  it('property image: accepted iff MIME is jpeg/png/webp/heic/heif AND size <= 5MB', () => {
     fc.assert(
       fc.property(
-        fc.constantFrom('image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'video/mp4'),
+        fc.constantFrom('image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'video/mp4', 'image/webp', 'image/heic', 'image/heif'),
         fc.integer({ min: 0, max: 20 * 1024 * 1024 }),
         (mimetype, sizeBytes) => {
           const accepted = validatePropertyImage(mimetype, sizeBytes);
-          const validMime = mimetype === 'image/jpeg' || mimetype === 'image/png';
+          const validMime = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'].includes(mimetype);
           const validSize = sizeBytes >= 0 && sizeBytes <= 5 * 1024 * 1024;
 
           if (validMime && validSize) {
