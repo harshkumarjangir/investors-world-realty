@@ -135,10 +135,10 @@ async function runTest() {
 
     console.log(`\n🎉 Success! commissions created: ${commissions.length}`);
     console.log('------------------------------------------------------------');
-    console.log('Associate ID | Name             | Rank | %    | Amount (₹)');
+    console.log('Associate ID | Name             | Rank | %    | Coins');
     console.log('------------------------------------------------------------');
     populatedCommissions.forEach(c => {
-      console.log(`${c.associate.userId.padEnd(12)} | ${c.associate.name.padEnd(16)} | ${String(c.associate.rank).padEnd(4)} | ${String(c.percentage).padEnd(4)} | ${Number(c.commissionAmount).toLocaleString()}`);
+      console.log(`${c.associate.userId.padEnd(12)} | ${c.associate.name.padEnd(16)} | ${String(c.associate.rank).padEnd(4)} | ${String(c.percentage).padEnd(4)} | ${Number(c.commissionAmount).toLocaleString()} Coins`);
     });
     console.log('------------------------------------------------------------\n');
 

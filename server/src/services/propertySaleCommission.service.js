@@ -64,7 +64,7 @@ export async function calculatePropertySaleCommission(
     percentage: Number(slab.sellerPercent),
     propertyPrice,
     propertyArea: propertyAreaGaj,
-    commissionAmount: sellerAmount,
+    commissionAmount: sellerAmount / 100, // Stored in IWR Coins
     status: 'PENDING',
   });
 
@@ -114,7 +114,7 @@ export async function calculatePropertySaleCommission(
             percentage: percent,
             propertyPrice,
             propertyArea: propertyAreaGaj,
-            commissionAmount: amount,
+            commissionAmount: amount / 100, // Stored in IWR Coins
             status: 'PENDING',
           });
         }

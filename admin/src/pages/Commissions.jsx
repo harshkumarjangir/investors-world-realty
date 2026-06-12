@@ -211,7 +211,7 @@ export default function Commissions() {
                       <td className="px-4 py-3">{Number(c.propertyArea).toLocaleString()}</td>
                       <td className="px-4 py-3 font-medium">₹{Number(c.propertyPrice).toLocaleString('en-IN')}</td>
                       <td className="px-4 py-3">{c.percentage}%</td>
-                      <td className="px-4 py-3 font-bold text-green-700">₹{Number(c.commissionAmount).toLocaleString('en-IN')}</td>
+                      <td className="px-4 py-3 font-bold text-green-700">{Number(c.commissionAmount).toLocaleString('en-IN')} Coins</td>
                       <td className="px-4 py-3">
                         <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                           c.status === 'APPROVED' ? 'bg-green-100 text-green-700' :

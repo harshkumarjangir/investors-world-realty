@@ -109,7 +109,7 @@ export async function calculatePropertySaleCommission(
       percentage: sellerPercent,
       propertyPrice,
       propertyArea: propertyAreaGaj,
-      commissionAmount: sellerAmount,
+      commissionAmount: sellerAmount / 100, // Stored in IWR Coins
       status: 'PENDING',
     },
   });
@@ -190,7 +190,7 @@ export async function calculatePropertySaleCommission(
         percentage: gapPercent,
         propertyPrice,
         propertyArea: propertyAreaGaj,
-        commissionAmount,
+        commissionAmount: commissionAmount / 100, // Stored in IWR Coins
         status: 'PENDING',
       },
     });
@@ -296,13 +296,13 @@ export async function approvePropertyCommission(commissionId, adminId) {
     data: { status: 'APPROVED' },
   });
 
-  // Credit to associate's wallet
+  // Credit to associate's wallet (converted from IWR Coins back to Rupees)
   const { creditWallet } = await import('./wallet.service.js');
   await prisma.$transaction(async (tx) => {
     await creditWallet(
       tx,
       commission.associateId,
-      Number(commission.commissionAmount),
+      Number(commission.commissionAmount) * 100,
       'DIRECT_INCOME',
       `Property sale commission (Level ${commission.level}, Area: ${commission.propertyArea} gaj)`,
       commission.propertyId,
