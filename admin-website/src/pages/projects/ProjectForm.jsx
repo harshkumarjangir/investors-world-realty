@@ -333,7 +333,7 @@ const ProjectForm = () => {
               <div className="flex justify-between items-center mb-2">
                 <label className="block text-sm font-medium text-gray-700">Image URLs</label>
                 <button type="button" onClick={() => {
-                   const newImages = [...(data.gallery?.images || []), ''];
+                   const newImages = [...(data.gallery?.images || []), { url: '', category: '' }];
                    handleChange('gallery', 'images', newImages);
                 }} className="text-sm text-gold-600 font-medium">+ Add Image</button>
               </div>
@@ -346,13 +346,28 @@ const ProjectForm = () => {
                       handleChange('gallery', 'images', newImages);
                     }} className="absolute top-2 right-2 text-red-500 p-2 z-20 bg-white rounded-full shadow hover:bg-red-50"><Trash2 size={20}/></button>
                     
+                    <select 
+                      value={img.category || ''} 
+                      onChange={(e) => {
+                        const newImages = [...(data.gallery.images || [])];
+                        newImages[idx] = typeof newImages[idx] === 'string' ? { url: newImages[idx], category: e.target.value } : { ...newImages[idx], category: e.target.value };
+                        handleChange('gallery', 'images', newImages);
+                      }} 
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-gold-500"
+                    >
+                      <option value="">Select Category...</option>
+                      {(data.gallery.tabs || []).map(tab => (
+                        <option key={tab} value={tab}>{tab}</option>
+                      ))}
+                    </select>
+
                     <ImageUpload 
                       label={`Gallery Image ${idx + 1}`}
                       folder="projects"
-                      value={img || ''} 
+                      value={img.url || (typeof img === 'string' ? img : '')} 
                       onChange={(url) => {
                         const newImages = [...(data.gallery.images || [])];
-                        newImages[idx] = url;
+                        newImages[idx] = typeof newImages[idx] === 'string' ? { url, category: '' } : { ...newImages[idx], url };
                         handleChange('gallery', 'images', newImages);
                       }} 
                     />

@@ -39,7 +39,10 @@ const projectSchema = new mongoose.Schema({
   gallery: {
     title: String,
     tabs: [String],
-    images: [String]
+    images: [{
+      url: String,
+      category: String
+    }]
   },
   fixedBanner: {
     image: String

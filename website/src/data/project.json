@@ -62,9 +62,29 @@
     "title": "Gallery",
     "tabs": ["Exterior", "Interior", "Amenities", "Videos"],
     "images": [
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=800&q=80"
+      { "url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80", "category": "Exterior" },
+      { "url": "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=800&q=80", "category": "Exterior" },
+      { "url": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80", "category": "Exterior" },
+      { "url": "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=800&q=80", "category": "Exterior" },
+      { "url": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80", "category": "Exterior" },
+      { "url": "https://images.unsplash.com/photo-1600585154526-990dced4ea0d?auto=format&fit=crop&w=800&q=80", "category": "Exterior" },
+      
+      { "url": "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=800&q=80", "category": "Interior" },
+      { "url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80", "category": "Interior" },
+      { "url": "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=800&q=80", "category": "Interior" },
+      { "url": "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=800&q=80", "category": "Interior" },
+      { "url": "https://images.unsplash.com/photo-1600210491892-03d54c0aaf87?auto=format&fit=crop&w=800&q=80", "category": "Interior" },
+      { "url": "https://images.unsplash.com/photo-1598928506311-c55dd1821eb5?auto=format&fit=crop&w=800&q=80", "category": "Interior" },
+
+      { "url": "https://images.unsplash.com/photo-1576013551627-11dc5f22cce6?auto=format&fit=crop&w=800&q=80", "category": "Amenities" },
+      { "url": "https://images.unsplash.com/photo-1553653924-39b70295f8da?auto=format&fit=crop&w=800&q=80", "category": "Amenities" },
+      { "url": "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80", "category": "Amenities" },
+      { "url": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80", "category": "Amenities" },
+      { "url": "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=800&q=80", "category": "Amenities" },
+      
+      { "url": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80", "category": "Videos" },
+      { "url": "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=800&q=80", "category": "Videos" },
+      { "url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80", "category": "Videos" }
     ]
   },
   "fixedBanner": {

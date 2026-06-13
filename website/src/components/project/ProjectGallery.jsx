@@ -1,9 +1,29 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function ProjectGallery({ data }) {
-  const [activeTab, setActiveTab] = useState(data.tabs[1] || 'Interior');
+  const [activeTab, setActiveTab] = useState(data.tabs?.[0] || 'Exterior');
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [activeTab]);
+
+  const filteredImages = (data.images || []).filter(img => img.category === activeTab);
+  const itemsPerPage = isMobile ? 1 : 3;
+  const maxIndex = Math.max(0, filteredImages.length - itemsPerPage);
+
+  const nextSlide = () => setCurrentIndex(prev => Math.min(prev + 1, maxIndex));
+  const prevSlide = () => setCurrentIndex(prev => Math.max(prev - 1, 0));
 
   return (
     <section id="gallery" className="py-24 bg-white">
@@ -27,13 +47,13 @@ export default function ProjectGallery({ data }) {
           ))}
         </div>
 
-        {/* Gallery Carousel placeholder */}
-        <div className="relative group">
+        {/* Gallery Carousel */}
+        <div className="relative group px-4 md:px-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {data.images.map((img, index) => (
+            {filteredImages.slice(currentIndex, currentIndex + itemsPerPage).map((img, index) => (
               <div key={index} className="aspect-[4/3] overflow-hidden">
                 <img 
-                  src={img} 
+                  src={img.url || img} 
                   alt={`Gallery ${activeTab} ${index + 1}`} 
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                 />
@@ -42,12 +62,16 @@ export default function ProjectGallery({ data }) {
           </div>
 
           {/* Navigation Arrows */}
-          <button className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-8 bg-dark-bg/80 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-            <ChevronLeft size={24} />
-          </button>
-          <button className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-8 bg-dark-bg/80 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-            <ChevronRight size={24} />
-          </button>
+          {currentIndex > 0 && (
+            <button onClick={prevSlide} className="absolute left-0 top-1/2 -translate-y-1/2 bg-dark-bg/80 text-white p-2 rounded-full opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10 hover:bg-gold-600 shadow-md">
+              <ChevronLeft size={24} />
+            </button>
+          )}
+          {currentIndex < maxIndex && (
+            <button onClick={nextSlide} className="absolute right-0 top-1/2 -translate-y-1/2 bg-dark-bg/80 text-white p-2 rounded-full opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10 hover:bg-gold-600 shadow-md">
+              <ChevronRight size={24} />
+            </button>
+          )}
         </div>
       </div>
     </section>
