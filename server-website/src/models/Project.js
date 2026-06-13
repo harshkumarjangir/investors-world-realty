@@ -6,7 +6,10 @@ const projectSchema = new mongoose.Schema({
     title: String,
     image: String
   },
-  nav: [String],
+  nav: [{
+    label: String,
+    link: String
+  }],
   overview: {
     logo: String,
     tagline: String,
@@ -16,7 +19,11 @@ const projectSchema = new mongoose.Schema({
     stats: [{
       value: String,
       label: String
-    }]
+    }],
+    cta: {
+      text: String,
+      link: String
+    }
   },
   banner: {
     image: String

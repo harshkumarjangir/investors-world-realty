@@ -6,10 +6,10 @@ export default function ProjectNav({ items }) {
           {items.map((item, index) => (
             <li key={index}>
               <a 
-                href={`#${item.toLowerCase().replace(/\s+/g, '-')}`}
+                href={item.link || `#${(item.label || item).toLowerCase().replace(/\s+/g, '-')}`}
                 className="text-gray-600 hover:text-gold-600 transition-colors text-sm font-medium tracking-wide"
               >
-                {item}
+                {item.label || item}
               </a>
             </li>
           ))}

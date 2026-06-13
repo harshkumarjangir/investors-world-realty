@@ -4,12 +4,12 @@
     "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=2000&q=80"
   },
   "nav": [
-    "Overview",
-    "Project Highlights",
-    "Gallery",
-    "Amenities",
-    "FAQs",
-    "Location"
+    { "label": "Overview", "link": "#overview" },
+    { "label": "Project Highlights", "link": "#highlights" },
+    { "label": "Gallery", "link": "#gallery" },
+    { "label": "Amenities", "link": "#amenities" },
+    { "label": "FAQs", "link": "#faqs" },
+    { "label": "Location", "link": "#location" }
   ],
   "overview": {
     "logo": "Mahima's WINDCHIMES",
@@ -34,7 +34,11 @@
         "value": "85%",
         "label": "open area"
       }
-    ]
+    ],
+    "cta": {
+      "text": "Download Brochure",
+      "link": "#"
+    }
   },
   "banner": {
     "image": "https://images.unsplash.com/photo-1499955085172-a104c9463ece?auto=format&fit=crop&w=2000&q=80"

@@ -170,7 +170,7 @@ const ProjectForm = () => {
           <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
             <h2 className="text-xl font-bold text-[#0a0f1a]">Page Navigation Menu</h2>
             <button type="button" onClick={() => {
-               const newNav = [...(data.nav || []), ''];
+               const newNav = [...(data.nav || []), { label: '', link: '' }];
                handleChange(null, 'nav', newNav);
             }} className="flex items-center gap-1 text-sm text-gold-600 font-medium">
               + Add Nav Item
@@ -179,11 +179,18 @@ const ProjectForm = () => {
           <div className="p-6 space-y-3">
             {(data.nav || []).map((item, idx) => (
               <div key={idx} className="flex gap-2">
-                <input type="text" value={item || ''} onChange={(e) => {
+                <input type="text" placeholder="Label (e.g. Overview)" value={item.label || (typeof item === 'string' ? item : '')} onChange={(e) => {
                   const newNav = [...(data.nav || [])];
-                  newNav[idx] = e.target.value;
+                  newNav[idx] = typeof newNav[idx] === 'string' ? { label: e.target.value, link: '' } : { ...newNav[idx], label: e.target.value };
                   handleChange(null, 'nav', newNav);
-                }} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold-500 outline-none" />
+                }} className="w-1/2 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold-500 outline-none" />
+                
+                <input type="text" placeholder="Link (e.g. #overview or https://...)" value={item.link || ''} onChange={(e) => {
+                  const newNav = [...(data.nav || [])];
+                  newNav[idx] = typeof newNav[idx] === 'string' ? { label: newNav[idx], link: e.target.value } : { ...newNav[idx], link: e.target.value };
+                  handleChange(null, 'nav', newNav);
+                }} className="w-1/2 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold-500 outline-none" />
+                
                 <button type="button" onClick={() => {
                   const newNav = [...(data.nav || [])];
                   newNav.splice(idx, 1);
@@ -237,6 +244,22 @@ const ProjectForm = () => {
                 onChange={(e) => handleChange('overview', 'description', e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold-500 outline-none"
               />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                <h3 className="text-sm font-bold text-[#0a0f1a] mb-3">CTA Button</h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Button Text</label>
+                    <input type="text" value={data.overview?.cta?.text || ''} onChange={(e) => handleChange('overview', 'cta', { ...data.overview?.cta, text: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-gold-500" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Button Link / Action</label>
+                    <input type="text" value={data.overview?.cta?.link || ''} onChange={(e) => handleChange('overview', 'cta', { ...data.overview?.cta, link: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-gold-500" />
+                  </div>
+                </div>
+              </div>
             </div>
             <div>
               <div className="flex justify-between items-center mb-2 mt-4">

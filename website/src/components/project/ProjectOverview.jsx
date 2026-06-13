@@ -38,12 +38,14 @@ export default function ProjectOverview({ data }) {
         </div>
 
         {/* Download Brochure Button */}
-        <div>
-          <button className="inline-flex items-center justify-center border border-gold-600 text-gold-600 hover:bg-gold-600 hover:text-white transition-colors px-8 py-3 rounded text-sm font-bold shadow-sm">
-            <Download size={18} className="mr-2" />
-            Download Brochure
-          </button>
-        </div>
+        {(data.cta?.text || data.cta?.link) && (
+          <div>
+            <a href={data.cta?.link || "#"} className="inline-flex items-center justify-center border border-gold-600 text-gold-600 hover:bg-gold-600 hover:text-white transition-colors px-8 py-3 rounded text-sm font-bold shadow-sm">
+              <Download size={18} className="mr-2" />
+              {data.cta?.text || "Download Brochure"}
+            </a>
+          </div>
+        )}
       </div>
     </section>
   );
