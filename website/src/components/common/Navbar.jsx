@@ -1,10 +1,11 @@
 'use client';
 import Link from 'next/link';
-import { Menu } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -78,12 +79,53 @@ export default function Navbar() {
 
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center pr-2">
-            <button className="text-gray-300 hover:text-white p-2 transition-colors rounded-full hover:bg-white/10">
-              <Menu size={24} />
+            <button 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="text-gray-300 hover:text-white p-2 transition-colors rounded-full hover:bg-white/10"
+            >
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
         </div>
       </nav>
+
+      {/* Mobile Menu Dropdown */}
+      {mobileMenuOpen && (
+        <div className="md:hidden absolute top-full left-0 w-full px-4 mt-2 pointer-events-auto">
+          <div className="bg-[#0a0f1a]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl p-6 flex flex-col gap-6">
+            <Link href="/about" onClick={() => setMobileMenuOpen(false)} className="text-gray-200 hover:text-white font-medium text-lg">About Us</Link>
+            
+            <div className="flex flex-col gap-3">
+              <span className="text-gold-500 font-bold text-xs uppercase tracking-widest">Media</span>
+              <div className="pl-4 flex flex-col gap-3 border-l border-white/10">
+                <Link href="/media/events" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white">Events</Link>
+                <Link href="/media/gallery" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white">Gallery</Link>
+                <Link href="/media/news" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white">News</Link>
+                <Link href="/media/testimonials" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white">Testimonials</Link>
+              </div>
+            </div>
+
+            <Link href="/#services" onClick={() => setMobileMenuOpen(false)} className="text-gray-200 hover:text-white font-medium text-lg">Services</Link>
+            
+            <div className="flex flex-col gap-3">
+              <span className="text-gold-500 font-bold text-xs uppercase tracking-widest">Projects</span>
+              <div className="pl-4 flex flex-col gap-3 border-l border-white/10">
+                <Link href="/project" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white">All Projects</Link>
+                <Link href="/project#ongoing" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white">Ongoing Projects</Link>
+                <Link href="/project#completed" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white">Completed Projects</Link>
+              </div>
+            </div>
+
+            <Link href="/properties" onClick={() => setMobileMenuOpen(false)} className="text-gray-200 hover:text-white font-medium text-lg">Properties</Link>
+            
+            <div className="pt-6 mt-2 border-t border-white/10">
+              <Link href="#contact" onClick={() => setMobileMenuOpen(false)} className="block w-full text-center bg-gold-500 hover:bg-gold-400 text-dark-bg px-6 py-4 rounded-xl font-bold transition-all shadow-[0_0_15px_rgba(234,179,8,0.3)]">
+                Talk to an Expert
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
