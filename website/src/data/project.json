@@ -159,24 +159,60 @@
     "linkUrl": "/projects",
     "items": [
       {
-        "badge": "Bookings Open",
-        "badgeColor": "bg-gray-800/70",
-        "image": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80",
         "title": "Mahima Palm Springs",
         "type": "3 & 4 BHK Flats",
         "location": "Tonk Road",
         "price": "On Request",
-        "size": "1705 - 2619 sq ft"
+        "size": "1705 - 2619 sq ft",
+        "badge": "Bookings Open",
+        "badgeColor": "bg-dark-bg",
+        "image": "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=800&q=80",
+        "btn1Text": "Explore More",
+        "btn1Link": "/project",
+        "btn2Text": "Enquire Now",
+        "btn2Link": "#contact"
       },
       {
-        "badge": "Ready to move-in",
-        "badgeColor": "bg-gray-800/70",
-        "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
         "title": "Mahima Sansaar",
         "type": "2 & 3 BHK Flats",
         "location": "Tonk Road",
         "price": "On Request",
-        "size": "800 - 1364 sq ft"
+        "size": "800 - 1364 sq ft",
+        "badge": "Ready to move-in",
+        "badgeColor": "bg-gray-500",
+        "image": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80",
+        "btn1Text": "Explore More",
+        "btn1Link": "/project",
+        "btn2Text": "Enquire Now",
+        "btn2Link": "#contact"
+      },
+      {
+        "title": "Mahima Elanza",
+        "type": "3 BHK Premium",
+        "location": "Mansarovar",
+        "price": "₹1.2 Cr",
+        "size": "2100 sq ft",
+        "badge": "Selling Fast",
+        "badgeColor": "bg-gold-600",
+        "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+        "btn1Text": "Explore More",
+        "btn1Link": "/project",
+        "btn2Text": "Enquire Now",
+        "btn2Link": "#contact"
+      },
+      {
+        "title": "Mahima Florenza",
+        "type": "4 BHK Villas",
+        "location": "Jagatpura",
+        "price": "₹2.5 Cr",
+        "size": "3500 sq ft",
+        "badge": "New Launch",
+        "badgeColor": "bg-green-600",
+        "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
+        "btn1Text": "Explore More",
+        "btn1Link": "/project",
+        "btn2Text": "Enquire Now",
+        "btn2Link": "#contact"
       }
     ]
   }

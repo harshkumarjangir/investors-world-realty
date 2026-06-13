@@ -421,8 +421,13 @@ const ProjectForm = () => {
               <Plus size={16} /> Add Amenity
             </button>
           </div>
-          <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            {(data.amenities?.items || []).map((item, idx) => (
+          <div className="p-6">
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Section Title</label>
+              <input type="text" value={data.amenities?.title || ''} onChange={(e) => handleChange('amenities', 'title', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-gold-500" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {(data.amenities?.items || []).map((item, idx) => (
               <div key={idx} className="relative p-4 border border-gray-200 rounded-xl bg-gray-50/50 flex gap-4 pr-10">
                 <button type="button" onClick={() => removeArrayItem('amenities', idx)} className="absolute top-1/2 -translate-y-1/2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded-md"><Trash2 size={16}/></button>
                 <div className="w-1/2">
@@ -433,6 +438,7 @@ const ProjectForm = () => {
                 </div>
               </div>
             ))}
+            </div>
           </div>
         </div>
 
@@ -509,7 +515,7 @@ const ProjectForm = () => {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
             <h2 className="text-xl font-bold text-[#0a0f1a]">Similar Projects</h2>
-            <button type="button" onClick={() => addArrayItem('similar', { badge: '', badgeColor: '', image: '', title: '', type: '', location: '', price: '', size: '' })} className="flex items-center gap-1 text-sm bg-gold-500 text-white px-3 py-1.5 rounded-lg hover:bg-gold-600">
+            <button type="button" onClick={() => addArrayItem('similar', { badge: '', badgeColor: '', image: '', title: '', type: '', location: '', price: '', size: '', btn1Text: '', btn1Link: '', btn2Text: '', btn2Link: '' })} className="flex items-center gap-1 text-sm bg-gold-500 text-white px-3 py-1.5 rounded-lg hover:bg-gold-600">
               <Plus size={16} /> Add Similar Project
             </button>
           </div>
@@ -539,6 +545,20 @@ const ProjectForm = () => {
                     <input type="text" placeholder="Price" value={item.price || ''} onChange={(e) => handleArrayChange('similar', idx, 'price', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-gold-500" />
                     <input type="text" placeholder="Size" value={item.size || ''} onChange={(e) => handleArrayChange('similar', idx, 'size', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-gold-500" />
                     <input type="text" placeholder="Badge (e.g. Bookings Open)" value={item.badge || ''} onChange={(e) => handleArrayChange('similar', idx, 'badge', e.target.value)} className="w-full md:col-span-2 px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-gold-500" />
+                    
+                    <div className="md:col-span-2">
+                      <input type="text" placeholder="Btn 1 Text (e.g. Explore More)" value={item.btn1Text || ''} onChange={(e) => handleArrayChange('similar', idx, 'btn1Text', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-gold-500" />
+                    </div>
+                    <div className="md:col-span-2">
+                      <input type="text" placeholder="Btn 1 Link" value={item.btn1Link || ''} onChange={(e) => handleArrayChange('similar', idx, 'btn1Link', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-gold-500" />
+                    </div>
+                    <div className="md:col-span-2">
+                      <input type="text" placeholder="Btn 2 Text (e.g. Enquire Now)" value={item.btn2Text || ''} onChange={(e) => handleArrayChange('similar', idx, 'btn2Text', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-gold-500" />
+                    </div>
+                    <div className="md:col-span-2">
+                      <input type="text" placeholder="Btn 2 Link" value={item.btn2Link || ''} onChange={(e) => handleArrayChange('similar', idx, 'btn2Link', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-gold-500" />
+                    </div>
+
                     <div className="md:col-span-4">
                       <ImageUpload 
                         label="Project Image"

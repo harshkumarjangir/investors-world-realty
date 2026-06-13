@@ -87,6 +87,10 @@ const projectSchema = new mongoose.Schema({
       location: String,
       price: String,
       size: String,
+      btn1Text: String,
+      btn1Link: String,
+      btn2Text: String,
+      btn2Link: String,
       projectSlug: String // Optional reference to another project
     }]
   }
