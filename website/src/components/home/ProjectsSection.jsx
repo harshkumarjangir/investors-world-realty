@@ -1,16 +1,7 @@
 import { MapPin, Building2 } from 'lucide-react';
 
 export default function ProjectsSection({ data }) {
-  // Placeholder images for projects
-  const images = [
-    "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80",
-    "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
-    "https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&w=800&q=80",
-    "https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?auto=format&fit=crop&w=800&q=80",
-    "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=800&q=80",
-    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
-    "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=800&q=80"
-  ];
+  if (!data) return null;
 
   return (
     <section id="projects" className="py-24 bg-gradient-to-b from-[#fffaf0] to-white overflow-hidden">
@@ -18,28 +9,38 @@ export default function ProjectsSection({ data }) {
         
         {/* Header Section */}
         <div className="flex flex-col items-center text-center mb-16">
-          <div className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-gold-50/80 border border-gold-200 mb-6 shadow-sm">
-            <Building2 size={14} className="text-gold-600" />
-            <span className="text-gold-700 text-xs font-bold tracking-widest uppercase">
-              Our Projects
-            </span>
-          </div>
+          {data.pillText && (
+            <div className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-gold-50/80 border border-gold-200 mb-6 shadow-sm">
+              <Building2 size={14} className="text-gold-600" />
+              <span className="text-gold-700 text-xs font-bold tracking-widest uppercase">
+                {data.pillText}
+              </span>
+            </div>
+          )}
           
-          <h2 className="text-4xl md:text-5xl font-bold text-dark-bg mb-4 font-serif tracking-tight">
-            Crafted for <span className="text-gold-600">Premium Living</span>
-          </h2>
+          {data.mainHeading && (
+            <h2 
+              className="text-4xl md:text-5xl font-bold text-dark-bg mb-4 font-serif tracking-tight"
+              dangerouslySetInnerHTML={{ __html: data.mainHeading.replace('Premium Living', '<span class="text-gold-600">Premium Living</span>') }}
+            />
+          )}
           
-          <p className="text-gray-500 text-base max-w-2xl mt-2 font-medium">
-            {data.subtitle}
-          </p>
-          <h3 className="text-2xl font-semibold text-dark-bg mt-8">
-            {data.title}
-          </h3>
+          {data.subtitle && (
+            <p className="text-gray-500 text-base max-w-2xl mt-2 font-medium">
+              {data.subtitle}
+            </p>
+          )}
+          
+          {data.title && (
+            <h3 className="text-2xl font-semibold text-dark-bg mt-8">
+              {data.title}
+            </h3>
+          )}
         </div>
         
         {/* Horizontal Slider Section */}
         <div className="flex overflow-x-auto gap-6 pb-12 pt-4 snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          {data.items.map((project, index) => {
+          {(data.items || []).map((project, index) => {
             const isSoldOut = project.status === "Sold Out";
             
             return (
@@ -49,7 +50,7 @@ export default function ProjectsSection({ data }) {
               >
                 {/* Image */}
                 <img 
-                  src={images[index % images.length]} 
+                  src={project.image || "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80"} 
                   alt={project.name}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />

@@ -35,16 +35,16 @@ export default function HeroSection({ data }) {
           
           <div className="flex flex-row gap-4 items-center">
             <a 
-              href="#contact" 
+              href={data.cta?.primary?.link || '#contact'} 
               className="bg-gradient-to-r from-gold-500 to-yellow-600 hover:from-gold-600 hover:to-yellow-700 text-white text-sm font-semibold px-6 py-3 rounded-full transition-all shadow-[0_0_15px_rgba(234,179,8,0.3)] hover:shadow-[0_0_25px_rgba(234,179,8,0.5)] transform hover:-translate-y-0.5"
             >
-              Talk to an Expert
+              {data.cta?.primary?.text || 'Talk to an Expert'}
             </a>
             <a 
-              href="#projects" 
+              href={data.cta?.secondary?.link || '#projects'} 
               className="bg-transparent hover:bg-white/10 text-white border border-white/60 hover:border-white text-sm font-medium px-6 py-3 rounded-full transition-colors"
             >
-              Explore Projects
+              {data.cta?.secondary?.text || 'Explore Projects'}
             </a>
           </div>
         </div>

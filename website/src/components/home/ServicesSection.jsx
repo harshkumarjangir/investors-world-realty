@@ -1,6 +1,5 @@
-import { MapPin, Home, Building, TrendingUp, BookOpen, Key } from 'lucide-react';
-
-const iconMap = [MapPin, Home, Key, TrendingUp, BookOpen, Building];
+import * as LucideIcons from 'lucide-react';
+import { HelpCircle } from 'lucide-react';
 
 export default function ServicesSection({ data }) {
   return (
@@ -10,7 +9,7 @@ export default function ServicesSection({ data }) {
         {/* Left Side: Expanding Image Accordion */}
         <div className="w-full lg:w-[65%] flex h-[500px] gap-2 overflow-hidden">
           {data.items.map((service, index) => {
-            const Icon = iconMap[index % iconMap.length];
+            const Icon = LucideIcons[service.icon] || HelpCircle;
             return (
               <div 
                 key={index} 
@@ -55,14 +54,14 @@ export default function ServicesSection({ data }) {
             {data.title}
           </h2>
           <p className="text-gray-600 text-lg md:text-xl leading-relaxed mb-8 font-light border-l-2 border-gold-500 pl-6">
-            Crafting quality spaces with innovation and expertise. Your trusted partner in real estate investments since 13+ Years.
+            {data.description || "Crafting quality spaces with innovation and expertise. Your trusted partner in real estate investments since 13+ Years."}
           </p>
           <div>
             <a 
-              href="#contact" 
+              href={data.cta?.link || "#contact"} 
               className="inline-flex items-center justify-center bg-gold-600 hover:bg-gold-500 text-white font-semibold px-8 py-3 rounded-full transition-colors shadow-lg shadow-gold-600/20"
             >
-              Get Started
+              {data.cta?.text || "Get Started"}
             </a>
           </div>
         </div>

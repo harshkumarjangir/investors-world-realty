@@ -1,42 +1,19 @@
-export default function TestimonialsSection() {
-  const testimonials = [
-    {
-      initial: "R",
-      name: "Rohit Sharma",
-      location: "Google Review - Jaipur",
-      color: "bg-teal-500",
-      review: "Investor's World Realty has been exceptional throughout the entire process. From the moment we visited to getting possession, everything was smooth and professional. The quality of their service is top-notch. Truly Jaipur's best real estate consultants!"
-    },
-    {
-      initial: "P",
-      name: "Priya Agarwal",
-      location: "Google Review - Vaishali Nagar",
-      color: "bg-teal-400",
-      review: "We purchased a 3 BHK flat and the experience has been absolutely wonderful. They guided us to a project that is truly a landmark and the amenities are world-class. Investor's World delivered on every promise — with transparency and trust."
-    },
-    {
-      initial: "A",
-      name: "Ashok Gupta",
-      location: "Google Review - Ajmer Road",
-      color: "bg-teal-500",
-      review: "Investing with them was the best decision of our lives. We found a beautifully designed property with Vastu-compliant layouts and premium fittings. The team was responsive, transparent, and truly customer-centric throughout the entire journey."
-    }
-  ];
+export default function TestimonialsSection({ data }) {
+  if (!data || !data.items) return null;
 
   return (
     <section className="py-24 bg-[#0a1120] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-serif mb-4 tracking-wide">
-            What Our <span className="text-[#38bdf8]">Customers</span> Say
+          <h2 className="text-4xl md:text-5xl font-serif mb-4 tracking-wide" dangerouslySetInnerHTML={{ __html: data.title.replace('Customers', '<span class="text-[#38bdf8]">Customers</span>') }}>
           </h2>
           <p className="text-gray-400 text-lg md:text-xl font-light max-w-2xl mx-auto">
-            Homeowners across Jaipur share their experience of choosing Investor's World Realty — and making it home.
+            {data.subtitle}
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {testimonials.map((testimonial, idx) => (
+          {data.items.map((testimonial, idx) => (
             <div key={idx} className="bg-[#1e293b]/50 border border-white/5 rounded-2xl p-8 flex flex-col justify-between hover:bg-[#1e293b] transition-colors duration-300">
               <div>
                 <div className="flex gap-1 text-[#38bdf8] mb-6">

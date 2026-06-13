@@ -1,8 +1,8 @@
-import { BookOpen, ShieldCheck, TrendingUp } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
+import { HelpCircle } from 'lucide-react';
 
 export default function FeaturesSection({ data }) {
-  // Map icons to features based on index
-  const icons = [BookOpen, ShieldCheck, TrendingUp];
+  if (!data) return null;
 
   return (
     <section className="py-24 bg-[#0a0f1a] relative overflow-hidden">
@@ -24,18 +24,18 @@ export default function FeaturesSection({ data }) {
           </div>
           <div>
             <a 
-              href="#contact" 
+              href={data.cta?.link || "#contact"} 
               className="inline-flex items-center justify-center bg-gold-600 hover:bg-gold-500 text-white font-bold px-8 py-4 rounded-full transition-all shadow-[0_0_20px_rgba(234,179,8,0.2)] hover:shadow-[0_0_30px_rgba(234,179,8,0.4)] tracking-wide uppercase text-sm"
             >
-              Apply Now
+              {data.cta?.text || "Apply Now"}
             </a>
           </div>
         </div>
         
         {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {data.items.map((feature, index) => {
-            const Icon = icons[index % icons.length];
+          {(data.items || []).map((feature, index) => {
+            const Icon = LucideIcons[feature.icon] || HelpCircle;
             return (
               <div 
                 key={index} 

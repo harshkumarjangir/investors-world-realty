@@ -1,11 +1,13 @@
 export default function StatsSection({ data }) {
+  if (!data) return null;
+
   return (
     <section className="relative bg-[#0a0f1a] overflow-hidden py-16 lg:py-20 shadow-2xl">
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-r from-[#0a0f1a]/95 via-[#0a0f1a]/80 to-[#0a0f1a]/60 z-10"></div>
         <img 
-          src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=2000&q=80" 
-          alt="Cityscape Dusk" 
+          src={data.image || "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=2000&q=80"} 
+          alt="Stats Background" 
           className="w-full h-full object-cover object-center"
         />
       </div>
@@ -19,12 +21,13 @@ export default function StatsSection({ data }) {
               {/* Yellow Box Accent */}
               <div className="absolute -top-4 -left-4 w-12 h-12 bg-gold-500 rounded backdrop-blur-md border border-gold-400 z-0 shadow-[0_0_15px_rgba(234,179,8,0.4)] mix-blend-screen"></div>
               
-              <h2 className="text-3xl md:text-4xl lg:text-[40px] font-bold text-white leading-[1.15] relative z-10 tracking-tight">
-                Our Journey <br /> In Numbers
-              </h2>
+              <h2 
+                className="text-3xl md:text-4xl lg:text-[40px] font-bold text-white leading-[1.15] relative z-10 tracking-tight"
+                dangerouslySetInnerHTML={{ __html: data.title || "Our Journey <br /> In Numbers" }}
+              />
             </div>
             <p className="text-gray-300 mt-4 text-sm font-medium tracking-wide">
-              Trusted Real Estate Agents at Your Service!
+              {data.subtitle || "Trusted Real Estate Agents at Your Service!"}
             </p>
           </div>
           

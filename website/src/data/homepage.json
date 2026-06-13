@@ -3,11 +3,21 @@
     "subtitle": "Invest Grow and Rise with Realty",
     "title": "Investor's World Realty",
     "description": "At Investor's World Realty, we don't just sell properties, we build investors. Whether you're looking for a dream home, a residential plot, or a high-yield commercial space, we guide you every step of the way with expert knowledge, transparent advice, and a commitment to your financial growth.",
-    "ctaText": "Talk to an Expert"
+    "cta": {
+      "primary": {
+        "text": "Talk to an Expert",
+        "link": "#contact"
+      },
+      "secondary": {
+        "text": "Explore Projects",
+        "link": "#projects"
+      }
+    }
   },
   "about": {
     "title": "We're Not Just a Real Estate Company.",
     "subtitle": "We're Your Investment Partner.",
+    "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1000&q=80",
     "content": [
       "At Investor's World Realty, we do things differently.",
       "Most real estate companies just show you properties and close deals. We go a step further. We sit with you, understand your goals, and help you make an investment decision that actually works for you.",
@@ -16,100 +26,129 @@
   },
   "services": {
     "title": "What We Do",
+    "description": "Crafting quality spaces with innovation and expertise. Your trusted partner in real estate investments since 13+ Years.",
+    "cta": {
+      "text": "Get Started",
+      "link": "#contact"
+    },
     "items": [
       {
         "title": "Residential Plots",
         "description": "Find the perfect plot to build your dream home.",
+        "icon": "MapPin",
         "image": "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80"
       },
       {
         "title": "Farmhouse Projects",
         "description": "Premium farmhouse developments designed for peaceful living.",
+        "icon": "Home",
         "image": "https://images.unsplash.com/photo-1505843513577-22bb7d21e455?auto=format&fit=crop&w=800&q=80"
       },
       {
         "title": "Property Sales",
         "description": "Helping you buy and sell properties with confidence.",
+        "icon": "Key",
         "image": "https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&w=800&q=80"
       },
       {
         "title": "Commercial Investments",
         "description": "Smart commercial opportunities with strong growth potential.",
+        "icon": "TrendingUp",
         "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80"
       },
       {
         "title": "Investment Consulting",
         "description": "Expert guidance to make informed real estate decisions.",
+        "icon": "BookOpen",
         "image": "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=800&q=80"
       },
       {
         "title": "Resorts & Luxury Villas",
         "description": "Exclusive properties crafted for luxury and lifestyle.",
+        "icon": "Building",
         "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80"
       }
     ]
   },
   "projects": {
+    "pillText": "Our Projects",
+    "mainHeading": "Crafted for Premium Living",
     "subtitle": "Hand-Picked. Carefully Evaluated. Built for Investors.",
     "title": "Our Featured Projects",
     "items": [
       {
         "name": "Motisons township",
         "status": "Sold Out",
-        "location": "Ajmer Road, Jaipur"
+        "location": "Ajmer Road, Jaipur",
+        "image": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80"
       },
       {
         "name": "Tirupati Farm House",
         "status": "Sold Out",
-        "location": "Chaksu, Jaipur"
+        "location": "Chaksu, Jaipur",
+        "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80"
       },
       {
         "name": "Vrindavan Vihar",
         "status": "Sold Out",
-        "location": ""
+        "location": "",
+        "image": "https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&w=800&q=80"
       },
       {
         "name": "Ocean Out House",
         "status": "Sold Out",
-        "location": "Chaksu, Jaipur"
+        "location": "Chaksu, Jaipur",
+        "image": "https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?auto=format&fit=crop&w=800&q=80"
       },
       {
         "name": "Swarn Nagri",
         "status": "Sold Out",
-        "location": "Chaksu, Jaipur"
+        "location": "Chaksu, Jaipur",
+        "image": "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=800&q=80"
       },
       {
         "name": "Daksh Green",
         "status": "Current",
-        "location": "Mahindra SEZ, Jaipur"
+        "location": "Mahindra SEZ, Jaipur",
+        "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80"
       },
       {
         "name": "Dam View Farms",
         "status": "Current",
-        "location": "Ajmer Road, Dudu"
+        "location": "Ajmer Road, Dudu",
+        "image": "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=800&q=80"
       }
     ]
   },
   "features": {
-    "title": "Choose Investor's World Realty",
-    "subtitle": "because the right investment can change your life.",
+    "title": "Why Choose Investor's World?",
+    "subtitle": "Discover the advantages of partnering with us.",
+    "cta": {
+      "text": "Apply Now",
+      "link": "#contact"
+    },
     "items": [
       {
-        "title": "We Educate",
-        "description": "We help you understand real estate investment before you make any decision"
+        "title": "Expert Knowledge",
+        "description": "Deep understanding of the local real estate market.",
+        "icon": "BookOpen"
       },
       {
-        "title": "We Support",
-        "description": "We stay with you throughout the entire process, from search to ownership"
+        "title": "Trust & Transparency",
+        "description": "Clear communication and honest advice every step of the way.",
+        "icon": "ShieldCheck"
       },
       {
-        "title": "We Deliver",
-        "description": "We focus on properties that give you strong, long-term returns"
+        "title": "High ROI Focus",
+        "description": "Strategic investments designed to maximize your financial growth.",
+        "icon": "TrendingUp"
       }
     ]
   },
   "stats": {
-    "title": "Our Journey In Numbers",
+    "title": "Our Journey <br /> In Numbers",
+    "subtitle": "Trusted Real Estate Agents at Your Service!",
+    "image": "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=2000&q=80",
     "items": [
       {
         "value": "10 Lakh+",
@@ -126,6 +165,33 @@
       {
         "value": "100+",
         "label": "Dedicated Professional team"
+      }
+    ]
+  },
+  "testimonials": {
+    "title": "What Our Customers Say",
+    "subtitle": "Homeowners across Jaipur share their experience of choosing Investor's World Realty — and making it home.",
+    "items": [
+      {
+        "initial": "R",
+        "name": "Rohit Sharma",
+        "location": "Google Review - Jaipur",
+        "color": "bg-teal-500",
+        "review": "Investor's World Realty has been exceptional throughout the entire process. From the moment we visited to getting possession, everything was smooth and professional. The quality of their service is top-notch. Truly Jaipur's best real estate consultants!"
+      },
+      {
+        "initial": "P",
+        "name": "Priya Agarwal",
+        "location": "Google Review - Vaishali Nagar",
+        "color": "bg-teal-400",
+        "review": "We purchased a 3 BHK flat and the experience has been absolutely wonderful. They guided us to a project that is truly a landmark and the amenities are world-class. Investor's World delivered on every promise — with transparency and trust."
+      },
+      {
+        "initial": "A",
+        "name": "Ashok Gupta",
+        "location": "Google Review - Ajmer Road",
+        "color": "bg-teal-500",
+        "review": "Investing with them was the best decision of our lives. We found a beautifully designed property with Vastu-compliant layouts and premium fittings. The team was responsive, transparent, and truly customer-centric throughout the entire journey."
       }
     ]
   }
