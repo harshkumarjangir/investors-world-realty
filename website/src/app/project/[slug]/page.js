@@ -24,7 +24,8 @@ async function getProjectData(slug) {
 }
 
 export async function generateMetadata({ params }) {
-  const projectData = await getProjectData(params.slug);
+  const { slug } = await params;
+  const projectData = await getProjectData(slug);
   if (!projectData) return { title: 'Project Not Found | Investor\'s World Realty' };
   
   return {
@@ -34,7 +35,8 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function ProjectPage({ params }) {
-  const projectData = await getProjectData(params.slug);
+  const { slug } = await params;
+  const projectData = await getProjectData(slug);
 
   if (!projectData) {
     notFound();
