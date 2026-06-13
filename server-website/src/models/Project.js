@@ -33,7 +33,9 @@ const projectSchema = new mongoose.Schema({
     items: [{
       title: String,
       description: String,
-      image: String
+      image: String,
+      linkText: String,
+      linkUrl: String
     }]
   },
   gallery: {

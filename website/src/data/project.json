@@ -49,12 +49,16 @@
       {
         "title": "27 Exclusive Farm Houses Crafted to Perfection",
         "description": "Your century of peace inspired by nature and wrapped in exciting experiences, each farmhouse is the abode of benchmark luxury at the backdrop of lush green environment.",
-        "image": "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=800&q=80"
+        "image": "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=800&q=80",
+        "linkText": "Explore Farmhouses",
+        "linkUrl": "#gallery"
       },
       {
         "title": "Round-The-Clock Care and Love of Your World",
         "description": "Your world is completely managed by Mahima's in-house team of professionals. Whether you are around or out, your lawns, swimming pool, interior and other exterior areas are always ready to use.",
-        "image": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80"
+        "image": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80",
+        "linkText": "Learn More",
+        "linkUrl": "#amenities"
       }
     ]
   },

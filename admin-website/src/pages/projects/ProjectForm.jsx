@@ -382,17 +382,25 @@ const ProjectForm = () => {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
             <h2 className="text-xl font-bold text-[#0a0f1a]">Highlights</h2>
-            <button type="button" onClick={() => addArrayItem('highlights', { title: '', description: '', image: '' })} className="flex items-center gap-1 text-sm bg-gold-500 text-white px-3 py-1.5 rounded-lg hover:bg-gold-600">
+            <button type="button" onClick={() => addArrayItem('highlights', { title: '', description: '', image: '', linkText: '', linkUrl: '' })} className="flex items-center gap-1 text-sm bg-gold-500 text-white px-3 py-1.5 rounded-lg hover:bg-gold-600">
               <Plus size={16} /> Add Highlight
             </button>
           </div>
           <div className="p-6 space-y-6">
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Section Title</label>
+              <input type="text" value={data.highlights?.title || ''} onChange={(e) => handleChange('highlights', 'title', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-gold-500" />
+            </div>
             {(data.highlights?.items || []).map((item, idx) => (
               <div key={idx} className="relative p-4 border border-gray-200 rounded-xl bg-gray-50/50 pr-10">
                 <button type="button" onClick={() => removeArrayItem('highlights', idx)} className="absolute top-4 right-4 text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded-md"><Trash2 size={16}/></button>
                 <div className="space-y-4">
                   <input type="text" placeholder="Title" value={item.title || ''} onChange={(e) => handleArrayChange('highlights', idx, 'title', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-gold-500 font-bold" />
                   <textarea placeholder="Description" rows="3" value={item.description || ''} onChange={(e) => handleArrayChange('highlights', idx, 'description', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-gold-500" />
+                  <div className="grid grid-cols-2 gap-4">
+                    <input type="text" placeholder="Link Text (e.g. Explore)" value={item.linkText || ''} onChange={(e) => handleArrayChange('highlights', idx, 'linkText', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-gold-500" />
+                    <input type="text" placeholder="Link URL" value={item.linkUrl || ''} onChange={(e) => handleArrayChange('highlights', idx, 'linkUrl', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-gold-500" />
+                  </div>
                   <ImageUpload 
                     label="Highlight Image"
                     folder="projects"
