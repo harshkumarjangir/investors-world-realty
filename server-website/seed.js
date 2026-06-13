@@ -29,13 +29,23 @@ const seedDB = async () => {
     await HomePage.create(homeData);
     console.log('HomePage data seeded');
 
-    // Seed Project (we need to give it a slug since it's required in our schema)
-    const projectWithSlug = {
-      ...projectData,
-      slug: 'mahima-windchimes' // creating a slug from the hero title
-    };
-    await Project.create(projectWithSlug);
-    console.log('Project data seeded');
+    // Seed Projects
+    const projectsToSeed = [
+      { slug: 'mahima-windchimes', title: 'Mahima Windchimes' },
+      { slug: 'mahima-palm-springs', title: 'Mahima Palm Springs' },
+      { slug: 'mahima-sansaar', title: 'Mahima Sansaar' },
+      { slug: 'mahima-elanza', title: 'Mahima Elanza' },
+      { slug: 'mahima-florenza', title: 'Mahima Florenza' }
+    ];
+
+    for (const proj of projectsToSeed) {
+      const pData = JSON.parse(JSON.stringify(projectData)); // Deep copy
+      pData.slug = proj.slug;
+      if (pData.hero) pData.hero.title = proj.title;
+      if (pData.overview) pData.overview.title = `${proj.title} Overview`;
+      await Project.create(pData);
+      console.log(`Seeded project: ${proj.title}`);
+    }
 
     console.log('Seeding completed successfully!');
     process.exit(0);

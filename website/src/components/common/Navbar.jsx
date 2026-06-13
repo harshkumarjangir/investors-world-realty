@@ -6,12 +6,19 @@ import { useState, useEffect } from 'react';
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [projects, setProjects] = useState([]);
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
     window.addEventListener('scroll', handleScroll);
+
+    fetch('http://localhost:5001/api/projects')
+      .then(res => res.json())
+      .then(data => setProjects(data))
+      .catch(err => console.error('Failed to fetch projects for navbar:', err));
+
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -61,9 +68,12 @@ export default function Navbar() {
               </Link>
               
               <div className="absolute left-0 mt-2 w-48 bg-[#0a0f1a]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 py-2">
-                <Link href="/project" className="block px-5 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">All Projects</Link>
-                <Link href="/project#ongoing" className="block px-5 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">Ongoing Projects</Link>
-                <Link href="/project#completed" className="block px-5 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">Completed Projects</Link>
+                <Link href="/project" className="block px-5 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors border-b border-white/10 mb-1 font-medium">All Projects</Link>
+                {projects.map((proj) => (
+                  <Link key={proj.slug} href={`/project/${proj.slug}`} className="block px-5 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">
+                    {proj.hero?.title || proj.slug}
+                  </Link>
+                ))}
               </div>
             </div>
             <Link href="/properties" className="relative text-gray-300 hover:text-white transition-colors text-sm font-medium px-5 py-2 rounded-full hover:bg-white/10">
@@ -110,9 +120,12 @@ export default function Navbar() {
             <div className="flex flex-col gap-3">
               <span className="text-gold-500 font-bold text-xs uppercase tracking-widest">Projects</span>
               <div className="pl-4 flex flex-col gap-3 border-l border-white/10">
-                <Link href="/project" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white">All Projects</Link>
-                <Link href="/project#ongoing" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white">Ongoing Projects</Link>
-                <Link href="/project#completed" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white">Completed Projects</Link>
+                <Link href="/project" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white font-medium border-b border-white/10 pb-2">All Projects</Link>
+                {projects.map((proj) => (
+                  <Link key={proj.slug} href={`/project/${proj.slug}`} onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white">
+                    {proj.hero?.title || proj.slug}
+                  </Link>
+                ))}
               </div>
             </div>
 
