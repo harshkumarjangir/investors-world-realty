@@ -1,0 +1,45 @@
+{
+  "hero": {
+    "title": "About Investor's World Realty Pvt. Ltd.",
+    "content": [
+      "At Investor's World Realty Pvt. Ltd., we believe real estate is more than buying property, it's about building a secure future.",
+      "We help individuals and families make informed investment decisions through expert guidance, transparent advice, and carefully selected opportunities.",
+      "Whether you're looking for a residential plot, farmhouse investment, dream home, or commercial property, we're here to guide you at every step."
+    ]
+  },
+  "founder": {
+    "name": "DEEPAK YADAV",
+    "title": "The FOUNDER of Investor's World Realty Pvt. Ltd.",
+    "bio": [
+      "Deepak Yadav is the Founder and CEO of Investor’s World Realty Pvt. Ltd., established in December 2023 with a vision to create transparent, reliable, and value-driven real estate opportunities. Under his leadership, the company is focused on delivering quality developments, fostering investor confidence, and building long-term relationships with them, based on trust and integrity.",
+      "With a customer-centric approach and deep industry understanding, he continues to guide Investor’s World Realty Pvt. Ltd. toward sustainable growth and excellence in the real estate sector."
+    ],
+    "pressLink": "https://m.dailyhunt.in/news/india/english/thebusinessstories-epaper-dh81e4e6e2104e4dbbb7f32ee26194cfb7/-newsid-dh81e4e6e2104e4dbbb7f32ee26194cfb7_44a0e76ea1a743589c023291140689b6?sm=Y"
+  },
+  "missionVision": {
+    "subtitle": "Rooted in Trust,\nGrowing with Vision",
+    "mission": {
+      "title": "Our Mission",
+      "items": [
+        "To make real estate investment simple, transparent, and accessible for everyone.",
+        "We aim to help people create long-term wealth through smart property investments and trusted guidance.",
+        "To connect investors with innovative and high-potential real estate opportunities, including resort-based farmhouse developments, where they can enjoy both the appreciation of their investment and the lifestyle benefits of property ownership."
+      ]
+    },
+    "vision": {
+      "title": "Our Vision",
+      "items": [
+        "Educate investors before they invest",
+        "Offer carefully selected investment opportunities",
+        "Build long-term relationships based on trust",
+        "Deliver value through transparency and support",
+        "To contribute to economic growth by helping people create businesses, generate opportunities, and achieve financial independence."
+      ]
+    }
+  },
+  "cta": {
+    "title": "Ready to invest in your future?",
+    "subtitle": "Get in touch today.",
+    "buttonText": "Talk to an Expert"
+  }
+}

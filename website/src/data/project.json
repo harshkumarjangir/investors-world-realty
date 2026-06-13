@@ -1,0 +1,155 @@
+{
+  "hero": {
+    "title": "Mahima Windchimes",
+    "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=2000&q=80"
+  },
+  "nav": [
+    "Overview",
+    "Project Highlights",
+    "Gallery",
+    "Amenities",
+    "FAQs",
+    "Location"
+  ],
+  "overview": {
+    "logo": "Mahima's WINDCHIMES",
+    "tagline": "LUXURY AMIDST NATURE",
+    "rera": "RAJ/P/2022/1863",
+    "subtitle": "Luxury Amidst Nature",
+    "description": "An epitome of luxury amidst nature, Windchimes consists of 27 managed farmhouses in Jaipur. Inspired by nature, it is a sanctuary of peace wrapped in exciting experiences. The project offers unique amenities like an open lawn, organic vegetable garden, lush green landscape, private garden, more than 6000 trees and shrubs, machaan, lilly pool, Balinese themed clubhouse, pickleball court, and the perfect setting for a farmhouse with private pool in Jaipur. Each farmhouse is an abode of benchmark luxury in the backdrop of a lush green environment.",
+    "stats": [
+      {
+        "value": "27",
+        "label": "exclusive Farm Mansions"
+      },
+      {
+        "value": "3,000",
+        "label": "sq. yard Farm Mansion"
+      },
+      {
+        "value": "12,500",
+        "label": "sq ft clubhouse (approx)"
+      },
+      {
+        "value": "85%",
+        "label": "open area"
+      }
+    ]
+  },
+  "banner": {
+    "image": "https://images.unsplash.com/photo-1499955085172-a104c9463ece?auto=format&fit=crop&w=2000&q=80"
+  },
+  "highlights": {
+    "title": "Project Highlights",
+    "items": [
+      {
+        "title": "27 Exclusive Farm Houses Crafted to Perfection",
+        "description": "Your century of peace inspired by nature and wrapped in exciting experiences, each farmhouse is the abode of benchmark luxury at the backdrop of lush green environment.",
+        "image": "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        "title": "Round-The-Clock Care and Love of Your World",
+        "description": "Your world is completely managed by Mahima's in-house team of professionals. Whether you are around or out, your lawns, swimming pool, interior and other exterior areas are always ready to use.",
+        "image": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80"
+      }
+    ]
+  },
+  "gallery": {
+    "title": "Gallery",
+    "tabs": ["Exterior", "Interior", "Amenities", "Videos"],
+    "images": [
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=800&q=80"
+    ]
+  },
+  "fixedBanner": {
+    "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=2000&q=80"
+  },
+  "amenities": {
+    "title": "Modern Amenities for Elevated Living",
+    "items": [
+      { "title": "Yoga/Meditation Lawn", "icon": "yoga" },
+      { "title": "Water Fall", "icon": "water" },
+      { "title": "Box Cricket", "icon": "cricket" },
+      { "title": "Temple Plaza", "icon": "temple" },
+      { "title": "Gymnasium", "icon": "gym" },
+      { "title": "Party Lawn", "icon": "party" },
+      { "title": "Pool Deck", "icon": "pool" },
+      { "title": "Chess Board", "icon": "chess" },
+      { "title": "Temple", "icon": "temple" },
+      { "title": "M/F Spa", "icon": "spa" }
+    ]
+  },
+  "services": {
+    "title": "Our Services",
+    "items": [
+      { "title": "Easy Lease", "icon": "key" },
+      { "title": "Loyalty Program", "icon": "star" },
+      { "title": "Home Loan Support", "icon": "file" },
+      { "title": "Registration Support", "icon": "settings" },
+      { "title": "Facility Management", "icon": "clipboard" },
+      { "title": "NRI", "icon": "user" }
+    ]
+  },
+  "faqs": {
+    "title": "Frequently Asked Questions",
+    "items": [
+      {
+        "question": "Why Mahima Windchimes is called as managed farm mansion?",
+        "answer": "At Mahima Windchimes, we provide an in-house team dedicated to making your life hassle-free. They expertly manage the gated community, including maintaining gardens, pools, and common areas, ensuring a seamless and luxurious living experience."
+      },
+      {
+        "question": "Is buying a farmhouse a good investment?",
+        "answer": "Yes, a farmhouse is an excellent investment. It provides a peaceful retreat from the city, potential rental income, and long-term capital appreciation."
+      },
+      {
+        "question": "Are the properties fully furnished?",
+        "answer": "Properties can come semi-furnished or fully furnished based on the package you choose. Our interior design team can also assist you with custom furnishing options."
+      },
+      {
+        "question": "Is there a private swimming pool and parking space here?",
+        "answer": "Yes, each farm mansion comes with ample parking space and the option for a private swimming pool, adding to the exclusivity of your property."
+      },
+      {
+        "question": "Is the community secure?",
+        "answer": "Absolutely. The gated community features 24/7 multi-tier security, including CCTV surveillance and trained security personnel, to ensure the safety of all residents."
+      },
+      {
+        "question": "Is Mahima Windchimes a RERA-approved property?",
+        "answer": "Yes, it is a fully RERA-approved property. You can verify the RERA Registration Number provided in the project overview section."
+      }
+    ]
+  },
+  "location": {
+    "title": "Location Advantage",
+    "mapUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14234.664426555135!2d75.6983!3d26.88!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjbCsDUyJzQ4LjAiTiA3NcKwNDInMDUuOSJF!5e0!3m2!1sen!2sin!4v1614000000000!5m2!1sen!2sin"
+  },
+  "similar": {
+    "title": "Explore Similar Projects",
+    "linkText": "See All Listings",
+    "linkUrl": "/projects",
+    "items": [
+      {
+        "badge": "Bookings Open",
+        "badgeColor": "bg-gray-800/70",
+        "image": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80",
+        "title": "Mahima Palm Springs",
+        "type": "3 & 4 BHK Flats",
+        "location": "Tonk Road",
+        "price": "On Request",
+        "size": "1705 - 2619 sq ft"
+      },
+      {
+        "badge": "Ready to move-in",
+        "badgeColor": "bg-gray-800/70",
+        "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+        "title": "Mahima Sansaar",
+        "type": "2 & 3 BHK Flats",
+        "location": "Tonk Road",
+        "price": "On Request",
+        "size": "800 - 1364 sq ft"
+      }
+    ]
+  }
+}

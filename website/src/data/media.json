@@ -1,0 +1,43 @@
+{
+  "hero": {
+    "title": "Our Media Presence",
+    "subtitle": "Discover our events, press coverage, and community initiatives."
+  },
+  "events": {
+    "title": "Events & Initiatives",
+    "items": [
+      {
+        "title": "Annual Dandiya Events",
+        "description": "Investor's world Realty pvt ltd. organized dandiya event and invited special guest Sourabh Raj Jain who is a famous actor in many of the indian serial especially known for his role Lord Krishna in Mahabharat",
+        "image": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        "title": "Jagriti 3.0 ISKCON Temple",
+        "description": "Investor's World Realty Pvt. Ltd. proudly contributed to Jagriti 3.0 at ISKCON Temple, Mansarovar, Jaipur. The event beautifully celebrated the spirit of women's empowerment while fostering growth, inspiration, and positive change under divine blessings.",
+        "image": "https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        "title": "Game Of Township",
+        "description": "Investor's World Realty Pvt. Ltd. was proud to sponsor Game of Township, a vibrant community event that brought people together through engagement, entertainment, and meaningful connections.\nUnder the leadership of Deepak Yadav, Founder & CEO, Investors World Realty Pvt. Ltd., the company remains committed to supporting initiatives that strengthen communities and create memorable experiences.",
+        "image": "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        "title": "ASMITA Khelo India 2025",
+        "description": "Investor's World Realty Pvt. Ltd. Proudly Sponsored the Yoga Event at ASMITA Khelo India 2025. It was a wonderful opportunity to support young talent and promote the importance of health, fitness, and well-being.\nWe were honored to be associated with an initiative that encouraged discipline, confidence, and a positive lifestyle among participants.",
+        "image": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80"
+      }
+    ]
+  },
+  "gallery": {
+    "title": "Gallery",
+    "subtitle": "Content coming soon"
+  },
+  "news": {
+    "title": "News & Press",
+    "subtitle": "Content coming soon"
+  },
+  "testimonials": {
+    "title": "Testimonials",
+    "subtitle": "Content coming soon"
+  }
+}
