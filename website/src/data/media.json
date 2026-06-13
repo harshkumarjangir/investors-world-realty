@@ -29,15 +29,65 @@
     ]
   },
   "gallery": {
-    "title": "Gallery",
-    "subtitle": "Content coming soon"
+    "title": "Property Gallery",
+    "items": [
+      {
+        "title": "Royal Heights Exterior",
+        "category": "Residential",
+        "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        "title": "Diamond Plaza Interior",
+        "category": "Commercial",
+        "image": "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        "title": "Swarn Nagar Villa",
+        "category": "Residential",
+        "image": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        "title": "Eco Farmhouse View",
+        "category": "Farmhouse",
+        "image": "https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&w=800&q=80"
+      }
+    ]
   },
   "news": {
     "title": "News & Press",
-    "subtitle": "Content coming soon"
+    "items": [
+      {
+        "title": "Investor's World Realty Expands to New Territories",
+        "date": "May 15, 2026",
+        "excerpt": "We are proud to announce the launch of our newest residential schemes across Northern India, bringing luxury living to more communities.",
+        "image": "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        "title": "Market Trends: The Rise of Farmhouse Investments",
+        "date": "April 22, 2026",
+        "excerpt": "Recent data shows a 40% increase in demand for premium farmhouse properties as urban residents seek peaceful weekend retreats.",
+        "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80"
+      }
+    ]
   },
   "testimonials": {
-    "title": "Testimonials",
-    "subtitle": "Content coming soon"
+    "title": "Client Testimonials",
+    "items": [
+      {
+        "name": "Rajesh Kumar",
+        "role": "Property Investor",
+        "quote": "Working with Investor's World Realty has been a game-changer. Their transparency and premium property selection made my investment journey incredibly smooth."
+      },
+      {
+        "name": "Priya Sharma",
+        "role": "Homeowner",
+        "quote": "We found our dream home at Royal Heights! The team guided us through every step, ensuring we got the best deal without any hassle."
+      },
+      {
+        "name": "Amit Desai",
+        "role": "Business Owner",
+        "quote": "I purchased a commercial space at Diamond Plaza through them. The location and ROI have exceeded my expectations. Highly recommended!"
+      }
+    ]
   }
 }

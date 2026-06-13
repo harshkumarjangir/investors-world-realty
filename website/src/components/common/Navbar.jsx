@@ -35,14 +35,38 @@ export default function Navbar() {
             <Link href="/about" className="relative text-gray-300 hover:text-white transition-colors text-sm font-medium px-5 py-2 rounded-full hover:bg-white/10">
               About Us
             </Link>
-            <Link href="/media" className="relative text-gray-300 hover:text-white transition-colors text-sm font-medium px-5 py-2 rounded-full hover:bg-white/10">
-              Media
-            </Link>
+            <div className="relative group">
+              <Link href="/media" className="relative text-gray-300 hover:text-white transition-colors text-sm font-medium px-5 py-2 rounded-full hover:bg-white/10 flex items-center gap-1">
+                Media
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+              </Link>
+              
+              <div className="absolute left-0 mt-2 w-48 bg-[#0a0f1a]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 py-2">
+                <Link href="/media/events" className="block px-5 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">Events</Link>
+                <Link href="/media/gallery" className="block px-5 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">Gallery</Link>
+                <Link href="/media/news" className="block px-5 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">News</Link>
+                <Link href="/media/testimonials" className="block px-5 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">Testimonials</Link>
+              </div>
+            </div>
+
             <Link href="/#services" className="relative text-gray-300 hover:text-white transition-colors text-sm font-medium px-5 py-2 rounded-full hover:bg-white/10">
               Services
             </Link>
-            <Link href="/project" className="relative text-gray-300 hover:text-white transition-colors text-sm font-medium px-5 py-2 rounded-full hover:bg-white/10">
-              Projects
+
+            <div className="relative group">
+              <Link href="/project" className="relative text-gray-300 hover:text-white transition-colors text-sm font-medium px-5 py-2 rounded-full hover:bg-white/10 flex items-center gap-1">
+                Projects
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+              </Link>
+              
+              <div className="absolute left-0 mt-2 w-48 bg-[#0a0f1a]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 py-2">
+                <Link href="/project" className="block px-5 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">All Projects</Link>
+                <Link href="/project#ongoing" className="block px-5 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">Ongoing Projects</Link>
+                <Link href="/project#completed" className="block px-5 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">Completed Projects</Link>
+              </div>
+            </div>
+            <Link href="/properties" className="relative text-gray-300 hover:text-white transition-colors text-sm font-medium px-5 py-2 rounded-full hover:bg-white/10">
+              Properties
             </Link>
           </div>
 
