@@ -114,6 +114,54 @@ export async function getBalance(associateId) {
   };
 }
 
+// ─── getWalletDashboard ───────────────────────────────────────────────────────
+
+/**
+ * Return aggregated dashboard data for the wallet including balance, totals, and merged recent activity.
+ * @param {string} associateId
+ */
+export async function getWalletDashboard(associateId) {
+  const balanceData = await getBalance(associateId);
+  const transactions = await getTransactions(associateId, { take: 10 });
+  const withdrawals = await getWithdrawals(associateId, { take: 10 });
+
+  // Format and merge transactions and withdrawals for the frontend "Recent Transactions" list
+  const formattedTx = transactions.items.map(t => ({
+    id: t.id,
+    title: t.description || t.type,
+    amount: t.amount,
+    type: 'TRANSACTION',
+    isCredit: true, // we can guess based on amount or type, but typically wallet transactions are both. Wait, if it's a transaction, is it credit or debit? 
+    // Actually getTransactions doesn't return if it's debit or credit explicitly, but the frontend needs it.
+    // Let's just return the raw data and let the frontend handle it, or we can add a simple helper.
+    rawType: t.type,
+    date: t.date,
+    status: t.status
+  }));
+
+  const formattedWd = withdrawals.items.map(w => ({
+    id: w.id,
+    title: 'Withdrawal to Bank',
+    amount: w.amount,
+    type: 'WITHDRAWAL',
+    isCredit: false,
+    rawType: 'WITHDRAWAL',
+    date: w.createdAt,
+    status: w.status
+  }));
+
+  const recentTransactions = [...formattedTx, ...formattedWd]
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 15);
+
+  return {
+    balance: balanceData.balance,
+    totalCredits: balanceData.totalCredits,
+    totalDebits: balanceData.totalDebits,
+    recentTransactions
+  };
+}
+
 // ─── transfer ─────────────────────────────────────────────────────────────────
 
 /**
@@ -257,6 +305,84 @@ export async function getTransactions(associateId, pagination = {}) {
     description: r.description,
     reference: r.reference,
     status: r.status,
+  }));
+
+  return { items, totalItems, page, pageSize };
+}
+
+// ─── getAllActivity (Unified Feed) ────────────────────────────────────────────
+
+/**
+ * Return perfectly paginated and merged transactions + withdrawals using raw SQL.
+ * @param {string} associateId
+ * @param {{ page, pageSize, skip, take }} pagination
+ */
+export async function getAllActivity(associateId, pagination = {}) {
+  const { page = 1, pageSize = 20, skip = 0, take = 20 } = pagination;
+
+  // 1. Raw SQL UNION ALL query for items
+  const itemsQuery = `
+    SELECT 
+      t.id, 
+      t.amount, 
+      CAST(t.type AS TEXT) as "rawType", 
+      t.description as title, 
+      t."createdAt" as date, 
+      CAST(t.status AS TEXT) as status,
+      'TRANSACTION' as type
+    FROM "Transaction" t 
+    JOIN "Wallet" w ON t."walletId" = w.id 
+    WHERE w."associateId" = $1
+
+    UNION ALL
+
+    SELECT 
+      wr.id, 
+      wr.amount, 
+      'WITHDRAWAL' as "rawType", 
+      'Withdrawal to Bank' as title, 
+      wr."createdAt" as date, 
+      CAST(wr.status AS TEXT) as status,
+      'WITHDRAWAL' as type
+    FROM "WithdrawalRequest" wr 
+    WHERE wr."associateId" = $1
+
+    ORDER BY date DESC
+    LIMIT $2 OFFSET $3
+  `;
+
+  // 2. Raw SQL UNION ALL query for total count
+  const countQuery = `
+    SELECT SUM(cnt) as total FROM (
+      SELECT COUNT(*) as cnt FROM "Transaction" t 
+      JOIN "Wallet" w ON t."walletId" = w.id 
+      WHERE w."associateId" = $1
+      
+      UNION ALL
+      
+      SELECT COUNT(*) as cnt FROM "WithdrawalRequest" wr 
+      WHERE wr."associateId" = $1
+    ) sub;
+  `;
+
+  const [rawItems, countResult] = await Promise.all([
+    prisma.$queryRawUnsafe(itemsQuery, associateId, take, skip),
+    prisma.$queryRawUnsafe(countQuery, associateId)
+  ]);
+
+  const totalItems = Number(countResult[0]?.total || 0);
+
+  const items = rawItems.map((r) => ({
+    id: r.id,
+    title: r.title,
+    amount: Number(r.amount),
+    type: r.type,
+    rawType: r.rawtype || r.rawType, // Postgres sometimes lowercases aliases
+    date: r.date,
+    status: r.status,
+    isCredit: r.type === 'TRANSACTION' 
+      ? (String(r.rawtype || r.rawType).includes('IN') || String(r.rawtype || r.rawType).includes('CREDIT') || String(r.rawtype || r.rawType).includes('BONUS') || String(r.rawtype || r.rawType).includes('INCOME'))
+      : false // Withdrawals are always debit
   }));
 
   return { items, totalItems, page, pageSize };

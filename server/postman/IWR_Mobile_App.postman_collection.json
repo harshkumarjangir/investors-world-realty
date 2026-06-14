@@ -877,20 +877,20 @@
       "name": "👛 7. Wallet 🔒",
       "item": [
         {
-          "name": "Get Balance",
+          "name": "Wallet Dashboard",
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/wallet/balance",
+              "raw": "{{baseUrl}}/wallet/dashboard",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "wallet",
-                "balance"
+                "dashboard"
               ]
             },
-            "description": "**Response:**\n```json\n{\n  \"data\": {\n    \"balance\": 25000,\n    \"totalCredits\": 75000,\n    \"totalDebits\": 50000\n  }\n}\n```\n\nAll amounts in ₹ (INR)."
+            "description": "Returns balance, totalCredits, totalDebits, and a merged array of recent transactions + withdrawals for the Wallet UI."
           }
         },
         {
@@ -926,17 +926,17 @@
           }
         },
         {
-          "name": "Transaction History",
+          "name": "All Activity (Merged)",
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/wallet/transactions?page=1&pageSize=20",
+              "raw": "{{baseUrl}}/wallet/all-activity?page=1&pageSize=20",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "wallet",
-                "transactions"
+                "all-activity"
               ],
               "query": [
                 {
@@ -949,7 +949,7 @@
                 }
               ]
             },
-            "description": "Paginated list of all wallet transactions.\n\n**Transaction types:** `DIRECT_INCOME` | `LEVEL_INCOME` | `MATCHING_INCOME` | `REWARD_INCOME` | `FUND_TRANSFER_IN` | `FUND_TRANSFER_OUT` | `WITHDRAWAL` | `ADMIN_CREDIT` | `ADMIN_DEBIT`"
+            "description": "Returns perfectly paginated, chronologically sorted, and merged regular transactions + withdrawals for the 'See All' screen."
           }
         },
         {
@@ -982,33 +982,6 @@
               ]
             },
             "description": "Submit a withdrawal request. Admin reviews and approves/rejects it."
-          }
-        },
-        {
-          "name": "Withdrawal History",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/wallet/withdrawals?page=1&pageSize=20",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "wallet",
-                "withdrawals"
-              ],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "1"
-                },
-                {
-                  "key": "pageSize",
-                  "value": "20"
-                }
-              ]
-            },
-            "description": "Paginated list of withdrawal requests.\n\n**Status:** `PENDING` | `APPROVED` | `REJECTED` | `PAID`"
           }
         }
       ]
@@ -1815,12 +1788,19 @@
         {
           "name": "Privacy Policy (JSON)",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/public/privacy",
-              "host": ["{{baseUrl}}"],
-              "path": ["public", "privacy"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "privacy"
+              ]
             },
             "description": "Returns Privacy Policy as JSON containing the HTML code in the 'htmlcode' key."
           }
@@ -1828,12 +1808,19 @@
         {
           "name": "Terms & Conditions (JSON)",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/public/terms",
-              "host": ["{{baseUrl}}"],
-              "path": ["public", "terms"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "terms"
+              ]
             },
             "description": "Returns Terms & Conditions as JSON containing the HTML code in the 'htmlcode' key."
           }
@@ -1841,12 +1828,19 @@
         {
           "name": "Support Page (JSON)",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/public/support",
-              "host": ["{{baseUrl}}"],
-              "path": ["public", "support"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "support"
+              ]
             },
             "description": "Returns help & support page as JSON containing the HTML code in the 'htmlcode' key."
           }

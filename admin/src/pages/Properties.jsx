@@ -1,5 +1,5 @@
 import { useState, useEffect, Fragment } from 'react';
-import { Plus, Edit, Image, Video, Trash2, X, ChevronDown, ChevronUp, Building2 } from 'lucide-react';
+import { Plus, Edit, Image, Video, Trash2, X, ChevronDown, ChevronUp, Building2, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import api from '../common/api.js';
 import { useI18n } from '../common/i18n.jsx';
@@ -237,6 +237,9 @@ export default function Properties() {
                               </td>
                               <td className="px-4 py-3">
                                 <div className="flex items-center gap-1">
+                                  <Link to={`/properties/${p.id}`} className="rounded p-1.5 text-emerald-600 hover:bg-emerald-50" title="View Details">
+                                    <Eye size={15} />
+                                  </Link>
                                   <button type="button" onClick={() => handleEdit(p)} className="rounded p-1.5 text-gray-600 hover:bg-gray-200" title="Edit">
                                     <Edit size={15} />
                                   </button>

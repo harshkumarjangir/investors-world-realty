@@ -24,6 +24,34 @@ export async function getBalanceHandler(req, res) {
   }
 }
 
+// ─── GET /dashboard ───────────────────────────────────────────────────────────
+import { getWalletDashboard } from '../services/wallet.service.js';
+
+export async function getWalletDashboardHandler(req, res) {
+  try {
+    const associateId = req.associate.id;
+    const data = await getWalletDashboard(associateId);
+    return successResponse(res, data, 'Wallet dashboard fetched successfully');
+  } catch (err) {
+    return errorResponse(res, err.message, err.statusCode || 500);
+  }
+}
+
+// ─── GET /all-activity ────────────────────────────────────────────────────────
+import { getAllActivity } from '../services/wallet.service.js';
+
+export async function getAllActivityHandler(req, res) {
+  try {
+    const associateId = req.associate.id;
+    const pagination = parsePagination(req.query);
+
+    const { items, totalItems, page, pageSize } = await getAllActivity(associateId, pagination);
+    return paginatedResponse(res, items, totalItems, page, pageSize, 'All activity fetched successfully');
+  } catch (err) {
+    return errorResponse(res, err.message, err.statusCode || 500);
+  }
+}
+
 // ─── POST /transfer ───────────────────────────────────────────────────────────
 export async function transferHandler(req, res) {
   try {

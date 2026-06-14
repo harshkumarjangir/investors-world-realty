@@ -58,6 +58,28 @@ export async function listPropertiesAdminHandler(req, res, next) {
   }
 }
 
+export async function getPropertyAdminHandler(req, res, next) {
+  try {
+    const { id } = req.params;
+    const property = await prisma.property.findUnique({
+      where: { id },
+      include: {
+        scheme: { select: { id: true, schemeName: true, city: true, state: true } },
+        images: { orderBy: { sortOrder: 'asc' } },
+        videos: true
+      }
+    });
+
+    if (!property) {
+      return res.status(404).json({ status: 'error', message: 'Property not found', data: null });
+    }
+
+    return successResponse(res, property, 'Property fetched successfully');
+  } catch (err) {
+    return next(err);
+  }
+}
+
 export async function createPropertyHandler(req, res, next) {
   try {
     const { schemeId, name, description, location, city, state, area, price, type, amenities } = req.body;

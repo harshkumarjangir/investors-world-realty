@@ -17,6 +17,13 @@ router.use(authenticate, authRateLimit);
 // GET  /api/v1/wallet/balance
 router.get('/balance', getBalanceHandler);
 
+import { getWalletDashboardHandler, getAllActivityHandler } from '../controllers/wallet.controller.js';
+// GET  /api/v1/wallet/dashboard
+router.get('/dashboard', getWalletDashboardHandler);
+
+// GET  /api/v1/wallet/all-activity?page=1&pageSize=20
+router.get('/all-activity', getAllActivityHandler);
+
 // POST /api/v1/wallet/transfer — body: { recipientUserId, amount, description? }
 router.post('/transfer', transferHandler);
 

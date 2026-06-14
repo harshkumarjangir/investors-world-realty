@@ -408,10 +408,11 @@ Associates are automatically promoted based on property sales:
 
 ## 👛 7. Wallet 🔒
 
-### 7.1 Get Balance
+### 7.1 Wallet Dashboard (Unified UI)
 ```
-GET /wallet/balance
+GET /wallet/dashboard
 ```
+**Description:** Use this for the main Wallet screen. It returns `balance`, `totalCredits` (Income), `totalDebits` (Expenses), and `recentTransactions` (merged list of latest transactions and withdrawals).
 
 ### 7.2 Fund Transfer
 ```
@@ -419,21 +420,18 @@ POST /wallet/transfer
 ```
 **Body:** `{ "recipientUserId": "IW100002", "amount": 1000, "description": "Transfer" }`
 
-### 7.3 Transaction History
+### 7.3 All Activity (Merged History)
 ```
-GET /wallet/transactions?page=1&pageSize=20
+GET /wallet/all-activity?page=1&pageSize=20
 ```
+**Description:** Use this for the "See All" transactions screen. Returns perfectly paginated, chronologically sorted, and merged regular transactions + withdrawals. 
+**Response Item fields:** `id`, `title`, `amount`, `type`, `rawType`, `date`, `status`, `isCredit` (boolean).
 
 ### 7.4 Request Withdrawal
 ```
 POST /wallet/withdraw
 ```
 **Body:** `{ "amount": 5000 }`
-
-### 7.5 Withdrawal History
-```
-GET /wallet/withdrawals?page=1&pageSize=20
-```
 
 ---
 

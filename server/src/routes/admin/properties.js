@@ -3,6 +3,7 @@ import { authenticateAdmin, requirePermission } from '../../middleware/auth.js';
 import { uploadPropertyImages, uploadPropertyVideo } from '../../utils/multer.js';
 import {
   listPropertiesAdminHandler,
+  getPropertyAdminHandler,
   createPropertyHandler,
   uploadPropertyImagesHandler,
   uploadPropertyVideoHandler,
@@ -19,6 +20,9 @@ router.use(authenticateAdmin);
 
 // GET /api/v1/admin/properties
 router.get('/', requirePermission('properties:read'), listPropertiesAdminHandler);
+
+// GET /api/v1/admin/properties/:id
+router.get('/:id', requirePermission('properties:read'), getPropertyAdminHandler);
 
 // POST /api/v1/admin/properties
 router.post('/', requirePermission('properties:write'), createPropertyHandler);
