@@ -64,7 +64,7 @@ export async function validateSponsor(sponsorId) {
  * BFS from sponsorTreeNode in the requested leg.
  * Returns { parentNode, position } for the first open slot on that side.
  */
-async function findNextAvailablePosition(sponsorTreeNode, leg) {
+async function findNextAvailablePosition(sponsorTreeNode, leg, tx = prisma) {
   const queue = [sponsorTreeNode];
 
   while (queue.length > 0) {
@@ -80,14 +80,14 @@ async function findNextAvailablePosition(sponsorTreeNode, leg) {
 
     // Enqueue existing children to continue BFS
     if (node.leftChildId) {
-      const leftChild = await prisma.treeNode.findUnique({
+      const leftChild = await tx.treeNode.findUnique({
         where: { id: node.leftChildId },
       });
       if (leftChild) queue.push(leftChild);
     }
 
     if (node.rightChildId) {
-      const rightChild = await prisma.treeNode.findUnique({
+      const rightChild = await tx.treeNode.findUnique({
         where: { id: node.rightChildId },
       });
       if (rightChild) queue.push(rightChild);
@@ -254,22 +254,39 @@ export async function activateAssociate(associateId) {
 
       if (parentAssociateId) {
         const sponsorNode = await tx.treeNode.findUnique({ where: { associateId: parentAssociateId } });
-        const level = sponsorNode ? sponsorNode.level + 1 : 1;
-        await tx.treeNode.create({
-          data: {
-            associateId,
-            parentId: sponsorNode?.id || null,
-            position: 'LEFT',
-            level,
-          },
-        });
-
-        // Update associate's sponsorId if it was null (assign to root)
-        if (!associate.sponsorId && parentAssociateId) {
-          await tx.associate.update({
-            where: { id: associateId },
-            data: { sponsorId: parentAssociateId },
+        if (sponsorNode) {
+          // Find next available slot via BFS spillover
+          const { parentNode, position } = await findNextAvailablePosition(sponsorNode, 'LEFT', tx);
+          
+          const newNode = await tx.treeNode.create({
+            data: {
+              associateId,
+              parentId: parentNode.id,
+              position: position,
+              level: parentNode.level + 1,
+            },
           });
+
+          // Update parent's leftChildId or rightChildId
+          if (position === 'LEFT') {
+            await tx.treeNode.update({
+              where: { id: parentNode.id },
+              data: { leftChildId: newNode.id },
+            });
+          } else {
+            await tx.treeNode.update({
+              where: { id: parentNode.id },
+              data: { rightChildId: newNode.id },
+            });
+          }
+
+          // Update associate's sponsorId if it was null (assign to root)
+          if (!associate.sponsorId) {
+            await tx.associate.update({
+              where: { id: associateId },
+              data: { sponsorId: parentAssociateId },
+            });
+          }
         }
       }
     }
