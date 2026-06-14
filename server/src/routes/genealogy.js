@@ -6,6 +6,7 @@ import {
   getDownlineHandler,
   getSponsorHandler,
   getTeamSummaryHandler,
+  getGenealogyOverviewHandler,
 } from '../controllers/genealogy.controller.js';
 
 const router = Router();
@@ -24,5 +25,8 @@ router.get('/sponsor', getSponsorHandler);
 
 // GET /api/v1/genealogy/team-summary
 router.get('/team-summary', getTeamSummaryHandler);
+
+// GET /api/v1/genealogy/overview?depth=5&page=1&pageSize=20
+router.get('/overview', getGenealogyOverviewHandler);
 
 export default router;

@@ -691,6 +691,38 @@
       "name": "🌳 5. Genealogy / Team 🔒",
       "item": [
         {
+          "name": "Genealogy Overview",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/genealogy/overview?depth=5&page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "genealogy",
+                "overview"
+              ],
+              "query": [
+                {
+                  "key": "depth",
+                  "value": "5"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Get Binary Tree",
           "request": {
             "method": "GET",

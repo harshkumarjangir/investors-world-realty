@@ -186,10 +186,12 @@ Submit PAN, Aadhaar, and/or Bank details and documents together.
 
 ## 🌳 Genealogy 🔒
 
-### GET `/genealogy/tree?depth=5`
-### GET `/genealogy/downline?status=ACTIVE&leg=left&level=2&page=1&pageSize=20`
-### GET `/genealogy/sponsor`
-### GET `/genealogy/team-summary`
+### GET `/genealogy/overview?depth=5&status=ACTIVE&level=2&page=1&pageSize=20`
+Returns a combined payload of:
+- `sponsor`: Details of the user's sponsor
+- `summary`: Left/right volume and business tracking
+- `tree`: Visual binary tree structure up to `depth` levels
+- `downline`: Paginated list of all downline members (filtered by query params)
 
 ---
 
@@ -923,7 +925,7 @@ Use `Authorization: Bearer {{adminToken}}` header for all 🔒 admin endpoints.
 | 2 | GET | `/associate/dashboard` | Verify dashboard works |
 | 3 | GET | `/associate/profile` | Get profile |
 | 4 | GET | `/notifications` | Get notifications |
-| 5 | GET | `/genealogy/tree?depth=3` | Get binary tree |
+| 5 | GET | `/genealogy/overview?depth=3` | Get complete genealogy data |
 | 6 | GET | `/wallet/balance` | Check wallet |
 | 7 | GET | `/income/summary` | Income breakdown |
 | 8 | GET | `/properties` | List properties |

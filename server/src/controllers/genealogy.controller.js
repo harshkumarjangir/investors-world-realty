@@ -59,3 +59,23 @@ export async function getTeamSummaryHandler(req, res) {
     return errorResponse(res, err.message, err.statusCode || 500);
   }
 }
+// ─── GET /overview ────────────────────────────────────────────────────────────
+export async function getGenealogyOverviewHandler(req, res) {
+  try {
+    const associateId = req.associate.id;
+    const depth = req.query.depth ? parseInt(req.query.depth, 10) : 5;
+    const { status, leg, level } = req.query;
+    const pagination = parsePagination(req.query);
+
+    const [sponsor, summary, tree, downline] = await Promise.all([
+      getSponsor(associateId).catch(() => null), // might not have a sponsor
+      getTeamSummary(associateId).catch(() => ({ leftVolume: 0, rightVolume: 0 })),
+      getTree(associateId, depth).catch(() => null),
+      getDownline(associateId, { status, leg, level }, pagination).catch(() => ({ items: [], totalItems: 0, page: 1, pageSize: 20 }))
+    ]);
+
+    return successResponse(res, { sponsor, summary, tree, downline }, 'Genealogy overview fetched successfully');
+  } catch (err) {
+    return errorResponse(res, err.message, err.statusCode || 500);
+  }
+}
