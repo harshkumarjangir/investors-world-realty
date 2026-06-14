@@ -5,15 +5,36 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:5001/api/v1" },
-    { "key": "prodUrl", "value": "https://serveriwr.harshkumarjangir.in/api/v1" },
-    { "key": "adminToken", "value": "" },
-    { "key": "adminRefreshToken", "value": "" },
-    { "key": "adminId", "value": "" }
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5001/api/v1"
+    },
+    {
+      "key": "prodUrl",
+      "value": "https://serveriwr.harshkumarjangir.in/api/v1"
+    },
+    {
+      "key": "adminToken",
+      "value": ""
+    },
+    {
+      "key": "adminRefreshToken",
+      "value": ""
+    },
+    {
+      "key": "adminId",
+      "value": ""
+    }
   ],
   "auth": {
     "type": "bearer",
-    "bearer": [{ "key": "token", "value": "{{adminToken}}", "type": "string" }]
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{adminToken}}",
+        "type": "string"
+      }
+    ]
   },
   "item": [
     {
@@ -21,43 +42,139 @@
       "item": [
         {
           "name": "1. Admin Login (Step 1 - Send OTP)",
-          "event": [{ "listen": "test", "script": { "exec": ["var j=pm.response.json(); if(j.data&&j.data.adminId){pm.collectionVariables.set('adminId',j.data.adminId); console.log('Admin ID saved. Check server console/email for OTP.');}"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var j=pm.response.json(); if(j.data&&j.data.adminId){pm.collectionVariables.set('adminId',j.data.adminId); console.log('Admin ID saved. Check server console/email for OTP.');}"
+                ]
+              }
+            }
+          ],
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admindevelopertest@yopmail.com\",\n  \"password\": \"Admin@123456\"\n}" },
-            "url": { "raw": "{{baseUrl}}/admin/auth/login", "host": ["{{baseUrl}}"], "path": ["admin","auth","login"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admindevelopertest@yopmail.com\",\n  \"password\": \"Admin@123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "auth",
+                "login"
+              ]
+            }
           }
         },
         {
           "name": "2. Admin Verify OTP (Step 2 - Get Tokens)",
-          "event": [{ "listen": "test", "script": { "exec": ["var j=pm.response.json(); if(j.data&&j.data.accessToken){pm.collectionVariables.set('adminToken',j.data.accessToken); pm.collectionVariables.set('adminRefreshToken',j.data.refreshToken); console.log('Admin tokens saved!');}"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var j=pm.response.json(); if(j.data&&j.data.accessToken){pm.collectionVariables.set('adminToken',j.data.accessToken); pm.collectionVariables.set('adminRefreshToken',j.data.refreshToken); console.log('Admin tokens saved!');}"
+                ]
+              }
+            }
+          ],
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"adminId\": \"{{adminId}}\",\n  \"otp\": \"123456\"\n}" },
-            "url": { "raw": "{{baseUrl}}/admin/auth/verify-otp", "host": ["{{baseUrl}}"], "path": ["admin","auth","verify-otp"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"adminId\": \"{{adminId}}\",\n  \"otp\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/auth/verify-otp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "auth",
+                "verify-otp"
+              ]
+            }
           }
         },
         {
           "name": "3. Admin Refresh Token",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{adminRefreshToken}}\"\n}" },
-            "url": { "raw": "{{baseUrl}}/admin/auth/refresh", "host": ["{{baseUrl}}"], "path": ["admin","auth","refresh"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{adminRefreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/auth/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "auth",
+                "refresh"
+              ]
+            }
           }
         },
         {
           "name": "4. Admin Logout",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{adminRefreshToken}}\"\n}" },
-            "url": { "raw": "{{baseUrl}}/admin/auth/logout", "host": ["{{baseUrl}}"], "path": ["admin","auth","logout"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{adminRefreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "auth",
+                "logout"
+              ]
+            }
           }
         }
       ]
@@ -69,7 +186,16 @@
           "name": "Get Dashboard Stats",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/admin/dashboard", "host": ["{{baseUrl}}"], "path": ["admin","dashboard"] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/dashboard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "dashboard"
+              ]
+            }
           }
         }
       ]
@@ -81,50 +207,179 @@
           "name": "List Associates (with filters)",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/admin/associates?page=1&pageSize=20&status=ACTIVE&search=IW100001&fromDate=2024-01-01&toDate=2025-12-31", "host": ["{{baseUrl}}"], "path": ["admin","associates"], "query": [{"key":"page","value":"1"},{"key":"pageSize","value":"20"},{"key":"status","value":"ACTIVE"},{"key":"search","value":"IW100001"},{"key":"fromDate","value":"2024-01-01"},{"key":"toDate","value":"2025-12-31"}] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/associates?page=1&pageSize=20&status=ACTIVE&search=IW100001&fromDate=2024-01-01&toDate=2025-12-31",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "associates"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                },
+                {
+                  "key": "status",
+                  "value": "ACTIVE"
+                },
+                {
+                  "key": "search",
+                  "value": "IW100001"
+                },
+                {
+                  "key": "fromDate",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "toDate",
+                  "value": "2025-12-31"
+                }
+              ]
+            }
           }
         },
         {
           "name": "Get Associate Detail",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/admin/associates/:id", "host": ["{{baseUrl}}"], "path": ["admin","associates",":id"], "variable": [{"key":"id","value":"associate-uuid"}] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/associates/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "associates",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "associate-uuid"
+                }
+              ]
+            }
           }
         },
         {
           "name": "Activate Associate",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"associateId\": \"associate-uuid\"\n}" },
-            "url": { "raw": "{{baseUrl}}/admin/associates/activate", "host": ["{{baseUrl}}"], "path": ["admin","associates","activate"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"associateId\": \"associate-uuid\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/associates/activate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "associates",
+                "activate"
+              ]
+            }
           }
         },
         {
           "name": "Suspend Associate",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"associateId\": \"associate-uuid\",\n  \"reason\": \"Policy violation\"\n}" },
-            "url": { "raw": "{{baseUrl}}/admin/associates/suspend", "host": ["{{baseUrl}}"], "path": ["admin","associates","suspend"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"associateId\": \"associate-uuid\",\n  \"reason\": \"Policy violation\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/associates/suspend",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "associates",
+                "suspend"
+              ]
+            }
           }
         },
         {
           "name": "Update Associate",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Updated Name\",\n  \"city\": \"Delhi\"\n}" },
-            "url": { "raw": "{{baseUrl}}/admin/associates/:id", "host": ["{{baseUrl}}"], "path": ["admin","associates",":id"], "variable": [{"key":"id","value":"associate-uuid"}] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\",\n  \"city\": \"Delhi\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/associates/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "associates",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "associate-uuid"
+                }
+              ]
+            }
           }
         },
         {
           "name": "Promote Associate",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"associateId\": \"associate-uuid\"\n}" },
-            "url": { "raw": "{{baseUrl}}/admin/associates/promote", "host": ["{{baseUrl}}"], "path": ["admin","associates","promote"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"associateId\": \"associate-uuid\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/associates/promote",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "associates",
+                "promote"
+              ]
+            }
           }
         }
       ]
@@ -136,28 +391,113 @@
           "name": "Get Tree (depth=5)",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/admin/genealogy/tree/:associateId?depth=5", "host": ["{{baseUrl}}"], "path": ["admin","genealogy","tree",":associateId"], "variable": [{"key":"associateId","value":"associate-uuid"}], "query": [{"key":"depth","value":"5"}] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/genealogy/tree/:associateId?depth=5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "genealogy",
+                "tree",
+                ":associateId"
+              ],
+              "variable": [
+                {
+                  "key": "associateId",
+                  "value": "associate-uuid"
+                }
+              ],
+              "query": [
+                {
+                  "key": "depth",
+                  "value": "5"
+                }
+              ]
+            }
           }
         },
         {
           "name": "Get Downline Direct (depth=1)",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/admin/genealogy/tree/:associateId?depth=1", "host": ["{{baseUrl}}"], "path": ["admin","genealogy","tree",":associateId"], "variable": [{"key":"associateId","value":"associate-uuid"}], "query": [{"key":"depth","value":"1"}] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/genealogy/tree/:associateId?depth=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "genealogy",
+                "tree",
+                ":associateId"
+              ],
+              "variable": [
+                {
+                  "key": "associateId",
+                  "value": "associate-uuid"
+                }
+              ],
+              "query": [
+                {
+                  "key": "depth",
+                  "value": "1"
+                }
+              ]
+            }
           }
         },
         {
           "name": "Get Downline All (depth=10)",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/admin/genealogy/tree/:associateId?depth=10", "host": ["{{baseUrl}}"], "path": ["admin","genealogy","tree",":associateId"], "variable": [{"key":"associateId","value":"associate-uuid"}], "query": [{"key":"depth","value":"10"}] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/genealogy/tree/:associateId?depth=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "genealogy",
+                "tree",
+                ":associateId"
+              ],
+              "variable": [
+                {
+                  "key": "associateId",
+                  "value": "associate-uuid"
+                }
+              ],
+              "query": [
+                {
+                  "key": "depth",
+                  "value": "10"
+                }
+              ]
+            }
           }
         },
         {
           "name": "Search Associate",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/admin/genealogy/search?query=IW100001", "host": ["{{baseUrl}}"], "path": ["admin","genealogy","search"], "query": [{"key":"query","value":"IW100001"}] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/genealogy/search?query=IW100001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "genealogy",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "IW100001"
+                }
+              ]
+            }
           }
         }
       ]
@@ -169,44 +509,170 @@
           "name": "Get Pending KYC",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/admin/kyc/pending?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["admin","kyc","pending"], "query": [{"key":"page","value":"1"},{"key":"pageSize","value":"20"}] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/kyc/pending?page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "kyc",
+                "pending"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            }
           }
         },
         {
           "name": "Get KYC by Status (APPROVED)",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/admin/kyc/list?status=APPROVED&page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["admin","kyc","list"], "query": [{"key":"status","value":"APPROVED"},{"key":"page","value":"1"},{"key":"pageSize","value":"20"}] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/kyc/list?status=APPROVED&page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "kyc",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "APPROVED"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            }
           }
         },
         {
           "name": "Get KYC by Status (REJECTED)",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/admin/kyc/list?status=REJECTED&page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["admin","kyc","list"], "query": [{"key":"status","value":"REJECTED"},{"key":"page","value":"1"},{"key":"pageSize","value":"20"}] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/kyc/list?status=REJECTED&page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "kyc",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "REJECTED"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            }
           }
         },
         {
           "name": "Approve KYC",
           "request": {
             "method": "POST",
-            "url": { "raw": "{{baseUrl}}/admin/kyc/:id/approve", "host": ["{{baseUrl}}"], "path": ["admin","kyc",":id","approve"], "variable": [{"key":"id","value":"kyc-uuid"}] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/kyc/:id/approve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "kyc",
+                ":id",
+                "approve"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "kyc-uuid"
+                }
+              ]
+            }
           }
         },
         {
           "name": "Reject KYC",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"reason\": \"Document unclear or invalid\"\n}" },
-            "url": { "raw": "{{baseUrl}}/admin/kyc/:id/reject", "host": ["{{baseUrl}}"], "path": ["admin","kyc",":id","reject"], "variable": [{"key":"id","value":"kyc-uuid"}] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Document unclear or invalid\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/kyc/:id/reject",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "kyc",
+                ":id",
+                "reject"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "kyc-uuid"
+                }
+              ]
+            }
           }
         },
         {
           "name": "Get Associate KYC",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/admin/kyc/:associateId", "host": ["{{baseUrl}}"], "path": ["admin","kyc",":associateId"], "variable": [{"key":"associateId","value":"associate-uuid"}] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/kyc/:associateId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "kyc",
+                ":associateId"
+              ],
+              "variable": [
+                {
+                  "key": "associateId",
+                  "value": "associate-uuid"
+                }
+              ]
+            }
           }
         }
       ]
@@ -218,57 +684,188 @@
           "name": "Credit Wallet",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"associateId\": \"associate-uuid\",\n  \"amount\": 5000,\n  \"description\": \"Bonus credit\",\n  \"reason\": \"Incentive payment\"\n}" },
-            "url": { "raw": "{{baseUrl}}/admin/funds/credit", "host": ["{{baseUrl}}"], "path": ["admin","funds","credit"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"associateId\": \"associate-uuid\",\n  \"amount\": 5000,\n  \"description\": \"Bonus credit\",\n  \"reason\": \"Incentive payment\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/funds/credit",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "funds",
+                "credit"
+              ]
+            }
           }
         },
         {
           "name": "Debit Wallet",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"associateId\": \"associate-uuid\",\n  \"amount\": 1000,\n  \"description\": \"Fee deduction\",\n  \"reason\": \"Admin debit\"\n}" },
-            "url": { "raw": "{{baseUrl}}/admin/funds/debit", "host": ["{{baseUrl}}"], "path": ["admin","funds","debit"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"associateId\": \"associate-uuid\",\n  \"amount\": 1000,\n  \"description\": \"Fee deduction\",\n  \"reason\": \"Admin debit\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/funds/debit",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "funds",
+                "debit"
+              ]
+            }
           }
         },
         {
           "name": "Transfer Wallet",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"fromAssociateId\": \"uuid-a\",\n  \"toAssociateId\": \"uuid-b\",\n  \"amount\": 2000,\n  \"reason\": \"Transfer request\"\n}" },
-            "url": { "raw": "{{baseUrl}}/admin/funds/transfer", "host": ["{{baseUrl}}"], "path": ["admin","funds","transfer"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fromAssociateId\": \"uuid-a\",\n  \"toAssociateId\": \"uuid-b\",\n  \"amount\": 2000,\n  \"reason\": \"Transfer request\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/funds/transfer",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "funds",
+                "transfer"
+              ]
+            }
           }
         },
         {
           "name": "Get Fund Logs",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/admin/funds/logs?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["admin","funds","logs"], "query": [{"key":"page","value":"1"},{"key":"pageSize","value":"20"}] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/funds/logs?page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "funds",
+                "logs"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            }
           }
         },
         {
           "name": "Advance Payment (Credit/Debit)",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"associateId\": \"associate-uuid\",\n  \"type\": \"CREDIT\",\n  \"amount\": 10000,\n  \"account\": \"HDFC Bank\",\n  \"remark\": \"Advance payment\",\n  \"date\": \"2025-06-01\"\n}" },
-            "url": { "raw": "{{baseUrl}}/admin/funds/advance", "host": ["{{baseUrl}}"], "path": ["admin","funds","advance"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"associateId\": \"associate-uuid\",\n  \"type\": \"CREDIT\",\n  \"amount\": 10000,\n  \"account\": \"HDFC Bank\",\n  \"remark\": \"Advance payment\",\n  \"date\": \"2025-06-01\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/funds/advance",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "funds",
+                "advance"
+              ]
+            }
           }
         },
         {
           "name": "Get Advance Ledger",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/admin/funds/advance/ledger?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["admin","funds","advance","ledger"], "query": [{"key":"page","value":"1"},{"key":"pageSize","value":"20"}] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/funds/advance/ledger?page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "funds",
+                "advance",
+                "ledger"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            }
           }
         },
         {
           "name": "Get Advance Balance by UserId",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/admin/funds/advance/balance/:userId", "host": ["{{baseUrl}}"], "path": ["admin","funds","advance","balance",":userId"], "variable": [{"key":"userId","value":"IW100001"}] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/funds/advance/balance/:userId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "funds",
+                "advance",
+                "balance",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "IW100001"
+                }
+              ]
+            }
           }
         }
       ]
@@ -280,60 +877,208 @@
           "name": "Get Commission Slabs",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/admin/commissions/slabs", "host": ["{{baseUrl}}"], "path": ["admin","commissions","slabs"] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/commissions/slabs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "commissions",
+                "slabs"
+              ]
+            }
           }
         },
         {
           "name": "Create Commission Slab",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"minArea\": 0,\n  \"maxArea\": 6000,\n  \"sellerPercent\": 4,\n  \"level1Percent\": 6,\n  \"level2Percent\": 7.5,\n  \"level3Percent\": 9,\n  \"level4Percent\": 10,\n  \"level5Percent\": 11,\n  \"level6Percent\": 12,\n  \"level7Percent\": 13,\n  \"level8Percent\": 14,\n  \"level9Percent\": 2,\n  \"level10Percent\": 0,\n  \"isActive\": true\n}" },
-            "url": { "raw": "{{baseUrl}}/admin/commissions/slabs", "host": ["{{baseUrl}}"], "path": ["admin","commissions","slabs"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"minArea\": 0,\n  \"maxArea\": 6000,\n  \"sellerPercent\": 4,\n  \"level1Percent\": 6,\n  \"level2Percent\": 7.5,\n  \"level3Percent\": 9,\n  \"level4Percent\": 10,\n  \"level5Percent\": 11,\n  \"level6Percent\": 12,\n  \"level7Percent\": 13,\n  \"level8Percent\": 14,\n  \"level9Percent\": 2,\n  \"level10Percent\": 0,\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/commissions/slabs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "commissions",
+                "slabs"
+              ]
+            }
           }
         },
         {
           "name": "Update Commission Slab",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"sellerPercent\": 4.5\n}" },
-            "url": { "raw": "{{baseUrl}}/admin/commissions/slabs/:id", "host": ["{{baseUrl}}"], "path": ["admin","commissions","slabs",":id"], "variable": [{"key":"id","value":"slab-uuid"}] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sellerPercent\": 4.5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/commissions/slabs/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "commissions",
+                "slabs",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "slab-uuid"
+                }
+              ]
+            }
           }
         },
         {
           "name": "Delete Commission Slab",
           "request": {
             "method": "DELETE",
-            "url": { "raw": "{{baseUrl}}/admin/commissions/slabs/:id", "host": ["{{baseUrl}}"], "path": ["admin","commissions","slabs",":id"], "variable": [{"key":"id","value":"slab-uuid"}] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/commissions/slabs/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "commissions",
+                "slabs",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "slab-uuid"
+                }
+              ]
+            }
           }
         },
         {
           "name": "Get Pending Commissions",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/admin/commissions/pending?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["admin","commissions","pending"], "query": [{"key":"page","value":"1"},{"key":"pageSize","value":"20"}] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/commissions/pending?page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "commissions",
+                "pending"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            }
           }
         },
         {
           "name": "Get All Commissions",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/admin/commissions/all?page=1&pageSize=20&status=PENDING", "host": ["{{baseUrl}}"], "path": ["admin","commissions","all"], "query": [{"key":"page","value":"1"},{"key":"pageSize","value":"20"},{"key":"status","value":"PENDING"}] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/commissions/all?page=1&pageSize=20&status=PENDING",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "commissions",
+                "all"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                },
+                {
+                  "key": "status",
+                  "value": "PENDING"
+                }
+              ]
+            }
           }
         },
         {
           "name": "Approve Commission",
           "request": {
             "method": "POST",
-            "url": { "raw": "{{baseUrl}}/admin/commissions/:id/approve", "host": ["{{baseUrl}}"], "path": ["admin","commissions",":id","approve"], "variable": [{"key":"id","value":"commission-uuid"}] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/commissions/:id/approve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "commissions",
+                ":id",
+                "approve"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "commission-uuid"
+                }
+              ]
+            }
           }
         },
         {
           "name": "Reject Commission",
           "request": {
             "method": "POST",
-            "url": { "raw": "{{baseUrl}}/admin/commissions/:id/reject", "host": ["{{baseUrl}}"], "path": ["admin","commissions",":id","reject"], "variable": [{"key":"id","value":"commission-uuid"}] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/commissions/:id/reject",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "commissions",
+                ":id",
+                "reject"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "commission-uuid"
+                }
+              ]
+            }
           }
         }
       ]
@@ -345,23 +1090,84 @@
           "name": "List Payouts",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/admin/payouts?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["admin","payouts"], "query": [{"key":"page","value":"1"},{"key":"pageSize","value":"20"}] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/payouts?page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "payouts"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            }
           }
         },
         {
           "name": "Approve Payout",
           "request": {
             "method": "POST",
-            "url": { "raw": "{{baseUrl}}/admin/payouts/:id/approve", "host": ["{{baseUrl}}"], "path": ["admin","payouts",":id","approve"], "variable": [{"key":"id","value":"payout-uuid"}] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/payouts/:id/approve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "payouts",
+                ":id",
+                "approve"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "payout-uuid"
+                }
+              ]
+            }
           }
         },
         {
           "name": "Reject Payout",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"reason\": \"Insufficient documentation\"\n}" },
-            "url": { "raw": "{{baseUrl}}/admin/payouts/:id/reject", "host": ["{{baseUrl}}"], "path": ["admin","payouts",":id","reject"], "variable": [{"key":"id","value":"payout-uuid"}] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Insufficient documentation\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/payouts/:id/reject",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "payouts",
+                ":id",
+                "reject"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "payout-uuid"
+                }
+              ]
+            }
           }
         }
       ]
@@ -373,32 +1179,108 @@
           "name": "List Properties",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/admin/properties?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["admin","properties"], "query": [{"key":"page","value":"1"},{"key":"pageSize","value":"20"}] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/properties?page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "properties"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            }
           }
         },
         {
           "name": "Create Property",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Green Valley Plot\",\n  \"description\": \"Residential plot in green area\",\n  \"location\": \"Sector 15\",\n  \"city\": \"Jaipur\",\n  \"state\": \"Rajasthan\",\n  \"area\": 500,\n  \"price\": 2500000,\n  \"type\": \"Plot\",\n  \"amenities\": [\"Water\", \"Electricity\", \"Road\"]\n}" },
-            "url": { "raw": "{{baseUrl}}/admin/properties", "host": ["{{baseUrl}}"], "path": ["admin","properties"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Green Valley Plot\",\n  \"description\": \"Residential plot in green area\",\n  \"location\": \"Sector 15\",\n  \"city\": \"Jaipur\",\n  \"state\": \"Rajasthan\",\n  \"area\": 500,\n  \"price\": 2500000,\n  \"type\": \"Plot\",\n  \"amenities\": [\"Water\", \"Electricity\", \"Road\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/properties",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "properties"
+              ]
+            }
           }
         },
         {
           "name": "Update Property",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"price\": 2800000,\n  \"status\": \"AVAILABLE\"\n}" },
-            "url": { "raw": "{{baseUrl}}/admin/properties/:id", "host": ["{{baseUrl}}"], "path": ["admin","properties",":id"], "variable": [{"key":"id","value":"property-uuid"}] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 2800000,\n  \"status\": \"AVAILABLE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/properties/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "properties",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "property-uuid"
+                }
+              ]
+            }
           }
         },
         {
           "name": "Delete Property",
           "request": {
             "method": "DELETE",
-            "url": { "raw": "{{baseUrl}}/admin/properties/:id", "host": ["{{baseUrl}}"], "path": ["admin","properties",":id"], "variable": [{"key":"id","value":"property-uuid"}] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/properties/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "properties",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "property-uuid"
+                }
+              ]
+            }
           }
         }
       ]
@@ -410,39 +1292,136 @@
           "name": "List Bookings",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/admin/bookings?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["admin","bookings"], "query": [{"key":"page","value":"1"},{"key":"pageSize","value":"20"}] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/bookings?page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "bookings"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            }
           }
         },
         {
           "name": "Create Booking",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"associateId\": \"associate-uuid\",\n  \"propertyId\": \"property-uuid\",\n  \"customerName\": \"Ram Singh\",\n  \"customerMobile\": \"9876543210\",\n  \"plotNo\": \"A-12\",\n  \"plotArea\": 500,\n  \"costPerUnit\": 5000,\n  \"totalCost\": 2500000,\n  \"amount\": 50000,\n  \"modeOfPayment\": \"Cheque\",\n  \"chequeNo\": \"123456\",\n  \"bankName\": \"HDFC Bank\"\n}" },
-            "url": { "raw": "{{baseUrl}}/admin/bookings", "host": ["{{baseUrl}}"], "path": ["admin","bookings"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"associateId\": \"associate-uuid\",\n  \"propertyId\": \"property-uuid\",\n  \"customerName\": \"Ram Singh\",\n  \"customerMobile\": \"9876543210\",\n  \"plotNo\": \"A-12\",\n  \"plotArea\": 500,\n  \"costPerUnit\": 5000,\n  \"totalCost\": 2500000,\n  \"amount\": 50000,\n  \"modeOfPayment\": \"Cheque\",\n  \"chequeNo\": \"123456\",\n  \"bankName\": \"HDFC Bank\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "bookings"
+              ]
+            }
           }
         },
         {
           "name": "Approve Booking",
           "request": {
             "method": "POST",
-            "url": { "raw": "{{baseUrl}}/admin/bookings/:id/approve", "host": ["{{baseUrl}}"], "path": ["admin","bookings",":id","approve"], "variable": [{"key":"id","value":"booking-uuid"}] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/bookings/:id/approve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "bookings",
+                ":id",
+                "approve"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "booking-uuid"
+                }
+              ]
+            }
           }
         },
         {
           "name": "Reject Booking",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"reason\": \"Payment verification failed\"\n}" },
-            "url": { "raw": "{{baseUrl}}/admin/bookings/:id/reject", "host": ["{{baseUrl}}"], "path": ["admin","bookings",":id","reject"], "variable": [{"key":"id","value":"booking-uuid"}] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Payment verification failed\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/bookings/:id/reject",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "bookings",
+                ":id",
+                "reject"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "booking-uuid"
+                }
+              ]
+            }
           }
         },
         {
           "name": "List All Transactions",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/admin/transactions?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["admin","transactions"], "query": [{"key":"page","value":"1"},{"key":"pageSize","value":"20"}] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/transactions?page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "transactions"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            }
           }
         }
       ]
@@ -456,9 +1435,32 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/admin/reports/joining?startDate=2025-01-01&endDate=2025-12-31&page=1&pageSize=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin","reports","joining"],
-              "query": [{"key":"startDate","value":"2025-01-01"},{"key":"endDate","value":"2025-12-31"},{"key":"page","value":"1"},{"key":"pageSize","value":"20"}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "reports",
+                "joining"
+              ],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2025-01-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2025-12-31"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
             }
           }
         },
@@ -468,9 +1470,32 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/admin/reports/activation?startDate=2025-01-01&endDate=2025-12-31&page=1&pageSize=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin","reports","activation"],
-              "query": [{"key":"startDate","value":"2025-01-01"},{"key":"endDate","value":"2025-12-31"},{"key":"page","value":"1"},{"key":"pageSize","value":"20"}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "reports",
+                "activation"
+              ],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2025-01-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2025-12-31"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
             }
           }
         },
@@ -480,9 +1505,37 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/admin/reports/income?startDate=2025-01-01&endDate=2025-12-31&page=1&pageSize=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin","reports","income"],
-              "query": [{"key":"startDate","value":"2025-01-01"},{"key":"endDate","value":"2025-12-31"},{"key":"page","value":"1"},{"key":"pageSize","value":"20"},{"key":"type","value":"","description":"Optional: DIRECT, LEVEL, MATCHING, REWARD"}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "reports",
+                "income"
+              ],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2025-01-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2025-12-31"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                },
+                {
+                  "key": "type",
+                  "value": "",
+                  "description": "Optional: DIRECT, LEVEL, MATCHING, REWARD"
+                }
+              ]
             }
           }
         },
@@ -492,9 +1545,37 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/admin/reports/withdrawal?startDate=2025-01-01&endDate=2025-12-31&page=1&pageSize=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin","reports","withdrawal"],
-              "query": [{"key":"startDate","value":"2025-01-01"},{"key":"endDate","value":"2025-12-31"},{"key":"page","value":"1"},{"key":"pageSize","value":"20"},{"key":"status","value":"","description":"Optional: PENDING, APPROVED, REJECTED, PAID"}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "reports",
+                "withdrawal"
+              ],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2025-01-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2025-12-31"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "Optional: PENDING, APPROVED, REJECTED, PAID"
+                }
+              ]
             }
           }
         },
@@ -504,9 +1585,32 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/admin/reports/fund-transfer?startDate=2025-01-01&endDate=2025-12-31&page=1&pageSize=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin","reports","fund-transfer"],
-              "query": [{"key":"startDate","value":"2025-01-01"},{"key":"endDate","value":"2025-12-31"},{"key":"page","value":"1"},{"key":"pageSize","value":"20"}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "reports",
+                "fund-transfer"
+              ],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2025-01-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2025-12-31"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
             }
           }
         },
@@ -516,9 +1620,29 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/admin/reports/rank-achievers?rank=1&page=1&pageSize=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin","reports","rank-achievers"],
-              "query": [{"key":"rank","value":"1","description":"1=Business Associate, 2=Business Adviser, 3=Business Head, 4=Dist. Business Head, 5=State Business Head, 6=Regional Business Head, 7=National Business Head, 8=Vice President Sales, 9=President Sales, 10=President Club"},{"key":"page","value":"1"},{"key":"pageSize","value":"20"}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "reports",
+                "rank-achievers"
+              ],
+              "query": [
+                {
+                  "key": "rank",
+                  "value": "1",
+                  "description": "1=Business Associate, 2=Business Adviser, 3=Business Head, 4=Dist. Business Head, 5=State Business Head, 6=Regional Business Head, 7=National Business Head, 8=Vice President Sales, 9=President Sales, 10=President Club"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
             }
           }
         },
@@ -528,9 +1652,28 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/admin/reports/rank-achievers?rank=2&page=1&pageSize=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin","reports","rank-achievers"],
-              "query": [{"key":"rank","value":"2"},{"key":"page","value":"1"},{"key":"pageSize","value":"20"}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "reports",
+                "rank-achievers"
+              ],
+              "query": [
+                {
+                  "key": "rank",
+                  "value": "2"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
             }
           }
         },
@@ -540,9 +1683,28 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/admin/reports/rank-achievers?rank=10&page=1&pageSize=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin","reports","rank-achievers"],
-              "query": [{"key":"rank","value":"10"},{"key":"page","value":"1"},{"key":"pageSize","value":"20"}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "reports",
+                "rank-achievers"
+              ],
+              "query": [
+                {
+                  "key": "rank",
+                  "value": "10"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
             }
           }
         },
@@ -552,9 +1714,21 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/admin/reports/user/:associateId",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin","reports","user",":associateId"],
-              "variable": [{"key":"associateId","value":"associate-uuid"}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "reports",
+                "user",
+                ":associateId"
+              ],
+              "variable": [
+                {
+                  "key": "associateId",
+                  "value": "associate-uuid"
+                }
+              ]
             }
           }
         },
@@ -564,9 +1738,26 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/admin/reports/export/excel/joining?startDate=2025-01-01&endDate=2025-12-31",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin","reports","export","excel","joining"],
-              "query": [{"key":"startDate","value":"2025-01-01"},{"key":"endDate","value":"2025-12-31"}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "reports",
+                "export",
+                "excel",
+                "joining"
+              ],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2025-01-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2025-12-31"
+                }
+              ]
             }
           }
         },
@@ -576,9 +1767,26 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/admin/reports/export/pdf/joining?startDate=2025-01-01&endDate=2025-12-31",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin","reports","export","pdf","joining"],
-              "query": [{"key":"startDate","value":"2025-01-01"},{"key":"endDate","value":"2025-12-31"}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "reports",
+                "export",
+                "pdf",
+                "joining"
+              ],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2025-01-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2025-12-31"
+                }
+              ]
             }
           }
         },
@@ -588,8 +1796,16 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/admin/reports/export/excel/activation",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin","reports","export","excel","activation"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "reports",
+                "export",
+                "excel",
+                "activation"
+              ]
             }
           }
         },
@@ -599,8 +1815,16 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/admin/reports/export/excel/income",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin","reports","export","excel","income"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "reports",
+                "export",
+                "excel",
+                "income"
+              ]
             }
           }
         },
@@ -610,8 +1834,16 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/admin/reports/export/excel/withdrawal",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin","reports","export","excel","withdrawal"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "reports",
+                "export",
+                "excel",
+                "withdrawal"
+              ]
             }
           }
         },
@@ -621,8 +1853,16 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/admin/reports/export/excel/fund-transfer",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin","reports","export","excel","fund-transfer"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "reports",
+                "export",
+                "excel",
+                "fund-transfer"
+              ]
             }
           }
         },
@@ -632,9 +1872,22 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/admin/reports/export/excel/rank-achievers?rank=2",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin","reports","export","excel","rank-achievers"],
-              "query": [{"key":"rank","value":"2"}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "reports",
+                "export",
+                "excel",
+                "rank-achievers"
+              ],
+              "query": [
+                {
+                  "key": "rank",
+                  "value": "2"
+                }
+              ]
             }
           }
         },
@@ -644,9 +1897,22 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/admin/reports/export/pdf/rank-achievers?rank=2",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin","reports","export","pdf","rank-achievers"],
-              "query": [{"key":"rank","value":"2"}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "reports",
+                "export",
+                "pdf",
+                "rank-achievers"
+              ],
+              "query": [
+                {
+                  "key": "rank",
+                  "value": "2"
+                }
+              ]
             }
           }
         }
@@ -659,18 +1925,53 @@
           "name": "Send Notification",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"associateId\": \"associate-uuid\",\n  \"title\": \"New Update\",\n  \"message\": \"A new property is now available.\",\n  \"type\": \"ANNOUNCEMENT\"\n}" },
-            "url": { "raw": "{{baseUrl}}/admin/notifications", "host": ["{{baseUrl}}"], "path": ["admin","notifications"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"associateId\": \"associate-uuid\",\n  \"title\": \"New Update\",\n  \"message\": \"A new property is now available.\",\n  \"type\": \"ANNOUNCEMENT\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/notifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "notifications"
+              ]
+            }
           }
         },
         {
           "name": "Broadcast Notification",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Important Announcement\",\n  \"message\": \"New scheme launching soon.\",\n  \"type\": \"ANNOUNCEMENT\"\n}" },
-            "url": { "raw": "{{baseUrl}}/admin/notifications/broadcast", "host": ["{{baseUrl}}"], "path": ["admin","notifications","broadcast"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Important Announcement\",\n  \"message\": \"New scheme launching soon.\",\n  \"type\": \"ANNOUNCEMENT\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/notifications/broadcast",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "notifications",
+                "broadcast"
+              ]
+            }
           }
         }
       ]
@@ -682,33 +1983,100 @@
           "name": "Get Config",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/admin/config", "host": ["{{baseUrl}}"], "path": ["admin","config"] }
+            "url": {
+              "raw": "{{baseUrl}}/admin/config",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "config"
+              ]
+            }
           }
         },
         {
           "name": "Update Config",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"key\": \"some_setting\",\n  \"value\": \"some_value\"\n}" },
-            "url": { "raw": "{{baseUrl}}/admin/config", "host": ["{{baseUrl}}"], "path": ["admin","config"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"some_setting\",\n  \"value\": \"some_value\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/config",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "config"
+              ]
+            }
           }
         },
         {
           "name": "Update App Version",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"platform\": \"android\",\n  \"minVersion\": \"1.0.0\",\n  \"latestVersion\": \"1.2.0\",\n  \"storeUrl\": \"https://play.google.com/store\",\n  \"forceUpdate\": false\n}" },
-            "url": { "raw": "{{baseUrl}}/admin/app-version", "host": ["{{baseUrl}}"], "path": ["admin","app-version"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"platform\": \"android\",\n  \"minVersion\": \"1.0.0\",\n  \"latestVersion\": \"1.2.0\",\n  \"storeUrl\": \"https://play.google.com/store\",\n  \"forceUpdate\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/app-version",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "app-version"
+              ]
+            }
           }
         },
         {
           "name": "Update Branding Asset",
           "request": {
             "method": "POST",
-            "body": { "mode": "formdata", "formdata": [{ "key": "file", "type": "file", "src": "" }, { "key": "key", "value": "logo", "type": "text" }] },
-            "url": { "raw": "{{baseUrl}}/admin/config/branding", "host": ["{{baseUrl}}"], "path": ["admin","config","branding"] }
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "key",
+                  "value": "logo",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/config/branding",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "config",
+                "branding"
+              ]
+            }
           }
         }
       ]

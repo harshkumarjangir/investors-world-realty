@@ -838,38 +838,6 @@
             },
             "description": "Paginated list of all income records.\n\n**Income types:** `DIRECT` | `LEVEL` | `MATCHING` | `REWARD`\n**Status:** `PENDING` | `APPROVED` | `PAID` | `REJECTED`"
           }
-        },
-        {
-          "name": "Commission Calculator",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"areaInGaj\": 500,\n  \"rank\": 1\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/income/calculator",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "income",
-                "calculator"
-              ]
-            },
-            "description": "Estimate commission for a given area and seller rank.\n\n**Gap-based model:**\n- Seller gets full rank slab %\n- Each upline gets the gap between their slab % and the previous level\n- President Club (rank 10) always gets flat 2%\n- Any rank can sell"
-          }
         }
       ]
     },
@@ -1875,40 +1843,6 @@
           }
         },
         {
-          "name": "Commission Calculator",
-          "request": {
-            "auth": {
-              "type": "noauth"
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"areaInGaj\": 500,\n  \"rank\": 1\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/public/commission-calculator",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "public",
-                "commission-calculator"
-              ]
-            }
-          }
-        },
-        {
           "name": "EMI Calculator",
           "request": {
             "auth": {
@@ -2022,6 +1956,24 @@
             },
             "description": "Returns cities for a given state name.\n\nUse this to populate the City dropdown after user selects a State.\n\n**Query param:** `state` = state name (e.g. `Rajasthan`, `Maharashtra`)\n\n**Response:**\n```json\n{\n  \"data\": [\n    { \"id\": \"uuid\", \"name\": \"Jaipur\" },\n    { \"id\": \"uuid\", \"name\": \"Jodhpur\" },\n    ...\n  ]\n}\n```\n\n**Flutter flow:**\n1. Call `/public/states` on screen load → populate state dropdown\n2. On state selected → call `/public/cities?state=<selectedState>` → populate city dropdown\n\nNo auth required."
           }
+        },
+        {
+          "name": "Help Center API",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/public/help-center",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "help-center"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     }

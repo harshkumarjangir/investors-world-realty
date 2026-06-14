@@ -397,6 +397,31 @@ Returns **JSON** (`Content-Type: application/json`) — Help & support page. In-
 }
 ```
 
+### GET `/public/help-center`
+Returns **JSON** (`Content-Type: application/json`) — Help center data including heading, 4 cards, and footer info.
+```json
+{
+  "status": "success",
+  "data": {
+    "heading": "How can we help you?",
+    "subHeading": "Our team is available to assist you with any queries.",
+    "cards": [
+      {
+        "id": "ticket",
+        "title": "Raise a Ticket",
+        "description": "Report an issue or request help",
+        "type": "app_route",
+        "action": "/support/tickets"
+      }
+    ],
+    "footer": {
+      "time": "Available 10:00 AM - 06:00 PM",
+      "days": "Monday to Saturday"
+    }
+  }
+}
+```
+
 ### POST `/public/contact`
 ```json
 {
@@ -416,14 +441,7 @@ Returns **JSON** (`Content-Type: application/json`) — Help & support page. In-
 }
 ```
 
-### POST `/public/commission-calculator`
-```json
-{
-  "referrals": 5,
-  "depth": 3,
-  "packageId": "default-package-001"
-}
-```
+
 
 ---
 
@@ -451,7 +469,6 @@ Returns **JSON** (`Content-Type: application/json`) — Help & support page. In-
   "panNumber": "XYZAB5678C",
   "sponsorId": "IW100001",
   "placement": "RIGHT",
-  "packageId": "default-package-001",
   "password": "NewUser@123"
 }
 ```
@@ -471,7 +488,6 @@ Returns **JSON** (`Content-Type: application/json`) — Help & support page. In-
 ### POST `/admin/associates/:id/activate`
 ```json
 {
-  "packageId": "default-package-001"
 }
 ```
 
@@ -611,7 +627,6 @@ No body required.
 **Target options:**
 - `"target": "all"` — send to all associates
 - `"target": "specific", "targetIds": ["uuid1", "uuid2"]` — specific associates
-- `"target": "package", "targetIds": ["package-uuid"]` — all associates with that package
 
 ### GET `/admin/notifications/history?page=1&pageSize=20`
 
@@ -652,31 +667,6 @@ No body required.
 
 ## 🛡️ Admin — Configuration 🔒 (Admin)
 
-### GET `/admin/config/packages`
-### POST `/admin/config/packages`
-```json
-{
-  "name": "Gold Package",
-  "price": 10000,
-  "benefits": ["All features", "Priority support"],
-  "directPercent": 12
-}
-```
-### PATCH `/admin/config/packages/:id`
-### DELETE `/admin/config/packages/:id`
-
-### GET `/admin/config/income-plans`
-### POST `/admin/config/income-plans`
-```json
-{
-  "type": "LEVEL",
-  "level": 6,
-  "percentage": 0.5,
-  "isActive": true
-}
-```
-### PATCH `/admin/config/income-plans/:id`
-### DELETE `/admin/config/income-plans/:id`
 
 ### GET `/admin/config/categories`
 ### POST `/admin/config/categories`

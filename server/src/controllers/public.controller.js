@@ -113,6 +113,48 @@ export async function publicSupportPageHandler(req, res) {
   });
 }
 
+// ─── GET /api/v1/public/help-center ──────────────────────────────────────────
+export async function publicHelpCenterHandler(req, res) {
+  return successResponse(res, {
+    heading: "How can we help you?",
+    subHeading: "Our team is available to assist you with any queries.",
+    cards: [
+      {
+        id: "ticket",
+        title: "Raise a Ticket",
+        description: "Report an issue or request help",
+        type: "app_route",
+        action: "/support/tickets"
+      },
+      {
+        id: "whatsapp",
+        title: "WhatsApp Support",
+        description: "Chat with our support team",
+        type: "whatsapp",
+        action: "+919876543210"
+      },
+      {
+        id: "call",
+        title: "Call Support",
+        description: "Talk to our representative",
+        type: "phone",
+        action: "+919876543210"
+      },
+      {
+        id: "email",
+        title: "Email Support",
+        description: "Send us an email anytime",
+        type: "email",
+        action: "support@investorsworldrealty.com"
+      }
+    ],
+    footer: {
+      time: "Available 10:00 AM - 06:00 PM",
+      days: "Monday to Saturday"
+    }
+  }, 'Help center info');
+}
+
 // ─── GET /api/v1/public/health ───────────────────────────────────────────────
 export async function publicHealthHandler(req, res) {
   try {
