@@ -342,6 +342,38 @@ function PropertyForm({ property, schemes, defaultScheme, onClose, onSuccess }) 
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [publicStates, setPublicStates] = useState([]);
+  const [publicCities, setPublicCities] = useState([]);
+
+  useEffect(() => {
+    fetchPublicStates();
+  }, []);
+
+  useEffect(() => {
+    if (form.state) {
+      fetchPublicCities(form.state);
+    } else {
+      setPublicCities([]);
+    }
+  }, [form.state]);
+
+  const fetchPublicStates = async () => {
+    try {
+      const res = await api.get('/public/states');
+      setPublicStates(res.data?.data || []);
+    } catch (err) {
+      console.error('Failed to load public states', err);
+    }
+  };
+
+  const fetchPublicCities = async (stateName) => {
+    try {
+      const res = await api.get('/public/cities', { params: { state: stateName } });
+      setPublicCities(res.data?.data || []);
+    } catch (err) {
+      console.error('Failed to load public cities', err);
+    }
+  };
 
   const handleSchemeChange = (schemeId) => {
     const scheme = schemes.find((s) => s.id === schemeId);
@@ -417,8 +449,18 @@ function PropertyForm({ property, schemes, defaultScheme, onClose, onSuccess }) 
           <textarea name="description" placeholder="Description *" value={form.description} onChange={handleChange} rows={3} required className={ic} />
           <div className="grid grid-cols-2 gap-3">
             <input name="location" placeholder="Location" value={form.location} onChange={handleChange} className={ic} />
-            <input name="city" placeholder="City" value={form.city} onChange={handleChange} className={ic} />
-            <input name="state" placeholder="State" value={form.state} onChange={handleChange} className={ic} />
+            <select name="state" value={form.state} onChange={handleChange} className={ic}>
+              <option value="">Select State</option>
+              {publicStates.map((s) => (
+                <option key={s.id} value={s.name}>{s.name}</option>
+              ))}
+            </select>
+            <select name="city" value={form.city} onChange={handleChange} className={ic}>
+              <option value="">Select City</option>
+              {publicCities.map((c) => (
+                <option key={c.id} value={c.name}>{c.name}</option>
+              ))}
+            </select>
             <input name="area" placeholder="Area (sq ft) *" value={form.area} onChange={handleChange} required className={ic} />
             <input name="price" placeholder="Price *" type="number" value={form.price} onChange={handleChange} required className={ic} />
             <select name="type" value={form.type} onChange={handleChange} required className={ic}>
