@@ -1,10 +1,5 @@
 import bcrypt from 'bcryptjs';
 import prisma from '../utils/prisma.js';
-import {
-  calculateDirectIncome,
-  calculateLevelIncome,
-  updateBusinessVolumes,
-} from './mlm.service.js';
 
 // ─── User ID Generation ───────────────────────────────────────────────────────
 

@@ -16,7 +16,6 @@ export function generateWelcomeLetter(associateId) {
         where: { id: associateId },
         include: {
           sponsor: { select: { name: true, userId: true } },
-          package: { select: { name: true, price: true } },
         },
       });
 
@@ -64,7 +63,6 @@ export function generateWelcomeLetter(associateId) {
         ['Activation Date:', associate.activationDate
           ? new Date(associate.activationDate).toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' })
           : '-'],
-        ['Package:', associate.package?.name?.toUpperCase() ?? 'REGISTRATION'],
         ['Pan No:', associate.panNumber ?? '-'],
       ];
 
@@ -225,9 +223,6 @@ export function generateAgreement(associateId) {
     try {
       const associate = await prisma.associate.findUnique({
         where: { id: associateId },
-        include: {
-          package: { select: { name: true, price: true, benefits: true } },
-        },
       });
 
       if (!associate) {
@@ -270,24 +265,7 @@ export function generateAgreement(associateId) {
       doc.text(`Joining Date   : ${associate.joiningDate ? new Date(associate.joiningDate).toLocaleDateString('en-IN') : 'N/A'}`);
       doc.moveDown(1);
 
-      // ── Package Details ──
-      doc.fontSize(13).font('Helvetica-Bold').text('Package Details').moveDown(0.5);
-      doc.fontSize(11).font('Helvetica');
-      doc.text(`Package Name   : ${associate.package?.name ?? 'N/A'}`);
-      doc.text(`Package Price  : ₹${associate.package ? Number(associate.package.price).toLocaleString('en-IN') : 'N/A'}`);
-      doc.moveDown(0.5);
 
-      if (associate.package?.benefits) {
-        doc.fontSize(12).font('Helvetica-Bold').text('Package Benefits:').moveDown(0.3);
-        doc.fontSize(11).font('Helvetica');
-        const benefits = Array.isArray(associate.package.benefits)
-          ? associate.package.benefits
-          : [];
-        benefits.forEach((benefit) => {
-          doc.text(`  • ${benefit}`);
-        });
-      }
-      doc.moveDown(1);
 
       // ── Terms and Conditions ──
       doc.fontSize(13).font('Helvetica-Bold').text('Terms and Conditions').moveDown(0.5);

@@ -4,7 +4,6 @@ import { authRateLimit } from '../middleware/rateLimiter.js';
 import {
   getIncomeSummaryHandler,
   getIncomeHistoryHandler,
-  calculateProjectedHandler,
 } from '../controllers/income.controller.js';
 
 const router = Router();
@@ -18,7 +17,5 @@ router.get('/summary', getIncomeSummaryHandler);
 // GET /api/v1/income/history?page=1&pageSize=20
 router.get('/history', getIncomeHistoryHandler);
 
-// POST /api/v1/income/calculator
-router.post('/calculator', calculateProjectedHandler);
 
 export default router;

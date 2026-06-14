@@ -1,50 +1,5 @@
 import prisma from '../../utils/prisma.js';
 
-// ─── Packages ─────────────────────────────────────────────────────────────────
-
-export async function listPackages() {
-  return prisma.package.findMany({ orderBy: { createdAt: 'desc' } });
-}
-
-export async function createPackage(data) {
-  const { name, price, benefits, directPercent } = data;
-  return prisma.package.create({
-    data: { name, price: Number(price), benefits: benefits || [], directPercent: Number(directPercent) },
-  });
-}
-
-export async function updatePackage(id, data) {
-  const pkg = await prisma.package.findUnique({ where: { id } });
-  if (!pkg) throw Object.assign(new Error('Package not found'), { statusCode: 404 });
-  return prisma.package.update({ where: { id }, data });
-}
-
-export async function deletePackage(id) {
-  const inUse = await prisma.associate.count({ where: { packageId: id, deletedAt: null } });
-  if (inUse > 0) throw Object.assign(new Error('Cannot delete package in use by active associates'), { statusCode: 400 });
-  return prisma.package.delete({ where: { id } });
-}
-
-// ─── Income Plans ─────────────────────────────────────────────────────────────
-
-export async function listIncomePlans() {
-  return prisma.incomePlan.findMany({ orderBy: { type: 'asc' } });
-}
-
-export async function createIncomePlan(data) {
-  return prisma.incomePlan.create({ data });
-}
-
-export async function updateIncomePlan(id, data) {
-  const plan = await prisma.incomePlan.findUnique({ where: { id } });
-  if (!plan) throw Object.assign(new Error('Income plan not found'), { statusCode: 404 });
-  return prisma.incomePlan.update({ where: { id }, data });
-}
-
-export async function deleteIncomePlan(id) {
-  return prisma.incomePlan.delete({ where: { id } });
-}
-
 // ─── Property Categories ──────────────────────────────────────────────────────
 
 export async function listPropertyCategories() {

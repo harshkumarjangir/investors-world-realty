@@ -189,7 +189,6 @@ export async function getDownline(associateId, filters = {}, pagination = {}) {
       name: true,
       status: true,
       joiningDate: true,
-      package: { select: { name: true } },
     },
   });
 
@@ -206,7 +205,6 @@ export async function getDownline(associateId, filters = {}, pagination = {}) {
         name: a.name,
         status: a.status,
         joiningDate: a.joiningDate,
-        packageName: a.package?.name || null,
         level: d.depthFromRoot,
         position: d.legFromRoot,
       };

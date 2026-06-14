@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { publicRateLimit } from '../middleware/rateLimiter.js';
 import {
-  publicCommissionCalculatorHandler,
   publicListPropertiesHandler,
   publicAppVersionHandler,
   publicBrandingHandler,
@@ -16,8 +15,6 @@ import prisma from '../utils/prisma.js';
 
 const router = Router();
 
-// POST /api/v1/public/commission-calculator
-router.post('/commission-calculator', publicRateLimit, publicCommissionCalculatorHandler);
 
 // POST /api/v1/public/emi-calculator
 router.post('/emi-calculator', publicRateLimit, calculateEMIHandler);

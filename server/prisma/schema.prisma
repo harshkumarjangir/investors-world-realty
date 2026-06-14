@@ -156,8 +156,6 @@ model Associate {
   sponsor        Associate?      @relation("Sponsorship", fields: [sponsorId], references: [id])
   sponsored      Associate[]     @relation("Sponsorship")
 
-  packageId      String?
-  package        Package?        @relation(fields: [packageId], references: [id])
 
   status         AssociateStatus @default(INACTIVE)
   joiningDate    DateTime        @default(now())
@@ -264,33 +262,6 @@ model Transaction {
   @@index([createdAt])
 }
 
-model Package {
-  id            String      @id @default(uuid())
-  name          String
-  price         Decimal
-  benefits      Json // array of benefit descriptions
-  directPercent Decimal // direct income percentage
-  isActive      Boolean     @default(true)
-
-  associates    Associate[]
-
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-}
-
-model IncomePlan {
-  id            String     @id @default(uuid())
-  type          IncomeType
-  level         Int? // for level income (1-N)
-  percentage    Decimal
-  minPairVolume Decimal? // for matching income
-  milestone     Decimal? // for reward income
-  rewardAmount  Decimal? // for reward income
-  isActive      Boolean    @default(true)
-
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-}
 
 model IncomeRecord {
   id          String       @id @default(uuid())

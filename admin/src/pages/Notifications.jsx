@@ -106,13 +106,12 @@ export default function Notifications() {
               <select name="target" value={form.target} onChange={handleChange} className={inputCls}>
                 <option value="all">All Associates</option>
                 <option value="specific">Specific Associates</option>
-                <option value="package">By Package</option>
               </select>
             </div>
-            {(form.target === 'specific' || form.target === 'package') && (
+            {form.target === 'specific' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {form.target === 'specific' ? 'Associate IDs (comma separated)' : 'Package IDs (comma separated)'}
+                  Associate IDs (comma separated)
                 </label>
                 <input
                   name="targetIds"

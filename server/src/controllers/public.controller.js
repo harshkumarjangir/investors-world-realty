@@ -1,4 +1,3 @@
-import { calculateProjectedCommissions } from '../services/income.service.js';
 import { listProperties } from '../services/property.service.js';
 import {
   successResponse,
@@ -7,21 +6,6 @@ import {
   parsePagination,
 } from '../utils/response.js';
 
-// ─── POST /api/v1/public/commission-calculator ────────────────────────────────
-export async function publicCommissionCalculatorHandler(req, res) {
-  try {
-    const { referrals, depth, packageId } = req.body;
-
-    if (!packageId) {
-      return errorResponse(res, 'packageId is required', 400);
-    }
-
-    const result = await calculateProjectedCommissions(referrals, depth, packageId);
-    return successResponse(res, result, 'Commission projection calculated successfully');
-  } catch (err) {
-    return errorResponse(res, err.message, err.statusCode || 500);
-  }
-}
 
 // ─── GET /api/v1/public/properties ───────────────────────────────────────────
 export async function publicListPropertiesHandler(req, res) {

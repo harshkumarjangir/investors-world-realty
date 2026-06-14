@@ -44,14 +44,12 @@ const COLUMNS = {
     { header: 'Email', key: 'email', width: 30 },
     { header: 'Phone', key: 'phone', width: 15 },
     { header: 'Joining Date', key: 'joiningDate', width: 18 },
-    { header: 'Package', key: 'packageName', width: 20 },
     { header: 'Sponsor', key: 'sponsorUserId', width: 15 },
   ],
   activation: [
     { header: 'User ID', key: 'userId', width: 15 },
     { header: 'Name', key: 'name', width: 25 },
     { header: 'Activation Date', key: 'activationDate', width: 18 },
-    { header: 'Package', key: 'packageName', width: 20 },
   ],
   income: [
     { header: 'User ID', key: 'userId', width: 15 },

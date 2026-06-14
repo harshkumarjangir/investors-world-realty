@@ -4,7 +4,6 @@ import api from '../common/api.js';
 import { useI18n } from '../common/i18n.jsx';
 
 const CONFIG_TABS = [
-  { key: 'incomePlans', endpoint: '/admin/config/income-plans' },
   { key: 'categories', endpoint: '/admin/config/categories' },
   { key: 'geography' },
   { key: 'roles', endpoint: '/admin/config/roles' },
@@ -12,7 +11,7 @@ const CONFIG_TABS = [
 
 export default function Config() {
   const { t } = useI18n();
-  const [activeTab, setActiveTab] = useState('incomePlans');
+  const [activeTab, setActiveTab] = useState('categories');
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -62,7 +61,6 @@ export default function Config() {
   };
 
   const tabLabels = {
-    incomePlans: t('config.incomePlans'),
     categories: t('config.categories'),
     geography: t('config.geography'),
     roles: t('config.roles'),

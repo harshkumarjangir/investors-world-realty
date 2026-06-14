@@ -33,7 +33,6 @@ export async function getJoiningReport(startDate, endDate, pagination) {
         joiningDate: true,
         sponsorId: true,
         sponsor: { select: { userId: true } },
-        package: { select: { name: true } },
       },
     }),
     prisma.associate.count({ where }),
@@ -45,7 +44,6 @@ export async function getJoiningReport(startDate, endDate, pagination) {
     email: r.email,
     phone: r.phone,
     joiningDate: r.joiningDate,
-    packageName: r.package?.name ?? null,
     sponsorUserId: r.sponsor?.userId ?? null,
   }));
 
@@ -80,7 +78,6 @@ export async function getActivationReport(startDate, endDate, pagination) {
         userId: true,
         name: true,
         activationDate: true,
-        package: { select: { name: true } },
       },
     }),
     prisma.associate.count({ where }),
@@ -90,7 +87,6 @@ export async function getActivationReport(startDate, endDate, pagination) {
     userId: r.userId,
     name: r.name,
     activationDate: r.activationDate,
-    packageName: r.package?.name ?? null,
   }));
 
   return { items, totalItems, page, pageSize };

@@ -30,7 +30,6 @@ export async function getAdminDashboard() {
     redAssociates,
     suspendedAssociates,
     todayRegistrations,
-    activePackages,
     pendingWithdrawals,
     totalPayoutDisbursed,
   ] = await Promise.all([
@@ -45,11 +44,7 @@ export async function getAdminDashboard() {
         createdAt: { gte: today },
       },
     }),
-    // Sum package prices of ACTIVE associates
-    prisma.associate.findMany({
-      where: { deletedAt: null, status: 'ACTIVE', packageId: { not: null } },
-      select: { package: { select: { price: true } } },
-    }),
+
     // Sum of PENDING withdrawal amounts
     prisma.withdrawalRequest.aggregate({
       where: { status: 'PENDING' },
@@ -62,10 +57,7 @@ export async function getAdminDashboard() {
     }),
   ]);
 
-  const totalBusinessVolume = activePackages.reduce(
-    (sum, a) => sum + Number(a.package?.price || 0),
-    0,
-  );
+  const totalBusinessVolume = 0;
 
   // ─── Weekly comparison for percentage changes ──────────────────────────────
   const oneWeekAgo = new Date();

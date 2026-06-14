@@ -1,7 +1,6 @@
 import {
   getIncomeSummary,
   getIncomeHistory,
-  calculateProjectedCommissions,
 } from '../services/income.service.js';
 import {
   successResponse,
@@ -34,18 +33,3 @@ export async function getIncomeHistoryHandler(req, res) {
   }
 }
 
-// ─── POST /calculator ─────────────────────────────────────────────────────────
-export async function calculateProjectedHandler(req, res) {
-  try {
-    const { referrals, depth, packageId } = req.body;
-
-    if (!packageId) {
-      return errorResponse(res, 'packageId is required', 400);
-    }
-
-    const result = await calculateProjectedCommissions(referrals, depth, packageId);
-    return successResponse(res, result, 'Projected commissions calculated successfully');
-  } catch (err) {
-    return errorResponse(res, err.message, err.statusCode || 500);
-  }
-}

@@ -1,8 +1,6 @@
 import { Router } from 'express';
 import { requirePermission } from '../../middleware/auth.js';
 import {
-  listPackagesHandler, createPackageHandler, updatePackageHandler, deletePackageHandler,
-  listIncomePlansHandler, createIncomePlanHandler, updateIncomePlanHandler, deleteIncomePlanHandler,
   listCategoriesHandler, createCategoryHandler, updateCategoryHandler, deleteCategoryHandler,
   createStateHandler, updateStateHandler, deleteStateHandler,
   createCityHandler, updateCityHandler, deleteCityHandler,
@@ -11,17 +9,6 @@ import {
 
 const router = Router();
 
-// Packages
-router.get('/packages', requirePermission('config:read'), listPackagesHandler);
-router.post('/packages', requirePermission('config:write'), createPackageHandler);
-router.patch('/packages/:id', requirePermission('config:write'), updatePackageHandler);
-router.delete('/packages/:id', requirePermission('config:write'), deletePackageHandler);
-
-// Income Plans
-router.get('/income-plans', requirePermission('config:read'), listIncomePlansHandler);
-router.post('/income-plans', requirePermission('config:write'), createIncomePlanHandler);
-router.patch('/income-plans/:id', requirePermission('config:write'), updateIncomePlanHandler);
-router.delete('/income-plans/:id', requirePermission('config:write'), deleteIncomePlanHandler);
 
 // Property Categories
 router.get('/categories', requirePermission('config:read'), listCategoriesHandler);

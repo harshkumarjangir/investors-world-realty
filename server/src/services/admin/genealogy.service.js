@@ -73,8 +73,7 @@ export async function adminSearchAssociate(query) {
 // ─── adminGetLevelAnalysis ────────────────────────────────────────────────────
 
 /**
- * Group all TreeNodes by level.
- * For each level: count, activeCount, totalBusinessVolume (sum of package prices).
+ * For each level: count, activeCount
  */
 export async function adminGetLevelAnalysis() {
   // Get all tree nodes with their associate status and package price
@@ -85,7 +84,6 @@ export async function adminGetLevelAnalysis() {
         select: {
           status: true,
           deletedAt: true,
-          package: { select: { price: true } },
         },
       },
     },
@@ -98,7 +96,7 @@ export async function adminGetLevelAnalysis() {
     const { level, associate } = node;
 
     if (!levelMap.has(level)) {
-      levelMap.set(level, { level, count: 0, activeCount: 0, totalBusinessVolume: 0 });
+      levelMap.set(level, { level, count: 0, activeCount: 0 });
     }
 
     const entry = levelMap.get(level);
@@ -106,7 +104,6 @@ export async function adminGetLevelAnalysis() {
 
     if (associate.deletedAt === null && associate.status === 'ACTIVE') {
       entry.activeCount += 1;
-      entry.totalBusinessVolume += Number(associate.package?.price || 0);
     }
   }
 

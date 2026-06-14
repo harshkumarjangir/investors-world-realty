@@ -56,24 +56,6 @@ async function main() {
   });
   console.log('✅ Super admin seeded');
 
-  // ─── Default Package ──────────────────────────────────────────────────────
-  await prisma.package.upsert({
-    where: { id: 'default-package-001' },
-    update: {},
-    create: { id: 'default-package-001', name: 'Starter Package', price: 5000, benefits: ['Binary tree placement', 'Direct income eligibility', 'Level income up to 5 levels'], directPercent: 10, isActive: true },
-  });
-  console.log('✅ Default package seeded');
-
-  // ─── Income Plans ─────────────────────────────────────────────────────────
-  await prisma.incomePlan.upsert({ where: { id: 'plan-direct-001' }, update: {}, create: { id: 'plan-direct-001', type: 'DIRECT', percentage: 10, isActive: true } });
-  for (const [i, pct] of [5,3,2,1,1].entries()) {
-    await prisma.incomePlan.upsert({ where: { id: `plan-level-00${i+1}` }, update: {}, create: { id: `plan-level-00${i+1}`, type: 'LEVEL', level: i+1, percentage: pct, isActive: true } });
-  }
-  await prisma.incomePlan.upsert({ where: { id: 'plan-matching-001' }, update: {}, create: { id: 'plan-matching-001', type: 'MATCHING', percentage: 10, minPairVolume: 1000, isActive: true } });
-  for (const r of [{ id:'plan-reward-001',milestone:50000,rewardAmount:5000},{ id:'plan-reward-002',milestone:100000,rewardAmount:15000},{ id:'plan-reward-003',milestone:500000,rewardAmount:100000}]) {
-    await prisma.incomePlan.upsert({ where: { id: r.id }, update: {}, create: { ...r, type: 'REWARD', percentage: 0, isActive: true } });
-  }
-  console.log('✅ Income plans seeded');
 
   // ─── Master States ────────────────────────────────────────────────────────
   for (const s of ['Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Goa','Gujarat','Haryana','Himachal Pradesh','Jharkhand','Karnataka','Kerala','Madhya Pradesh','Maharashtra','Manipur','Meghalaya','Mizoram','Nagaland','Odisha','Punjab','Rajasthan','Sikkim','Tamil Nadu','Telangana','Tripura','Uttar Pradesh','Uttarakhand','West Bengal','Delhi','Jammu and Kashmir','Ladakh']) {

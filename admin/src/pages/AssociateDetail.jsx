@@ -108,7 +108,7 @@ export default function AssociateDetail() {
             <InfoRow icon={Phone} label="Phone" value={associate.phone} />
             <InfoRow icon={MapPin} label="Address" value={`${associate.city || ''} ${associate.state || ''}`} />
             <InfoRow icon={Calendar} label="Joining Date" value={associate.joiningDate ? new Date(associate.joiningDate).toLocaleDateString() : '-'} />
-            <InfoRow icon={Wallet} label="Package" value={associate.packageName || associate.package?.name || '-'} />
+
             <div className="flex items-center gap-3">
               <span className="text-sm text-gray-500">Status:</span>
               <StatusBadge status={associate.status} />

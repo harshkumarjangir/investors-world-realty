@@ -104,7 +104,6 @@ export async function loginAssociate(userId, password, deviceToken = null) {
 export async function verifyAssociateOtp(associateId, otp) {
   const associate = await prisma.associate.findUnique({
     where: { id: associateId },
-    include: { package: true },
   });
 
   if (!associate) {
