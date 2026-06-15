@@ -67,15 +67,50 @@ export async function getGenealogyOverviewHandler(req, res) {
     const { status, leg, level } = req.query;
     const pagination = parsePagination(req.query);
 
-    const [sponsor, summary, tree, downline] = await Promise.all([
+    const [sponsor, summary, rawTree, downline] = await Promise.all([
       getSponsor(associateId).catch(() => null), // might not have a sponsor
       getTeamSummary(associateId).catch(() => ({ leftVolume: 0, rightVolume: 0 })),
       getTree(associateId, depth).catch(() => null),
       getDownline(associateId, { status, leg, level }, pagination).catch(() => ({ items: [], totalItems: 0, page: 1, pageSize: 20 }))
     ]);
 
-    return successResponse(res, { sponsor, summary, tree, downline }, 'Genealogy overview fetched successfully');
+    // Format tree to match Flutter developer's expected structure
+    const formatNode = (node) => {
+      if (!node) return null;
+      const children = [];
+      if (node.left) children.push(formatNode(node.left));
+      if (node.right) children.push(formatNode(node.right));
+
+      return {
+        id: node.userId,
+        name: node.name,
+        role: 'Associate',
+        isActive: node.status === 'ACTIVE',
+        children
+      };
+    };
+
+    let tree = null;
+    if (rawTree) {
+      const formattedUserTree = formatNode(rawTree);
+      
+      if (sponsor) {
+        // Make sponsor the root
+        tree = {
+          id: sponsor.userId,
+          name: sponsor.name,
+          role: 'Sponsor',
+          isActive: true, // Assuming sponsor is active
+          children: [formattedUserTree]
+        };
+      } else {
+        tree = formattedUserTree;
+      }
+    }
+
+    return successResponse(res, { summary, tree, downline }, 'Genealogy overview fetched successfully');
   } catch (err) {
     return errorResponse(res, err.message, err.statusCode || 500);
   }
 }
+
