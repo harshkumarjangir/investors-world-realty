@@ -332,7 +332,7 @@ Returns a combined payload of:
 ## 📄 Documents 🔒
 
 ### GET `/documents/welcome-letter`
-Returns PDF file.
+Returns JSON data containing all text, dates, and paragraphs needed to generate the Welcome Letter in the mobile app.
 
 ### GET `/documents/receipt/:transactionId`
 Returns PDF file.

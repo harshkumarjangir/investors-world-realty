@@ -1,5 +1,5 @@
 import {
-  generateWelcomeLetter,
+  getWelcomeLetterData,
   generatePaymentReceipt,
   generateAgreement,
   getKYCDocumentURLs,
@@ -10,11 +10,8 @@ import { successResponse } from '../utils/response.js';
 
 export async function downloadWelcomeLetterHandler(req, res, next) {
   try {
-    const buffer = await generateWelcomeLetter(req.associate.id);
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename="welcome-letter.pdf"');
-    res.setHeader('Content-Length', buffer.length);
-    return res.send(buffer);
+    const data = await getWelcomeLetterData(req.associate.id);
+    return successResponse(res, data, 'Welcome letter data retrieved successfully');
   } catch (err) {
     return next(err);
   }

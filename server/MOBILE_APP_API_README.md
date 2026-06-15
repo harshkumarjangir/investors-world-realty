@@ -618,10 +618,11 @@ _Soft delete a notification from the mobile app. It will no longer show up to th
 
 ## 📄 11. Documents 🔒
 
-### 11.1 Download Welcome Letter
+### 11.1 Get Welcome Letter Data
 ```
 GET /documents/welcome-letter
 ```
+_Returns a JSON object containing all the formatted dates, titles, and paragraphs needed to render the Welcome Letter directly inside the Flutter app (no longer returns a PDF file)._
 
 ### 11.2 Download Payment Receipt
 ```

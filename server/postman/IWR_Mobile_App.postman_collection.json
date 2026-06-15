@@ -1531,7 +1531,7 @@
       "name": "📄 11. Documents 🔒",
       "item": [
         {
-          "name": "Download Welcome Letter (PDF)",
+          "name": "Get Welcome Letter Data",
           "request": {
             "method": "GET",
             "url": {
