@@ -2,6 +2,19 @@ import * as configService from '../../services/admin/config.service.js';
 import { successResponse, createdResponse, errorResponse } from '../../utils/response.js';
 
 
+// ─── System Config ──────────────────────────────────────────────────────────────
+export async function getSystemConfigHandler(req, res, next) {
+  try { return successResponse(res, await configService.getSystemConfigs()); } catch (e) { return next(e); }
+}
+export async function upsertSystemConfigHandler(req, res, next) {
+  try {
+    const { key, value } = req.body;
+    if (!key || value === undefined) return res.status(400).json({ status: 'error', message: 'key and value are required' });
+    const result = await configService.upsertSystemConfig(key, value);
+    return successResponse(res, result, 'Config updated');
+  } catch (e) { return next(e); }
+}
+
 // ─── Property Categories ──────────────────────────────────────────────────────
 export async function listCategoriesHandler(req, res, next) {
   try { return successResponse(res, await configService.listPropertyCategories()); } catch (e) { return next(e); }

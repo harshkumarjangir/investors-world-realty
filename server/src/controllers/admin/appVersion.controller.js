@@ -19,7 +19,19 @@ export async function listBrandingAssetsHandler(req, res, next) {
 
 export async function upsertBrandingAssetHandler(req, res, next) {
   try {
-    const { key, url } = req.body;
+    const { key } = req.body;
+    let url = req.body.url;
+    
+    if (req.file) {
+      // Assuming server is running on localhost or has a domain set,
+      // but for relative paths we just store the relative URL
+      url = `/uploads/branding/${req.file.filename}`;
+    }
+
+    if (!url) {
+      return res.status(400).json({ status: 'error', message: 'url or file is required' });
+    }
+
     const result = await avService.upsertBrandingAsset(key, url);
     return successResponse(res, result, 'Branding asset updated');
   } catch (e) { return next(e); }

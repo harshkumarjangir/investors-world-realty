@@ -29,12 +29,17 @@ export async function getWelcomeLetterData(associateId) {
     ? new Date(associate.activationDate).toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' })
     : '-';
 
+  // Fetch company logo from branding assets if available
+  const logoAsset = await prisma.brandingAsset.findUnique({ where: { key: 'logo' } });
+  const companyLogoUrl = logoAsset?.url || 'https://investorsworldrealty.in/assets/logo.png';
+
   return {
     name: associate.name.toUpperCase(),
     userId: associate.userId,
     joiningDate,
     activationDate,
     panNumber: associate.panNumber || '-',
+    companyLogoUrl,
     subject: 'A HEARTLY WELCOME TO INVESTORS WORLD REALTY PVT. LTD. ...',
     paragraphs: [
       'It is great pleasure welcome you to INVESTORS WORLD REALTY PVT. LTD...',

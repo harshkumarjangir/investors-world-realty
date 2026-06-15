@@ -689,6 +689,13 @@ model AccountMaster {
   updatedAt     DateTime @updatedAt
 }
 
+model SystemConfig {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
 // Scheme — a real estate project/scheme (extends Property concept with more detail)
 model Scheme {
   id               String   @id @default(uuid())

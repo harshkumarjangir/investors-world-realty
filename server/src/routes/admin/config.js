@@ -5,10 +5,22 @@ import {
   createStateHandler, updateStateHandler, deleteStateHandler,
   createCityHandler, updateCityHandler, deleteCityHandler,
   listRolesHandler, createRoleHandler, updateRoleHandler, deleteRoleHandler,
+  getSystemConfigHandler, upsertSystemConfigHandler,
 } from '../../controllers/admin/config.controller.js';
+import {
+  listBrandingAssetsHandler, upsertBrandingAssetHandler
+} from '../../controllers/admin/appVersion.controller.js';
+import { uploadBrandingAsset } from '../../utils/multer.js';
 
 const router = Router();
 
+// System Config
+router.get('/', requirePermission('config:read'), getSystemConfigHandler);
+router.patch('/', requirePermission('config:write'), upsertSystemConfigHandler);
+
+// Branding Assets
+router.get('/branding', requirePermission('config:read'), listBrandingAssetsHandler);
+router.post('/branding', requirePermission('config:write'), uploadBrandingAsset.single('file'), upsertBrandingAssetHandler);
 
 // Property Categories
 router.get('/categories', requirePermission('config:read'), listCategoriesHandler);

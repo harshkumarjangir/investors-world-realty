@@ -1,5 +1,21 @@
 import prisma from '../../utils/prisma.js';
 
+// ─── System Config ────────────────────────────────────────────────────────────
+
+export async function getSystemConfigs() {
+  const configs = await prisma.systemConfig.findMany();
+  // Return as a key-value object
+  return configs.reduce((acc, c) => ({ ...acc, [c.key]: c.value }), {});
+}
+
+export async function upsertSystemConfig(key, value) {
+  return prisma.systemConfig.upsert({
+    where: { key },
+    update: { value },
+    create: { key, value },
+  });
+}
+
 // ─── Property Categories ──────────────────────────────────────────────────────
 
 export async function listPropertyCategories() {

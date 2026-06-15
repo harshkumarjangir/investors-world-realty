@@ -7,6 +7,7 @@ const uploadDirs = [
   'uploads/kyc',
   'uploads/properties/images',
   'uploads/properties/videos',
+  'uploads/branding',
 ];
 
 uploadDirs.forEach((dir) => {
@@ -75,4 +76,10 @@ export const uploadPropertyVideo = multer({
   storage: diskStorage('uploads/properties/videos'),
   fileFilter: videoFilter,
   limits: { fileSize: 100 * 1024 * 1024 },
+});
+
+export const uploadBrandingAsset = multer({
+  storage: diskStorage('uploads/branding'),
+  fileFilter: imageFilter,
+  limits: { fileSize: 5 * 1024 * 1024 },
 });
