@@ -262,7 +262,7 @@ export async function listAllBookings(filters, pagination) {
       take,
       include: {
         associate: { select: { userId: true, name: true, phone: true } },
-        property: { select: { name: true, location: true, area: true, price: true } },
+        property: { select: { id: true, name: true, location: true, area: true, price: true, status: true } },
       },
     }),
     prisma.booking.count({ where }),
@@ -282,7 +282,9 @@ export async function listAllBookings(filters, pagination) {
       customerAddress: b.customerAddress,
       plotNo: b.plotNo,
       totalSize: b.plotArea ? Number(b.plotArea) : null,
+      propertyId: b.property.id,
       propertyName: b.property.name,
+      propertyStatus: b.property.status,
       totalCost: b.totalCost ? Number(b.totalCost) : null,
       amount: Number(b.amount),
       remainingAmount: b.totalCost ? Number(b.totalCost) - Number(b.amount) : null,

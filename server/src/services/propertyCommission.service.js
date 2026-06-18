@@ -290,15 +290,15 @@ export async function approvePropertyCommission(commissionId, adminId) {
   if (!commission) throw Object.assign(new Error('Commission not found'), { statusCode: 404 });
   if (commission.status !== 'PENDING') throw Object.assign(new Error('Commission already processed'), { statusCode: 400 });
 
-  // Update status
-  await prisma.propertySaleCommission.update({
-    where: { id: commissionId },
-    data: { status: 'APPROVED' },
-  });
-
   // Credit to associate's wallet (converted from IWR Coins back to Rupees)
   const { creditWallet } = await import('./wallet.service.js');
   await prisma.$transaction(async (tx) => {
+    // Update status inside the transaction to ensure atomicity
+    await tx.propertySaleCommission.update({
+      where: { id: commissionId },
+      data: { status: 'APPROVED' },
+    });
+
     await creditWallet(
       tx,
       commission.associateId,

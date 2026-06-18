@@ -32,6 +32,8 @@ export async function createBooking(associateId, propertyId, amount) {
       propertyId,
       amount,
       status: 'PENDING',
+      plotArea: property.area,
+      totalCost: property.price,
     },
   });
 
@@ -254,6 +256,8 @@ export async function holdProperty(associateId, propertyId, customerDetails) {
         status: 'HOLD',
         modeOfPayment: 'Hold',
         paymentDate: new Date(),
+        plotArea: property.area,
+        totalCost: property.price,
       },
     }),
     prisma.property.update({
@@ -336,6 +340,8 @@ export async function initiatePropertyPayment(associateId, propertyId, { amount,
         customerName: customerName || existingHold.customerName,
         customerMobile: customerMobile || existingHold.customerMobile,
         customerAddress: customerAddress || existingHold.customerAddress,
+        plotArea: property.area,
+        totalCost: property.price,
       },
     });
   } else {
@@ -350,6 +356,8 @@ export async function initiatePropertyPayment(associateId, propertyId, { amount,
         amount: parseFloat(amount),
         status: 'PENDING',
         razorpayOrderId: order.id,
+        plotArea: property.area,
+        totalCost: property.price,
       },
     });
   }
@@ -433,3 +441,28 @@ export async function verifyPropertyPayment(associateId, { razorpayOrderId, razo
   return updatedBooking;
 }
 
+// ─── recordPropertyPaymentFailure ─────────────────────────────────────────────
+export async function recordPropertyPaymentFailure(associateId, { razorpayOrderId, errorReason }) {
+  const booking = await prisma.booking.findFirst({
+    where: { razorpayOrderId, associateId },
+  });
+
+  if (!booking) {
+    throw Object.assign(new Error('Booking record not found for this order'), { statusCode: 404 });
+  }
+
+  // If already confirmed, don't fail it
+  if (booking.status === 'CONFIRMED') {
+    throw Object.assign(new Error('Booking is already confirmed'), { statusCode: 400 });
+  }
+
+  const updatedBooking = await prisma.booking.update({
+    where: { id: booking.id },
+    data: {
+      status: 'FAILED',
+      // Optionally we could store the error reason in a new column, but for now we mark status as FAILED
+    },
+  });
+
+  return updatedBooking;
+}

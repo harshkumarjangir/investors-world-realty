@@ -78,6 +78,7 @@ enum BookingStatus {
   CANCELLED
   HOLD
   EXPIRED
+  FAILED
 }
 
 enum KYCType {

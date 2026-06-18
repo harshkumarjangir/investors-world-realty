@@ -7,7 +7,7 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:5000/api/v1",
+      "value": "http://localhost:5001/api/v1",
       "description": "Local dev URL"
     },
     {
@@ -574,6 +574,34 @@
             },
             "description": "`theme`: `light` | `dark`\n`language`: `en` | `hi`"
           }
+        },
+        {
+          "name": "3.5 Request Account Deletion",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/associate/delete-request",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "associate",
+                "delete-request"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -1180,7 +1208,7 @@
           }
         },
         {
-          "name": "Verify Booking Payment 🔒",
+          "name": "8.9 Update Property Payment Booking",
           "request": {
             "method": "POST",
             "header": [
@@ -1191,7 +1219,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"razorpayOrderId\": \"order_Hk8sK9n2JkLmN9\",\n  \"razorpayPaymentId\": \"pay_Hk8tL8m9KlM7N8\",\n  \"razorpaySignature\": \"31bfa82946bd7e21a221f753c1cf3bc27ea8b9c288921820b127ea821a8cd398\"\n}",
+              "raw": "{\n  \"status\": \"SUCCESS\",\n  \"razorpayOrderId\": \"order_Hk8sK9n2JkLmN9\",\n  \"razorpayPaymentId\": \"pay_Hk8tL8m9KlM7N8\",\n  \"razorpaySignature\": \"31bfa82946bd7e21a221f753c1cf3bc27ea8b9c288921820b127ea821a8cd398\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1199,14 +1227,14 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/properties/payment/verify",
+              "raw": "{{baseUrl}}/properties/payment/booking",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "properties",
                 "payment",
-                "verify"
+                "booking"
               ]
             }
           }

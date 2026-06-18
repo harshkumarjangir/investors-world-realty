@@ -6,7 +6,7 @@ import {
   getBookingsHandler,
   holdPropertyHandler,
   initiatePropertyPaymentHandler,
-  verifyPropertyPaymentHandler,
+  updatePaymentStatusHandler,
 } from '../controllers/booking.controller.js';
 import { calculateEMIHandler, getEMIScheduleHandler } from '../controllers/emi.controller.js';
 import {
@@ -30,8 +30,8 @@ router.post('/emi-calculator/schedule', publicRateLimit, getEMIScheduleHandler);
 // GET  /api/v1/properties/bookings
 router.get('/bookings', authenticate, authRateLimit, getBookingsHandler);
 
-// POST /api/v1/properties/payment/verify — body: { razorpayOrderId, razorpayPaymentId, razorpaySignature }
-router.post('/payment/verify', authenticate, authRateLimit, verifyPropertyPaymentHandler);
+// POST /api/v1/properties/payment/booking — body: { status: 'SUCCESS'|'FAILED', razorpayOrderId, ... }
+router.post('/payment/booking', authenticate, authRateLimit, updatePaymentStatusHandler);
 
 // ─── Property Listings (public) ───────────────────────────────────────────────
 

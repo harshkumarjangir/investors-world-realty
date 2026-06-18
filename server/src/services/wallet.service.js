@@ -17,9 +17,14 @@ import { sendToDevices } from '../utils/firebase.js';
  * @returns {Promise<object>} Created Transaction record
  */
 export async function creditWallet(tx, associateId, amount, type, description, reference = null, adminId = null, adminReason = null) {
-  const wallet = await tx.wallet.update({
+  const wallet = await tx.wallet.upsert({
     where: { associateId },
-    data: {
+    create: {
+      associateId,
+      balance: amount,
+      totalCredits: amount,
+    },
+    update: {
       balance: { increment: amount },
       totalCredits: { increment: amount },
     },

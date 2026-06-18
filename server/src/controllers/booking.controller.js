@@ -4,6 +4,7 @@ import {
   holdProperty,
   initiatePropertyPayment,
   verifyPropertyPayment,
+  recordPropertyPaymentFailure,
 } from '../services/booking.service.js';
 import {
   successResponse,
@@ -88,26 +89,37 @@ export async function initiatePropertyPaymentHandler(req, res) {
   }
 }
 
-// ─── POST /payment/verify ────────────────────────────────────────────────────
-export async function verifyPropertyPaymentHandler(req, res) {
+// ─── POST /payment/status ────────────────────────────────────────────────────
+export async function updatePaymentStatusHandler(req, res) {
   try {
     const associateId = req.associate.id;
-    const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
+    const { status, razorpayOrderId, razorpayPaymentId, razorpaySignature, errorReason } = req.body;
 
-    if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
-      return errorResponse(res, 'razorpayOrderId, razorpayPaymentId, and razorpaySignature are required', 400);
+    if (!razorpayOrderId) {
+      return errorResponse(res, 'razorpayOrderId is required', 400);
     }
 
-    const booking = await verifyPropertyPayment(associateId, {
-      razorpayOrderId,
-      razorpayPaymentId,
-      razorpaySignature,
-    });
-    return successResponse(res, booking, 'Payment verified and booking confirmed successfully');
+    if (status === 'SUCCESS') {
+      if (!razorpayPaymentId || !razorpaySignature) {
+        return errorResponse(res, 'razorpayPaymentId and razorpaySignature are required for successful payments', 400);
+      }
+      const booking = await verifyPropertyPayment(associateId, {
+        razorpayOrderId,
+        razorpayPaymentId,
+        razorpaySignature,
+      });
+      return successResponse(res, booking, 'Payment verified and booking confirmed successfully');
+    } else if (status === 'FAILED') {
+      const booking = await recordPropertyPaymentFailure(associateId, {
+        razorpayOrderId,
+        errorReason,
+      });
+      return successResponse(res, booking, 'Payment failure recorded');
+    } else {
+      return errorResponse(res, 'Invalid status. Must be SUCCESS or FAILED', 400);
+    }
   } catch (err) {
     const message = err.error?.description || err.message || 'An error occurred';
     return errorResponse(res, message, err.statusCode || 500);
   }
 }
-
-

@@ -308,6 +308,25 @@ PATCH /associate/settings
 
 ---
 
+### 3.5 Request Account Deletion 🔒
+```
+POST /associate/delete-request
+```
+Initiates a 7-day scheduled account deletion. The user will receive an email notification warning them about the impending deletion.
+
+**Response:**
+```json
+{
+  "status": "success",
+  "message": "Your account has been scheduled for deletion. It will be permanently deleted in 7 days.",
+  "data": {
+    "scheduledDeletionAt": "2026-06-25T11:00:00.000Z"
+  }
+}
+```
+
+---
+
 ## 🆔 4. KYC 🔒
 
 ### 4.1 Submit KYC Details & Documents
@@ -512,16 +531,25 @@ POST /properties/:id/payment/initiate
 }
 ```
 
-### 8.9 Verify Property Booking Payment 🔒
+### 8.9 Update Property Payment Booking 🔒
 ```
-POST /properties/payment/verify
+POST /properties/payment/booking
 ```
-**Body:**
+**Body (Success):**
 ```json
 {
+  "status": "SUCCESS",
   "razorpayOrderId": "order_Hk8sK9n2JkLmN9",
   "razorpayPaymentId": "pay_Hk8tL8m9KlM7N8",
   "razorpaySignature": "31bfa82946bd7e21a221f753c1cf3bc27ea8b9c288921820b127ea821a8cd398"
+}
+```
+**Body (Failed):**
+```json
+{
+  "status": "FAILED",
+  "razorpayOrderId": "order_Hk8sK9n2JkLmN9",
+  "errorReason": "Payment cancelled by user"
 }
 ```
 **Response:**

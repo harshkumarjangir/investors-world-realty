@@ -12,6 +12,7 @@ import Payouts from './pages/Payouts.jsx';
 import Funds from './pages/Funds.jsx';
 import Transactions from './pages/Transactions.jsx';
 import Reports from './pages/Reports.jsx';
+import Bookings from './pages/Bookings.jsx';
 import Properties from './pages/Properties.jsx';
 import PropertyDetail from './pages/PropertyDetail.jsx';
 import KYC from './pages/KYC.jsx';
@@ -48,6 +49,7 @@ export default function App() {
               <Route path="funds" element={<Funds />} />
               <Route path="transactions" element={<Transactions />} />
               <Route path="reports" element={<Reports />} />
+              <Route path="bookings" element={<Bookings />} />
               <Route path="properties" element={<Properties />} />
               <Route path="properties/:id" element={<PropertyDetail />} />
               <Route path="kyc" element={<KYC />} />
