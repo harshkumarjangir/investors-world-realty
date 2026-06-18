@@ -18,7 +18,7 @@ function parseAmenities(amenities) {
 }
 
 export async function adminCreateProperty(data) {
-  const { schemeId, name, description, location, city, state, area, price, type, amenities } = data;
+  const { schemeId, name, description, location, city, state, area, price, type, amenities, bookingMinAmount, bookingMaxAmount } = data;
 
   if (!schemeId) {
     throw Object.assign(new Error('schemeId is required — select a scheme first'), { statusCode: 400 });
@@ -41,6 +41,8 @@ export async function adminCreateProperty(data) {
       price: Number(price),
       type,
       amenities: parseAmenities(amenities),
+      bookingMinAmount: bookingMinAmount ? Number(bookingMinAmount) : null,
+      bookingMaxAmount: bookingMaxAmount ? Number(bookingMaxAmount) : null,
     },
     include: {
       scheme: { select: { id: true, schemeName: true, city: true, state: true } },
@@ -143,13 +145,13 @@ export async function adminEditProperty(propertyId, data, adminId) {
     throw Object.assign(new Error('Property not found'), { statusCode: 404 });
   }
 
-  const allowedFields = ['schemeId', 'name', 'description', 'location', 'city', 'state', 'area', 'price', 'type', 'amenities', 'isFeatured'];
+  const allowedFields = ['schemeId', 'name', 'description', 'location', 'city', 'state', 'area', 'price', 'type', 'amenities', 'isFeatured', 'bookingMinAmount', 'bookingMaxAmount'];
   const updateData = {};
 
   for (const field of allowedFields) {
     if (data[field] !== undefined) {
-      if (field === 'area' || field === 'price') {
-        updateData[field] = Number(data[field]);
+      if (field === 'area' || field === 'price' || field === 'bookingMinAmount' || field === 'bookingMaxAmount') {
+        updateData[field] = data[field] ? Number(data[field]) : null;
       } else if (field === 'amenities') {
         updateData[field] = parseAmenities(data[field]);
       } else if (field === 'schemeId') {

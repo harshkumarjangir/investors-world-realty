@@ -203,15 +203,16 @@ export default function Properties() {
                         <th className="px-4 py-3 text-left font-medium text-gray-600">Location</th>
                         <th className="px-4 py-3 text-left font-medium text-gray-600">Price</th>
                         <th className="px-4 py-3 text-left font-medium text-gray-600">Type</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-600">Booking Limits</th>
                         <th className="px-4 py-3 text-left font-medium text-gray-600">Status</th>
                         <th className="px-4 py-3 text-left font-medium text-gray-600">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {loading ? (
-                        <tr><td colSpan={7} className="py-8 text-center text-gray-400">{t('common.loading')}</td></tr>
+                        <tr><td colSpan={8} className="py-8 text-center text-gray-400">{t('common.loading')}</td></tr>
                       ) : properties.length === 0 ? (
-                        <tr><td colSpan={7} className="py-8 text-center text-gray-400">{t('properties.noneInScheme')}</td></tr>
+                        <tr><td colSpan={8} className="py-8 text-center text-gray-400">{t('properties.noneInScheme')}</td></tr>
                       ) : (
                         properties.map((p, idx) => (
                           <Fragment key={p.id}>
@@ -221,6 +222,11 @@ export default function Properties() {
                               <td className="px-4 py-3 text-gray-600">{p.location || `${p.city || ''}, ${p.state || ''}`}</td>
                               <td className="px-4 py-3 font-medium text-gray-800">₹{Number(p.price || 0).toLocaleString()}</td>
                               <td className="px-4 py-3 text-gray-600">{p.type || '-'}</td>
+                              <td className="px-4 py-3 text-gray-600 text-xs">
+                                {p.bookingMinAmount || p.bookingMaxAmount 
+                                  ? `₹${Number(p.bookingMinAmount || 0).toLocaleString()} - ₹${Number(p.bookingMaxAmount || 0).toLocaleString()}`
+                                  : '-'}
+                              </td>
                               <td className="px-4 py-3">
                                 <select
                                   value={p.status}
@@ -265,7 +271,7 @@ export default function Properties() {
                             </tr>
                             {expandedInquiry === p.id && (
                               <tr>
-                                <td colSpan={7} className="px-4 py-3 bg-gray-50">
+                                <td colSpan={8} className="px-4 py-3 bg-gray-50">
                                   <InquiriesSection propertyId={p.id} />
                                 </td>
                               </tr>
@@ -339,6 +345,8 @@ function PropertyForm({ property, schemes, defaultScheme, onClose, onSuccess }) 
     price: property?.price ?? '',
     type: property?.type || '',
     amenities: amenitiesStr,
+    bookingMinAmount: property?.bookingMinAmount ?? '',
+    bookingMaxAmount: property?.bookingMaxAmount ?? '',
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -472,6 +480,8 @@ function PropertyForm({ property, schemes, defaultScheme, onClose, onSuccess }) 
               <option value="APARTMENT">Apartment</option>
               <option value="VILLA">Villa</option>
             </select>
+            <input name="bookingMinAmount" placeholder="Booking Min Amount" type="number" value={form.bookingMinAmount} onChange={handleChange} className={ic} />
+            <input name="bookingMaxAmount" placeholder="Booking Max Amount" type="number" value={form.bookingMaxAmount} onChange={handleChange} className={ic} />
           </div>
           <input name="amenities" placeholder="Amenities (comma separated)" value={form.amenities} onChange={handleChange} className={ic} />
           <div className="flex justify-end gap-3 pt-3">

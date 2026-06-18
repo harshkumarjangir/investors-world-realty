@@ -312,6 +312,8 @@ model Property {
   amenities   Json // array of amenity strings
   status      PropertyStatus  @default(AVAILABLE)
   isFeatured  Boolean         @default(false)
+  bookingMinAmount Decimal?
+  bookingMaxAmount Decimal?
   holdExpiresAt DateTime?
   heldByAssociateId String?
   heldAssociate Associate?      @relation("HeldProperties", fields: [heldByAssociateId], references: [id])

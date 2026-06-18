@@ -48,6 +48,8 @@ export async function listPropertiesAdminHandler(req, res, next) {
       type: p.type,
       status: p.status,
       isFeatured: p.isFeatured,
+      bookingMinAmount: p.bookingMinAmount ? Number(p.bookingMinAmount) : null,
+      bookingMaxAmount: p.bookingMaxAmount ? Number(p.bookingMaxAmount) : null,
       thumbnail: p.images[0]?.url || null,
       createdAt: p.createdAt,
     }));
@@ -82,7 +84,7 @@ export async function getPropertyAdminHandler(req, res, next) {
 
 export async function createPropertyHandler(req, res, next) {
   try {
-    const { schemeId, name, description, location, city, state, area, price, type, amenities } = req.body;
+    const { schemeId, name, description, location, city, state, area, price, type, amenities, bookingMinAmount, bookingMaxAmount } = req.body;
 
     if (!schemeId || !name || !description || !area || !price || !type) {
       return res.status(400).json({
@@ -93,7 +95,7 @@ export async function createPropertyHandler(req, res, next) {
     }
 
     const property = await adminCreateProperty({
-      schemeId, name, description, location, city, state, area, price, type, amenities,
+      schemeId, name, description, location, city, state, area, price, type, amenities, bookingMinAmount, bookingMaxAmount
     });
     return createdResponse(res, property, 'Property created successfully');
   } catch (err) {
