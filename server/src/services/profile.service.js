@@ -282,3 +282,40 @@ export async function submitKYCAll(associateId, {
 
   return results;
 }
+
+// ─── Account Deletion Request ────────────────────────────────────────────────
+
+export async function requestDeletion(associateId) {
+  const associate = await prisma.associate.findUnique({
+    where: { id: associateId, deletedAt: null },
+  });
+
+  if (!associate) {
+    throw Object.assign(new Error('Associate not found'), { statusCode: 404 });
+  }
+
+  if (associate.deletionRequestedAt) {
+    throw Object.assign(new Error('Deletion request is already pending'), { statusCode: 400 });
+  }
+
+  const scheduledDate = new Date();
+  scheduledDate.setDate(scheduledDate.getDate() + 7);
+
+  const updated = await prisma.associate.update({
+    where: { id: associateId },
+    data: {
+      deletionRequestedAt: new Date(),
+      scheduledDeletionAt: scheduledDate,
+    },
+  });
+
+  // Send email
+  const { sendDeletionRequestEmail } = await import('../utils/email.js');
+  await sendDeletionRequestEmail(associate.email, {
+    name: associate.name,
+    userId: associate.userId,
+    scheduledDate,
+  });
+
+  return updated;
+}

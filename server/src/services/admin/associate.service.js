@@ -319,3 +319,66 @@ export async function adminDeleteAssociate(associateId, adminId) {
   await logAdminAction(adminId, 'DELETE_ASSOCIATE', 'Associate', associateId, { userId: existing.userId });
   return { success: true };
 }
+
+// ─── adminListDeletionRequests ──────────────────────────────────────────────────
+export async function adminListDeletionRequests(pagination = {}) {
+  const { page = 1, pageSize = 20, skip = 0, take = 20 } = pagination;
+
+  const where = { 
+    deletedAt: null,
+    deletionRequestedAt: { not: null }
+  };
+
+  const [records, totalItems] = await Promise.all([
+    prisma.associate.findMany({
+      where,
+      orderBy: { deletionRequestedAt: 'desc' },
+      skip,
+      take,
+      select: {
+        id: true,
+        userId: true,
+        name: true,
+        email: true,
+        phone: true,
+        status: true,
+        rank: true,
+        joiningDate: true,
+        deletionRequestedAt: true,
+        scheduledDeletionAt: true,
+        sponsor: { select: { userId: true, name: true } },
+      },
+    }),
+    prisma.associate.count({ where }),
+  ]);
+
+  const items = records.map((a) => ({
+    ...a,
+    rankName: RANK_NAMES[a.rank] || 'Unknown',
+    sponsorUserId: a.sponsor?.userId || null,
+  }));
+
+  return { items, totalItems, page, pageSize };
+}
+
+// ─── adminRejectDeletionRequest ─────────────────────────────────────────────────
+export async function adminRejectDeletionRequest(associateId, adminId) {
+  const existing = await prisma.associate.findUnique({
+    where: { id: associateId, deletedAt: null },
+  });
+  if (!existing) throw Object.assign(new Error('Associate not found'), { statusCode: 404 });
+  if (!existing.deletionRequestedAt) {
+    throw Object.assign(new Error('No deletion request pending for this associate'), { statusCode: 400 });
+  }
+
+  const updated = await prisma.associate.update({
+    where: { id: associateId },
+    data: {
+      deletionRequestedAt: null,
+      scheduledDeletionAt: null,
+    },
+  });
+
+  await logAdminAction(adminId, 'REJECT_DELETION_REQUEST', 'Associate', associateId, { userId: existing.userId });
+  return { success: true };
+}

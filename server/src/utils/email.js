@@ -160,3 +160,38 @@ export async function sendActivationEmail(to, { name, userId }) {
   `;
   return sendEmail(to, subject, html);
 }
+
+/**
+ * Send account deletion request email to associate.
+ */
+export async function sendDeletionRequestEmail(to, { name, userId, scheduledDate }) {
+  const subject = 'Account Deletion Request - Investors World Realty';
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 20px;">
+      <div style="background: #1e293b; padding: 24px; border-radius: 12px 12px 0 0; text-align: center;">
+        <h2 style="color: #D49428; margin: 0; font-size: 22px;">Investors World Realty</h2>
+        <p style="color: #94a3b8; font-size: 13px; margin: 4px 0 0;">Account Deletion Request</p>
+      </div>
+      <div style="background: #ffffff; padding: 30px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 12px 12px;">
+        <p style="color: #1e293b; font-size: 16px;">Dear <strong>${name}</strong>,</p>
+        <p style="color: #475569; font-size: 14px; line-height: 1.6;">
+          We have received your request to delete your associate account (<strong>${userId}</strong>).
+        </p>
+        <div style="background: #fef2f2; border: 2px solid #ef4444; border-radius: 8px; padding: 16px; margin: 16px 0; text-align: center;">
+          <p style="color: #b91c1c; font-size: 15px; font-weight: bold; margin: 0;">
+            Your account is scheduled to be permanently deleted on:<br/>
+            ${new Date(scheduledDate).toLocaleDateString()}
+          </p>
+        </div>
+        <p style="color: #475569; font-size: 13px; line-height: 1.6;">
+          Please note that this action is irreversible. All your data, genealogy structure, and earnings will be permanently lost once the deletion is processed by the admin.
+          If you did not request this, please contact support immediately to cancel the deletion request.
+        </p>
+        <p style="color: #94a3b8; font-size: 12px; margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+          &copy; Investors World Realty Pvt. Ltd. | Support Team
+        </p>
+      </div>
+    </div>
+  `;
+  return sendEmail(to, subject, html);
+}

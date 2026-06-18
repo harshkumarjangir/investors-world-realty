@@ -2,6 +2,7 @@ import {
   getProfile,
   updateProfile,
   submitKYCAll,
+  requestDeletion,
 } from '../services/profile.service.js';
 import { successResponse } from '../utils/response.js';
 
@@ -92,6 +93,19 @@ export async function submitKYCHandler(req, res, next) {
     });
 
     return successResponse(res, data, 'KYC submitted successfully');
+  } catch (err) {
+    return next(err);
+  }
+}
+
+export async function requestDeletionHandler(req, res, next) {
+  try {
+    const data = await requestDeletion(req.associate.id);
+    return successResponse(
+      res, 
+      null, 
+      `Account deletion requested successfully. Your account is scheduled to be permanently deleted on ${data.scheduledDeletionAt.toLocaleDateString()}. You will receive an email confirmation.`
+    );
   } catch (err) {
     return next(err);
   }

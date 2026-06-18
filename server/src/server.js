@@ -3,6 +3,7 @@ import config from './config/index.js';
 import prisma from './utils/prisma.js';
 import { getRedisClient } from './utils/redis.js';
 import { startHoldExpirationWorker } from './utils/holdExpirationWorker.js';
+import { startAutoDeleteWorker } from './utils/autoDeleteWorker.js';
 
 const PORT = config.PORT;
 
@@ -30,6 +31,9 @@ async function startServer() {
   app.listen(PORT, () => {
     console.log(`[SERVER] Investors World Realty API running on port ${PORT} (${config.NODE_ENV})`);
     startHoldExpirationWorker();
+    
+    // NOTE: Comment out the line below to disable 7-day auto-deletion after Google Play Store review
+    startAutoDeleteWorker();
   });
 }
 

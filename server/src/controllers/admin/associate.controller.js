@@ -7,6 +7,8 @@ import {
   adminSuspendAssociate,
   adminUnsuspendAssociate,
   adminDeleteAssociate,
+  adminListDeletionRequests,
+  adminRejectDeletionRequest,
 } from '../../services/admin/associate.service.js';
 import {
   successResponse,
@@ -115,6 +117,25 @@ export async function deleteAssociateHandler(req, res, next) {
   try {
     const data = await adminDeleteAssociate(req.params.id, req.admin.id);
     return successResponse(res, data, 'Associate deleted successfully');
+  } catch (err) {
+    return next(err);
+  }
+}
+
+export async function listDeletionRequestsHandler(req, res, next) {
+  try {
+    const pagination = parsePagination(req.query);
+    const { items, totalItems, page, pageSize } = await adminListDeletionRequests(pagination);
+    return paginatedResponse(res, items, totalItems, page, pageSize, 'Deletion requests retrieved');
+  } catch (err) {
+    return next(err);
+  }
+}
+
+export async function rejectDeletionHandler(req, res, next) {
+  try {
+    const data = await adminRejectDeletionRequest(req.params.id, req.admin.id);
+    return successResponse(res, data, 'Deletion request rejected successfully');
   } catch (err) {
     return next(err);
   }

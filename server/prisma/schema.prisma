@@ -161,6 +161,10 @@ model Associate {
   joiningDate    DateTime        @default(now())
   activationDate DateTime?
 
+  // Account deletion
+  deletionRequestedAt DateTime?
+  scheduledDeletionAt DateTime?
+
   // Rank & Promotion
   rank           Int             @default(1) // 1=Business Associate, 2=Adviser, ..., 10=President Club
   totalAreaSold  Int             @default(0) // total gaj sold personally (for promotion tracking)

@@ -32,6 +32,7 @@ export default function Associates() {
   const [totalPages, setTotalPages]     = useState(1);
   const [totalItems, setTotalItems]     = useState(0);
   const [pendingCount, setPendingCount] = useState(0);
+  const [deletionCount, setDeletionCount] = useState(0);
 
   const [showAddModal, setShowAddModal]         = useState(false);
   const [editingAssociate, setEditingAssociate] = useState(null);
@@ -53,7 +54,9 @@ export default function Associates() {
 
   const refreshAll = () => {
     loadPendingCount();
+    loadDeletionCount();
     if (activeTab === 'pending') loadPending();
+    else if (activeTab === 'deletion-requests') loadDeletionRequests();
     else loadAssociates();
   };
 
@@ -61,6 +64,13 @@ export default function Associates() {
     try {
       const res = await api.get('/admin/associates/pending', { params: { pageSize: 1 } });
       setPendingCount(res.data?.totalItems || 0);
+    } catch { /* non-blocking */ }
+  };
+
+  const loadDeletionCount = async () => {
+    try {
+      const res = await api.get('/admin/associates/deletion-requests', { params: { pageSize: 1 } });
+      setDeletionCount(res.data?.totalItems || 0);
     } catch { /* non-blocking */ }
   };
 
@@ -73,6 +83,18 @@ export default function Associates() {
       setTotalItems(res.data?.totalItems || 0);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load pending registrations');
+    } finally { setLoading(false); }
+  };
+
+  const loadDeletionRequests = async () => {
+    try {
+      setLoading(true); setError('');
+      const res = await api.get('/admin/associates/deletion-requests', { params: { page, pageSize: 15 } });
+      setAssociates(res.data?.data || []);
+      setTotalPages(res.data?.totalPages || 1);
+      setTotalItems(res.data?.totalItems || 0);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to load deletion requests');
     } finally { setLoading(false); }
   };
 
@@ -99,7 +121,12 @@ export default function Associates() {
     } finally { setLoading(false); }
   };
 
-  const handleSearch = () => { setPage(1); if (activeTab === 'pending') loadPending(); else loadAssociates(); };
+  const handleSearch = () => {
+    setPage(1); 
+    if (activeTab === 'pending') loadPending(); 
+    else if (activeTab === 'deletion-requests') loadDeletionRequests();
+    else loadAssociates(); 
+  };
 
   const handleClear = () => {
     setStatusFilter(''); setRankFilter(''); setSearch('');
@@ -119,6 +146,14 @@ export default function Associates() {
     if (!confirm('Reject this registration request?')) return;
     try {
       await api.post(`/admin/associates/${id}/suspend`);
+      refreshAll();
+    } catch (err) { alert(err.response?.data?.message || 'Action failed'); }
+  };
+
+  const handleRejectDeletion = async (id) => {
+    if (!confirm('Reject this deletion request? The associate will remain active.')) return;
+    try {
+      await api.post(`/admin/associates/${id}/reject-deletion`);
       refreshAll();
     } catch (err) { alert(err.response?.data?.message || 'Action failed'); }
   };
@@ -181,6 +216,20 @@ export default function Associates() {
           {pendingCount > 0 && (
             <span className="rounded-full bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 min-w-[18px] text-center">
               {pendingCount}
+            </span>
+          )}
+        </button>
+        <button
+          onClick={() => { setActiveTab('deletion-requests'); setPage(1); }}
+          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'deletion-requests' ? 'border-red-500 text-red-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          <Trash2 size={14} />
+          Deletion Requests
+          {deletionCount > 0 && (
+            <span className="rounded-full bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 min-w-[18px] text-center">
+              {deletionCount}
             </span>
           )}
         </button>
@@ -256,7 +305,7 @@ export default function Associates() {
         <p className="text-sm text-gray-500">
           Showing <span className="font-medium text-gray-700">{associates.length}</span> of{' '}
           <span className="font-medium text-gray-700">{totalItems}</span>{' '}
-          {activeTab === 'pending' ? 'pending registrations' : 'associates'}
+          {activeTab === 'pending' ? 'pending registrations' : activeTab === 'deletion-requests' ? 'deletion requests' : 'associates'}
         </p>
       )}
 
@@ -274,22 +323,22 @@ export default function Associates() {
                 <th className="px-4 py-3 text-left font-medium text-gray-600">Status</th>
                 <th className="px-4 py-3 text-left font-medium text-gray-600">Sponsor</th>
                 <th className="px-4 py-3 text-left font-medium text-gray-600">
-                  {activeTab === 'pending' ? 'Registered' : 'Joining Date'}
+                  {activeTab === 'pending' ? 'Registered' : activeTab === 'deletion-requests' ? 'Deletes On' : 'Joining Date'}
                 </th>
                 <th className="px-4 py-3 text-left font-medium text-gray-600">Actions</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={activeTab === 'pending' ? 8 : 9} className="py-10 text-center text-gray-400">
+                <tr><td colSpan={9} className="py-10 text-center text-gray-400">
                   <div className="flex items-center justify-center gap-2">
                     <div className="w-4 h-4 border-2 border-gold-400 border-t-transparent rounded-full animate-spin" />
                     Loading...
                   </div>
                 </td></tr>
               ) : associates.length === 0 ? (
-                <tr><td colSpan={activeTab === 'pending' ? 8 : 9} className="py-10 text-center text-gray-400">
-                  {activeTab === 'pending' ? 'No pending registrations 🎉' : t('common.noData')}
+                <tr><td colSpan={9} className="py-10 text-center text-gray-400">
+                  {activeTab === 'pending' ? 'No pending registrations 🎉' : activeTab === 'deletion-requests' ? 'No deletion requests 🎉' : t('common.noData')}
                 </td></tr>
               ) : (
                 associates.map((a) => (
@@ -309,7 +358,9 @@ export default function Associates() {
                     <td className="px-4 py-3"><StatusBadge status={a.status} /></td>
                     <td className="px-4 py-3 text-gray-500 text-xs">{a.sponsorUserId || <span className="text-gray-300 italic">no sponsor</span>}</td>
                     <td className="px-4 py-3 text-gray-600 text-xs">
-                      {a.joiningDate ? new Date(a.joiningDate).toLocaleDateString('en-IN') : '-'}
+                      {activeTab === 'deletion-requests' && a.scheduledDeletionAt
+                        ? new Date(a.scheduledDeletionAt).toLocaleDateString('en-IN')
+                        : a.joiningDate ? new Date(a.joiningDate).toLocaleDateString('en-IN') : '-'}
                     </td>
                     <td className="px-4 py-3">
                       {activeTab === 'pending' ? (
@@ -326,6 +377,21 @@ export default function Associates() {
                             className="inline-flex items-center gap-1 rounded-lg bg-red-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-600"
                           >
                             <UserX size={13} /> Reject
+                          </button>
+                        </div>
+                      ) : activeTab === 'deletion-requests' ? (
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleDelete(a.id, a.name)}
+                            className="inline-flex items-center gap-1 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700"
+                          >
+                            <Trash2 size={13} /> Approve Delete
+                          </button>
+                          <button
+                            onClick={() => handleRejectDeletion(a.id)}
+                            className="inline-flex items-center gap-1 rounded-lg bg-gray-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-gray-600"
+                          >
+                            <X size={13} /> Reject Request
                           </button>
                         </div>
                       ) : (

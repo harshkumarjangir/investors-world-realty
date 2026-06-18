@@ -17,6 +17,7 @@ import {
   getProfileHandler,
   updateProfileHandler,
   submitKYCHandler,
+  requestDeletionHandler,
 } from '../controllers/profile.controller.js';
 
 import {
@@ -114,5 +115,8 @@ router.patch(
   validate,
   updateSettingsHandler,
 );
+
+// ─── Account Deletion ─────────────────────────────────────────────────────────
+router.post('/delete-request', requestDeletionHandler);
 
 export default router;

@@ -9,12 +9,18 @@ import {
   suspendAssociateHandler,
   unsuspendAssociateHandler,
   deleteAssociateHandler,
+  listDeletionRequestsHandler,
+  rejectDeletionHandler,
 } from '../../controllers/admin/associate.controller.js';
 
 const router = Router();
 
 router.get('/', requirePermission('associates:read'), listAssociatesHandler);
 router.post('/', requirePermission('associates:write'), registerAssociateHandler);
+
+// GET /admin/associates/deletion-requests
+router.get('/deletion-requests', requirePermission('associates:read'), listDeletionRequestsHandler);
+
 
 // GET /admin/associates/pending — dedicated pending approvals endpoint
 router.get('/pending', requirePermission('associates:read'), async (req, res, next) => {
@@ -35,5 +41,6 @@ router.post('/:id/activate', requirePermission('associates:write'), activateAsso
 router.post('/:id/suspend', requirePermission('associates:write'), suspendAssociateHandler);
 router.post('/:id/unsuspend', requirePermission('associates:write'), unsuspendAssociateHandler);
 router.delete('/:id', requirePermission('associates:delete'), deleteAssociateHandler);
+router.post('/:id/reject-deletion', requirePermission('associates:delete'), rejectDeletionHandler);
 
 export default router;
