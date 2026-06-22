@@ -2,49 +2,52 @@ export default function StatsSection({ data }) {
   if (!data) return null;
 
   return (
-    <section className="relative bg-[#0a0f1a] overflow-hidden py-16 lg:py-20 shadow-2xl">
-      <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0f1a]/95 via-[#0a0f1a]/80 to-[#0a0f1a]/60 z-10"></div>
-        <img 
-          src={data.image || "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=2000&q=80"} 
-          alt="Stats Background" 
-          className="w-full h-full object-cover object-center"
+    <section className="relative overflow-hidden py-20 lg:py-28">
+      {/* Full-bleed image background */}
+      <div className="absolute inset-0">
+        <img
+          src={data.image || 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=2000&q=80'}
+          alt="City skyline"
+          className="w-full h-full object-cover"
         />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0e1a]/98 via-[#0a0e1a]/80 to-[#0a0e1a]/60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0e1a]/50 via-transparent to-[#0a0e1a]/30" />
       </div>
 
-      <div className="relative z-20 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-12 lg:gap-8">
-          
-          {/* Title Area */}
-          <div className="lg:w-[35%] flex flex-col items-start relative shrink-0">
-            <div className="relative inline-block mt-3 ml-3 mb-2">
-              {/* Yellow Box Accent */}
-              <div className="absolute -top-4 -left-4 w-12 h-12 bg-gold-500 rounded backdrop-blur-md border border-gold-400 z-0 shadow-[0_0_15px_rgba(234,179,8,0.4)] mix-blend-screen"></div>
-              
-              <h2 
-                className="text-3xl md:text-4xl lg:text-[40px] font-bold text-white leading-[1.15] relative z-10 tracking-tight"
-                dangerouslySetInnerHTML={{ __html: data.title || "Our Journey <br /> In Numbers" }}
-              />
+      <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+          {/* Title column */}
+          <div>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="h-px w-10 bg-gold-500" />
+              <span className="text-gold-400 text-xs font-bold tracking-[0.25em] uppercase">Our Numbers</span>
             </div>
-            <p className="text-gray-300 mt-4 text-sm font-medium tracking-wide">
-              {data.subtitle || "Trusted Real Estate Agents at Your Service!"}
-            </p>
+            <h2
+              className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6"
+              style={{ fontFamily: 'var(--font-playfair)' }}
+              dangerouslySetInnerHTML={{ __html: data.title || 'Our Journey<br/>In Numbers' }}
+            />
+            <p className="text-gray-400 text-lg">{data.subtitle}</p>
           </div>
-          
-          {/* Stats Area */}
-          <div className="lg:w-[65%] w-full flex flex-wrap sm:flex-nowrap justify-between gap-y-10 gap-x-4 lg:pl-10">
-            {data.items.map((stat, index) => (
-              <div key={index} className="flex flex-col w-[45%] sm:w-auto text-left">
-                <div className="text-4xl md:text-5xl lg:text-[56px] font-light text-white mb-2 md:mb-3 tracking-tighter">
+
+          {/* Stats grid */}
+          <div className="grid grid-cols-2 gap-px bg-white/10 rounded-3xl overflow-hidden">
+            {(data.items || []).map((stat, i) => (
+              <div key={i} className="bg-[#0a0e1a]/70 backdrop-blur-md p-8 hover:bg-[#0a0e1a]/50 transition-colors duration-300">
+                <div
+                  className="text-4xl md:text-5xl font-bold text-gradient-gold mb-2"
+                  style={{ fontFamily: 'var(--font-playfair)' }}
+                >
                   {stat.value}
                 </div>
-                <div className="text-xs md:text-sm font-medium text-gray-300 leading-snug">
+                <div className="text-gray-400 text-sm leading-snug uppercase tracking-wider">
                   {stat.label}
                 </div>
               </div>
             ))}
           </div>
-          
+
         </div>
       </div>
     </section>

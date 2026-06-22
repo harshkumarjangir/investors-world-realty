@@ -5,56 +5,62 @@ export default function FeaturesSection({ data }) {
   if (!data) return null;
 
   return (
-    <section className="py-24 bg-[#0a0f1a] relative overflow-hidden">
-      {/* Subtle Background Glows */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-gold-500/10 rounded-full blur-[120px] pointer-events-none"></div>
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+    <section className="section-padding bg-dark-surface relative overflow-hidden">
+      {/* Background glows */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-gold-500/8 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gold-500/5 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+      <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-end gap-8 mb-16">
-          <div className="md:w-2/3">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif text-white mb-6 leading-tight tracking-tight">
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-16">
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-px w-10 bg-gold-500" />
+              <span className="text-gold-400 text-xs font-bold tracking-[0.25em] uppercase">Why Choose Us</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight" style={{ fontFamily: 'var(--font-playfair)' }}>
               {data.title}
             </h2>
-            <p className="text-xl text-gray-400 font-light max-w-xl">
-              {data.subtitle}
-            </p>
           </div>
-          <div>
-            <a 
-              href={data.cta?.link || "#contact"} 
-              className="inline-flex items-center justify-center bg-gold-600 hover:bg-gold-500 text-white font-bold px-8 py-4 rounded-full transition-all shadow-[0_0_20px_rgba(234,179,8,0.2)] hover:shadow-[0_0_30px_rgba(234,179,8,0.4)] tracking-wide uppercase text-sm"
+          <div className="lg:max-w-sm">
+            <p className="text-gray-400 text-lg mb-6">{data.subtitle}</p>
+            <a
+              href={data.cta?.link || '#contact'}
+              className="inline-flex items-center gap-2 border border-gold-500/50 hover:border-gold-500 text-gold-400 hover:text-white hover:bg-gold-500 font-bold px-6 py-3 rounded-xl transition-all duration-300"
             >
-              {data.cta?.text || "Apply Now"}
+              {data.cta?.text || 'Apply Now'}
             </a>
           </div>
         </div>
-        
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {(data.items || []).map((feature, index) => {
+
+        {/* Features */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {(data.items || []).map((feature, i) => {
             const Icon = LucideIcons[feature.icon] || HelpCircle;
             return (
-              <div 
-                key={index} 
-                className="group relative bg-[#111827] border border-white/5 rounded-3xl p-10 hover:bg-[#1f2937] transition-all duration-500 overflow-hidden"
+              <div
+                key={i}
+                className="group relative glass rounded-3xl p-8 hover:border-gold-500/30 transition-all duration-500 overflow-hidden"
               >
-                {/* Decorative hover gradient */}
-                <div className="absolute inset-0 bg-gradient-to-br from-gold-500/0 to-gold-500/0 group-hover:from-gold-500/5 group-hover:to-transparent transition-colors duration-500 z-0"></div>
-                
-                {/* Icon */}
-                <div className="relative z-10 w-16 h-16 rounded-2xl bg-[#1f2937] border border-white/10 flex items-center justify-center mb-8 group-hover:bg-gold-500/20 group-hover:border-gold-500/50 transition-all duration-500 group-hover:-translate-y-1">
-                  <Icon size={28} className="text-gold-400" strokeWidth={1.5} />
+                {/* Hover glow */}
+                <div className="absolute inset-0 bg-gradient-to-br from-gold-500/0 to-gold-500/0 group-hover:from-gold-500/5 group-hover:to-transparent transition-all duration-500 rounded-3xl" />
+
+                {/* Number */}
+                <div className="text-8xl font-black text-white/[0.03] absolute top-4 right-6 select-none" style={{ fontFamily: 'var(--font-playfair)' }}>
+                  {String(i + 1).padStart(2, '0')}
                 </div>
-                
-                {/* Content */}
+
                 <div className="relative z-10">
-                  <h3 className="text-2xl font-serif text-white mb-4 group-hover:text-gold-400 transition-colors duration-300">
+                  {/* Icon */}
+                  <div className="w-14 h-14 rounded-2xl bg-gold-500/10 border border-gold-500/20 group-hover:bg-gold-500/20 group-hover:border-gold-500/40 flex items-center justify-center mb-6 transition-all duration-500">
+                    <Icon size={26} className="text-gold-400" strokeWidth={1.5} />
+                  </div>
+
+                  <h3 className="text-xl font-bold text-white mb-3 group-hover:text-gradient-gold transition-colors duration-300" style={{ fontFamily: 'var(--font-playfair)' }}>
                     {feature.title}
                   </h3>
-                  <p className="text-gray-400 leading-relaxed font-light text-base group-hover:text-gray-300 transition-colors">
+                  <p className="text-gray-400 leading-relaxed text-sm group-hover:text-gray-300 transition-colors">
                     {feature.description}
                   </p>
                 </div>
@@ -62,7 +68,6 @@ export default function FeaturesSection({ data }) {
             );
           })}
         </div>
-        
       </div>
     </section>
   );

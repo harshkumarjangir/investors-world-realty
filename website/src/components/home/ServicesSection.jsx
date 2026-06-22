@@ -3,42 +3,68 @@ import { HelpCircle } from 'lucide-react';
 
 export default function ServicesSection({ data }) {
   return (
-    <section id="services" className="py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col-reverse lg:flex-row gap-16 items-center">
-        
-        {/* Left Side: Expanding Image Accordion */}
-        <div className="w-full lg:w-[65%] flex h-[500px] gap-2 overflow-hidden">
-          {data.items.map((service, index) => {
+    <section id="services" className="section-padding bg-dark-surface relative overflow-hidden">
+      {/* Subtle grid background */}
+      <div className="absolute inset-0 opacity-[0.03]"
+        style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+
+      <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+
+        {/* Header */}
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-16">
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-px w-10 bg-gold-500" />
+              <span className="text-gold-400 text-xs font-bold tracking-[0.25em] uppercase">What We Do</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white" style={{ fontFamily: 'var(--font-playfair)' }}>
+              {data?.title || 'Our Services'}
+            </h2>
+          </div>
+          <div className="lg:max-w-sm">
+            <p className="text-gray-400 text-lg leading-relaxed mb-6">
+              {data?.description || 'Your trusted partner in real estate investments since 13+ years.'}
+            </p>
+            <a
+              href={data?.cta?.link || '#contact'}
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-gold-500 to-gold-400 text-[#0a0e1a] font-bold px-6 py-3 rounded-xl hover:from-gold-400 hover:to-gold-300 transition-all duration-300 glow-gold-sm"
+            >
+              {data?.cta?.text || 'Get Started'}
+            </a>
+          </div>
+        </div>
+
+        {/* Services accordion grid */}
+        <div className="flex h-[480px] gap-3 overflow-hidden">
+          {(data?.items || []).map((service, index) => {
             const Icon = LucideIcons[service.icon] || HelpCircle;
             return (
-              <div 
-                key={index} 
-                className="relative flex-1 hover:flex-[4] transition-all duration-700 ease-in-out overflow-hidden group cursor-pointer rounded-xl shadow-md"
+              <div
+                key={index}
+                className="relative flex-1 hover:flex-[4] transition-all duration-700 ease-in-out overflow-hidden group cursor-pointer rounded-2xl"
               >
-                {/* Background Image */}
-                <img 
-                  src={service.image} 
-                  alt={service.title} 
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 z-0" 
+                {/* BG image */}
+                <img
+                  src={service.image}
+                  alt={service.title}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                 />
-                
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#111827]/95 via-[#111827]/50 to-transparent transition-opacity duration-500 z-10 group-hover:from-[#111827]/90"></div>
-                
+                {/* Gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-black/20 transition-all duration-500 group-hover:from-black/90" />
+
+                {/* Gold left border on hover */}
+                <div className="absolute left-0 top-4 bottom-4 w-0.5 bg-gold-500 opacity-0 group-hover:opacity-100 transition-all duration-500 rounded-full" />
+
                 {/* Content */}
-                <div className="absolute inset-0 z-20 flex flex-col justify-end p-4 md:p-6 pb-8 text-center items-center">
-                  <div className="w-12 h-12 rounded-full border border-gold-500/50 bg-black/30 backdrop-blur-sm text-gold-400 mb-4 flex items-center justify-center transition-all duration-500 group-hover:bg-gold-500 group-hover:text-dark-bg group-hover:scale-110 shrink-0">
+                <div className="absolute inset-0 flex flex-col justify-end p-5 text-center items-center">
+                  <div className="w-12 h-12 rounded-xl border border-gold-500/40 bg-black/30 backdrop-blur-sm text-gold-400 mb-3 flex items-center justify-center transition-all duration-500 group-hover:bg-gold-500 group-hover:text-[#0a0e1a] group-hover:scale-110 group-hover:rounded-2xl shrink-0">
                     <Icon size={22} strokeWidth={1.5} />
                   </div>
-                  
-                  {/* Title */}
-                  <h3 className="text-white text-sm md:text-base font-bold font-serif text-center transition-all duration-500 group-hover:text-2xl group-hover:mb-2 leading-tight">
+                  <h3 className="text-white text-sm font-bold transition-all duration-500 group-hover:text-xl group-hover:mb-3 leading-tight" style={{ fontFamily: 'var(--font-playfair)' }}>
                     {service.title}
                   </h3>
-                  
-                  {/* Hidden Description */}
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100 h-0 group-hover:h-[80px] overflow-hidden flex items-center justify-center mt-3 max-w-[90%]">
-                    <p className="text-gray-300 text-sm leading-relaxed hidden md:block">
+                  <div className="overflow-hidden max-h-0 group-hover:max-h-20 transition-all duration-500 delay-100">
+                    <p className="text-gray-300 text-sm leading-relaxed mt-1 hidden md:block">
                       {service.description}
                     </p>
                   </div>
@@ -47,25 +73,6 @@ export default function ServicesSection({ data }) {
             );
           })}
         </div>
-
-        {/* Right Side: Text Description */}
-        <div className="w-full lg:w-[35%] flex flex-col justify-center">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-dark-bg mb-6 font-serif tracking-tight leading-tight">
-            {data.title}
-          </h2>
-          <p className="text-gray-600 text-lg md:text-xl leading-relaxed mb-8 font-light border-l-2 border-gold-500 pl-6">
-            {data.description || "Crafting quality spaces with innovation and expertise. Your trusted partner in real estate investments since 13+ Years."}
-          </p>
-          <div>
-            <a 
-              href={data.cta?.link || "#contact"} 
-              className="inline-flex items-center justify-center bg-gold-600 hover:bg-gold-500 text-white font-semibold px-8 py-3 rounded-full transition-colors shadow-lg shadow-gold-600/20"
-            >
-              {data.cta?.text || "Get Started"}
-            </a>
-          </div>
-        </div>
-        
       </div>
     </section>
   );

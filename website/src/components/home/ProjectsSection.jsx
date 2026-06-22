@@ -1,92 +1,99 @@
-import { MapPin, Building2 } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 
 export default function ProjectsSection({ data }) {
   if (!data) return null;
 
+  const currentProjects = data.items?.filter(p => p.status === 'Current') || [];
+  const pastProjects = data.items?.filter(p => p.status !== 'Current') || [];
+
   return (
-    <section id="projects" className="py-24 bg-gradient-to-b from-[#fffaf0] to-white overflow-hidden">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Header Section */}
+    <section id="projects" className="section-padding bg-dark-bg overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+
+        {/* Header */}
         <div className="flex flex-col items-center text-center mb-16">
-          {data.pillText && (
-            <div className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-gold-50/80 border border-gold-200 mb-6 shadow-sm">
-              <Building2 size={14} className="text-gold-600" />
-              <span className="text-gold-700 text-xs font-bold tracking-widest uppercase">
-                {data.pillText}
-              </span>
+          <div className="flex items-center gap-3 mb-5">
+            <div className="h-px w-10 bg-gold-500" />
+            <span className="text-gold-400 text-xs font-bold tracking-[0.25em] uppercase">{data.pillText || 'Our Projects'}</span>
+            <div className="h-px w-10 bg-gold-500" />
+          </div>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4" style={{ fontFamily: 'var(--font-playfair)' }}>
+            {data.mainHeading || 'Crafted for Premium Living'}
+          </h2>
+          <p className="text-gray-400 text-lg max-w-2xl">{data.subtitle || 'Hand-Picked. Carefully Evaluated. Built for Investors.'}</p>
+        </div>
+
+        {/* Current Projects (Featured Large) */}
+        {currentProjects.length > 0 && (
+          <div className="mb-8">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-2 h-2 rounded-full bg-gold-500 animate-pulse" />
+              <span className="text-gold-400 text-sm font-bold uppercase tracking-widest">Ongoing Projects</span>
             </div>
-          )}
-          
-          {data.mainHeading && (
-            <h2 
-              className="text-4xl md:text-5xl font-bold text-dark-bg mb-4 font-serif tracking-tight"
-              dangerouslySetInnerHTML={{ __html: data.mainHeading.replace('Premium Living', '<span class="text-gold-600">Premium Living</span>') }}
-            />
-          )}
-          
-          {data.subtitle && (
-            <p className="text-gray-500 text-base max-w-2xl mt-2 font-medium">
-              {data.subtitle}
-            </p>
-          )}
-          
-          {data.title && (
-            <h3 className="text-2xl font-semibold text-dark-bg mt-8">
-              {data.title}
-            </h3>
-          )}
-        </div>
-        
-        {/* Horizontal Slider Section */}
-        <div className="flex overflow-x-auto gap-6 pb-12 pt-4 snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          {(data.items || []).map((project, index) => {
-            const isSoldOut = project.status === "Sold Out";
-            
-            return (
-              <div 
-                key={index} 
-                className="relative min-w-[85vw] sm:min-w-[340px] md:min-w-[400px] lg:min-w-[450px] h-[500px] rounded-[2rem] overflow-hidden group snap-center shadow-md hover:shadow-2xl transition-all duration-500 flex-shrink-0 cursor-pointer"
-              >
-                {/* Image */}
-                <img 
-                  src={project.image || "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80"} 
-                  alt={project.name}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                
-                {/* Gradient Overlay for Text */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#111827]/90 via-[#111827]/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-500"></div>
-                
-                {/* Top Badge */}
-                <div className="absolute top-6 left-6 z-20">
-                  <span className={`px-4 py-2 text-[10px] font-extrabold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-2 ${
-                    isSoldOut 
-                      ? 'bg-black/70 backdrop-blur-md text-white' 
-                      : 'bg-gradient-to-r from-gold-500 to-yellow-600 text-white'
-                  }`}>
-                    {!isSoldOut && <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>}
-                    {project.status}
-                  </span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {currentProjects.map((project, i) => (
+                <div key={i} className="relative h-[400px] rounded-3xl overflow-hidden group cursor-pointer">
+                  <img
+                    src={project.image}
+                    alt={project.name}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                  {/* Live badge */}
+                  <div className="absolute top-5 left-5 z-20 flex items-center gap-2 bg-gold-500/20 backdrop-blur-md border border-gold-500/40 rounded-full px-4 py-1.5">
+                    <span className="w-2 h-2 rounded-full bg-gold-400 animate-pulse" />
+                    <span className="text-gold-300 text-xs font-bold uppercase tracking-widest">Live</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 p-8 z-20">
+                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-2" style={{ fontFamily: 'var(--font-playfair)' }}>
+                      {project.name}
+                    </h3>
+                    {project.location && (
+                      <div className="flex items-center gap-2 text-gold-400">
+                        <MapPin size={14} />
+                        <span className="text-sm">{project.location}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                
-                {/* Bottom Content */}
-                <div className="absolute bottom-0 left-0 w-full p-8 z-20 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                  <h3 className="text-2xl md:text-3xl font-serif text-white mb-2 font-bold drop-shadow-md">
-                    {project.name}
-                  </h3>
-                  {project.location && (
-                    <div className="flex items-center text-gray-300 group-hover:text-gold-400 transition-colors">
-                      <MapPin size={16} className="mr-2 shrink-0" />
-                      <span className="text-sm font-medium tracking-wide">{project.location}</span>
-                    </div>
-                  )}
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Past Projects (Horizontal scroll) */}
+        {pastProjects.length > 0 && (
+          <div>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-2 h-2 rounded-full bg-gray-500" />
+              <span className="text-gray-400 text-sm font-bold uppercase tracking-widest">Completed Projects</span>
+            </div>
+            <div className="flex overflow-x-auto gap-4 pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] snap-x snap-mandatory">
+              {pastProjects.map((project, i) => (
+                <div key={i} className="relative min-w-[280px] h-[320px] rounded-2xl overflow-hidden group cursor-pointer shrink-0 snap-center">
+                  <img
+                    src={project.image}
+                    alt={project.name}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                  <div className="absolute top-4 left-4 glass rounded-full px-3 py-1">
+                    <span className="text-gray-300 text-[10px] font-bold uppercase tracking-widest">Sold Out</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 p-5">
+                    <h3 className="text-lg font-bold text-white mb-1" style={{ fontFamily: 'var(--font-playfair)' }}>{project.name}</h3>
+                    {project.location && (
+                      <div className="flex items-center gap-1.5 text-gray-400">
+                        <MapPin size={12} />
+                        <span className="text-xs">{project.location}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-        
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
