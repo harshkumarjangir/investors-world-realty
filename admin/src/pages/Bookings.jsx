@@ -79,7 +79,7 @@ export default function Bookings() {
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">Associate Code</label>
-              <input type="text" value={filters.associateCode} onChange={(e) => setFilters({ ...filters, associateCode: e.target.value })} className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold-400 focus:ring-2 focus:ring-gold-200" placeholder="IW100001" />
+              <input type="text" value={filters.associateCode} onChange={(e) => setFilters({ ...filters, associateCode: e.target.value })} className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold-400 focus:ring-2 focus:ring-gold-200" placeholder="IWR100001" />
             </div>
             <button onClick={handleFilter} className="inline-flex items-center gap-2 rounded-lg bg-gold-500 px-4 py-2 text-sm font-medium text-white hover:bg-gold-600">
               <Filter size={14} /> Show

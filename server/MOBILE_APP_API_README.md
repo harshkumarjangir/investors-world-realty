@@ -258,6 +258,10 @@ GET /associate/profile
     "activationDate": "2024-01-16T00:00:00.000Z",
     "theme": "light",
     "language": "en",
+    "joiningType": "FULL_TIME",
+    "nomineeName": "Sunita Devi",
+    "nomineeRelation": "Spouse",
+    "nomineeDob": "1992-08-20T00:00:00.000Z",
     "sponsor": {
       "userId": "IW100000",
       "name": "Sponsor Name",
@@ -290,7 +294,8 @@ Updates profile details and optionally uploads a profile photo in a single reque
   * `state` — New state
   * `pincode` — New pincode
   * `fatherHusbandName`, `gender`, `profession`, `maritalStatus`, `aadhaarNo`
-  * `nomineeName`, `nomineeRelation`, `nomineeDob`
+  * `joiningType` — `"FULL_TIME"` or `"PART_TIME"`
+  * `nomineeName`, `nomineeRelation`, `nomineeDob` (YYYY-MM-DD)
   * `bankName`, `bankBranchName`, `bankAccountNo`, `bankIfscCode`
 
 ---
@@ -594,7 +599,11 @@ POST /registration/register
   "panNumber": "ABCDE1234F",
   "sponsorId": "IW100001",
   "password": "John@1234",
-  "dateOfBirth": "1990-05-15"
+  "dateOfBirth": "1990-05-15",
+  "joiningType": "FULL_TIME",
+  "nomineeName": "Jane Doe",
+  "nomineeRelation": "Spouse",
+  "nomineeDob": "1993-08-20"
 }
 ```
 **Notes:**
@@ -603,6 +612,8 @@ POST /registration/register
 - If `sponsorId` is provided, it must be an ACTIVE associate with downline capacity (rank 2+).
 - Associate starts as `INACTIVE` — admin must approve/activate.
 - `password` rules: min 8 chars, 1 uppercase, 1 number, 1 special character.
+- `joiningType`: `"FULL_TIME"` or `"PART_TIME"` (optional — can be updated later via profile)
+- `nomineeName`, `nomineeRelation`, `nomineeDob` are all optional — can be filled later via profile update.
 
 ### 9.3 Request Account Deletion 🔒
 ```
@@ -842,6 +853,12 @@ lib/
 ---
 
 ## 📝 Changelog
+
+### v1.3.0 (June 2026)
+- **Nominee details** added to registration and profile: `nomineeName`, `nomineeRelation`, `nomineeDob`
+- **Joining type** added: `joiningType` = `"FULL_TIME"` | `"PART_TIME"` — available on registration and profile update
+- Both fields are optional at registration — can be filled or updated later via `PATCH /associate/profile`
+- Admin panel: Add/Edit Associate modal now includes Joining Type radio buttons and Nominee section
 
 ### v1.2.0 (June 2026)
 - **OTP for Associate login** — 2-step auth (credentials → OTP → tokens)

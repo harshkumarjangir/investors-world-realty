@@ -136,8 +136,8 @@ function PlotBookingForm() {
         {/* Row 1: Associate Code, Name, Registration Date */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className={labelClass}>Associate Code *</label>
-            <input className={inputClass} value={form.associateId} onChange={(e) => setForm({ ...form, associateId: e.target.value })} onBlur={lookupAssociate} placeholder="IW100001" required />
+            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Associate ID</label>
+            <input className={inputClass} value={form.associateId} onChange={(e) => setForm({ ...form, associateId: e.target.value })} onBlur={lookupAssociate} placeholder="IWR100001" required />
           </div>
           <div>
             <label className={labelClass}>Associate Name</label>
@@ -496,8 +496,8 @@ function PlotBookingList() {
             <input type="text" value={filters.customerCode} onChange={(e) => setFilters({ ...filters, customerCode: e.target.value })} className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold-400 focus:ring-2 focus:ring-gold-200" placeholder="Search..." />
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Associate Code</label>
-            <input type="text" value={filters.associateCode} onChange={(e) => setFilters({ ...filters, associateCode: e.target.value })} className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold-400 focus:ring-2 focus:ring-gold-200" placeholder="IW100001" />
+            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Associate ID</label>
+            <input type="text" value={filters.associateCode} onChange={(e) => setFilters({ ...filters, associateCode: e.target.value })} className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold-400 focus:ring-2 focus:ring-gold-200" placeholder="IWR100001" />
           </div>
           <button onClick={handleFilter} className="inline-flex items-center gap-2 rounded-lg bg-gold-500 px-4 py-2 text-sm font-medium text-white hover:bg-gold-600">
             <Filter size={14} /> Show

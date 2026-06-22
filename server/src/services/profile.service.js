@@ -75,6 +75,7 @@ export async function getProfile(associateId) {
     nomineeName:       associate.nomineeName || null,
     nomineeRelation:   associate.nomineeRelation || null,
     nomineeDob:        associate.nomineeDob || null,
+    joiningType:       associate.joiningType || null,
     bankName:          associate.bankName || null,
     bankBranchName:    associate.bankBranchName || null,
     bankAccountNo:     associate.bankAccountNo || null,
@@ -93,6 +94,7 @@ const ALLOWED_UPDATE_FIELDS = [
   // Extended profile
   'fatherHusbandName', 'gender', 'profession', 'maritalStatus', 'aadhaarNo',
   'nomineeName', 'nomineeRelation', 'nomineeDob',
+  'joiningType',
   'bankName', 'bankBranchName', 'bankAccountNo', 'bankIfscCode',
 ];
 
@@ -156,6 +158,7 @@ export async function updateProfile(associateId, data) {
       nomineeName: true,
       nomineeRelation: true,
       nomineeDob: true,
+      joiningType: true,
       bankName: true,
       bankBranchName: true,
       bankAccountNo: true,

@@ -41,8 +41,8 @@ export default function MyAccount() {
 
 // ─── Search Associates ────────────────────────────────────────────────────────
 const SEARCH_TYPES = [
-  { value: 'name', label: 'By Name', field: 'Enter Name', placeholder: '' },
-  { value: 'associateId', label: 'Associate Id', field: 'Associate Id', placeholder: 'IW100001' },
+  { value: 'name', label: 'Associate Name', field: 'Associate Name', placeholder: 'Rajesh Kumar' },
+  { value: 'associateId', label: 'Associate Id', field: 'Associate Id', placeholder: 'IWR100001' },
   { value: 'downline', label: 'Associate Downline', field: 'Associate Downline', placeholder: '' },
   { value: 'city', label: 'City', field: 'City', placeholder: '' },
   { value: 'dob', label: 'Date Of Birth', field: 'DOB Range', placeholder: '' },
@@ -51,7 +51,7 @@ const SEARCH_TYPES = [
   { value: 'pan', label: 'PanNo', field: 'Pan No.', placeholder: '' },
   { value: 'state', label: 'State', field: 'State', placeholder: '' },
   { value: 'mobile', label: 'Mobile No', field: 'Mobile No.', placeholder: '' },
-  { value: 'account', label: 'Account No', field: 'Account No.', placeholder: '' },
+  { value: 'account', label: 'Account No', field: 'Account No', placeholder: '' },
 ];
 
 const SEARCH_OPTIONS = [
@@ -337,8 +337,8 @@ function FetchPassword() {
         {/* Show Password */}
         <div className="flex gap-3 items-end">
           <div className="flex-1">
-            <label className={lc}>Enter Associate Id</label>
-            <input className={ic} value={associateId} onChange={e => setAssociateId(e.target.value)} placeholder="IW100001" />
+            <label className={lc}>Associate ID (Optional)</label>
+            <input className={ic} value={associateId} onChange={e => setAssociateId(e.target.value)} placeholder="IWR100001" />
           </div>
           <button onClick={handleShowPassword} disabled={loading} className={btn}>{loading ? 'Loading...' : 'Show Password'}</button>
         </div>

@@ -447,13 +447,27 @@ function StatusBadge({ status }) {
 function AddAssociateModal({ associate, onClose, onSuccess }) {
   const { t } = useI18n();
   const [form, setForm] = useState({
-    name: associate?.name || '', phone: associate?.phone || '', email: associate?.email || '',
-    address: associate?.address || '', city: associate?.city || '', state: associate?.state || '',
-    pincode: associate?.pincode || '', panNumber: associate?.panNumber || '',
-    sponsorId: associate?.sponsorUserId || '', password: '',
+    name:            associate?.name            || '',
+    phone:           associate?.phone           || '',
+    email:           associate?.email           || '',
+    address:         associate?.address         || '',
+    city:            associate?.city            || '',
+    state:           associate?.state           || '',
+    pincode:         associate?.pincode         || '',
+    panNumber:       associate?.panNumber       || '',
+    sponsorId:       associate?.sponsorUserId   || '',
+    password:        '',
+    // Nominee
+    nomineeName:     associate?.nomineeName     || '',
+    nomineeRelation: associate?.nomineeRelation || '',
+    nomineeDob:      associate?.nomineeDob      ? associate.nomineeDob.split('T')[0] : '',
+    // Joining type
+    joiningType:     associate?.joiningType     || '',
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -470,36 +484,148 @@ function AddAssociateModal({ associate, onClose, onSuccess }) {
     } finally { setSubmitting(false); }
   };
 
-  const inp = 'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold-400 focus:ring-2 focus:ring-gold-200';
+  const inp = 'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold-400 focus:ring-2 focus:ring-gold-200 outline-none';
+  const lbl = 'block text-xs font-medium text-gray-600 mb-1';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-800">{associate ? t('associates.edit') : t('associates.add')}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-2xl max-h-[92vh] overflow-y-auto rounded-xl bg-white shadow-xl">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <h2 className="text-lg font-semibold text-gray-800">
+            {associate ? t('associates.edit') : t('associates.add')}
+          </h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 rounded-lg p-1 hover:bg-gray-100 transition-colors"><X size={20} /></button>
         </div>
-        {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <input placeholder="Full Name *" value={form.name} onChange={(e) => setForm({...form, name: e.target.value})} required className={inp} />
-            <input placeholder="Phone *" value={form.phone} onChange={(e) => setForm({...form, phone: e.target.value})} required className={inp} />
-            <input placeholder="Email *" type="email" value={form.email} onChange={(e) => setForm({...form, email: e.target.value})} required className={inp} />
-            <input placeholder="Address" value={form.address} onChange={(e) => setForm({...form, address: e.target.value})} className={inp} />
-            <input placeholder="City" value={form.city} onChange={(e) => setForm({...form, city: e.target.value})} className={inp} />
-            <input placeholder="State" value={form.state} onChange={(e) => setForm({...form, state: e.target.value})} className={inp} />
-            <input placeholder="Pincode" value={form.pincode} onChange={(e) => setForm({...form, pincode: e.target.value})} className={inp} />
-            <input placeholder="PAN Number" value={form.panNumber} onChange={(e) => setForm({...form, panNumber: e.target.value})} className={inp} />
-            {!associate && (
-              <>
-                <input placeholder="Sponsor ID (optional, e.g. IW100002)" value={form.sponsorId} onChange={(e) => setForm({...form, sponsorId: e.target.value})} className={inp} />
-                <input placeholder="Password *" type="password" value={form.password} onChange={(e) => setForm({...form, password: e.target.value})} required className={inp} />
-              </>
-            )}
+
+        {error && <p className="mx-6 mt-4 text-sm text-red-600 bg-red-50 rounded-lg px-4 py-2">{error}</p>}
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+
+          {/* ── Personal Details ────────────────────────────────────────── */}
+          <div>
+            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Personal Details</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className={lbl}>Full Name *</label>
+                <input value={form.name} onChange={set('name')} required placeholder="e.g. Rajesh Kumar" className={inp} />
+              </div>
+              <div>
+                <label className={lbl}>Phone *</label>
+                <input value={form.phone} onChange={set('phone')} required placeholder="+91 98765 43210" className={inp} />
+              </div>
+              <div>
+                <label className={lbl}>Email *</label>
+                <input type="email" value={form.email} onChange={set('email')} required placeholder="email@example.com" className={inp} />
+              </div>
+              <div>
+                <label className={lbl}>PAN Number</label>
+                <input value={form.panNumber} onChange={set('panNumber')} placeholder="ABCDE1234F" className={inp} />
+              </div>
+              <div className="sm:col-span-2">
+                <label className={lbl}>Address</label>
+                <input value={form.address} onChange={set('address')} placeholder="House No., Street, Area" className={inp} />
+              </div>
+              <div>
+                <label className={lbl}>City</label>
+                <input value={form.city} onChange={set('city')} placeholder="Jaipur" className={inp} />
+              </div>
+              <div>
+                <label className={lbl}>State</label>
+                <input value={form.state} onChange={set('state')} placeholder="Rajasthan" className={inp} />
+              </div>
+              <div>
+                <label className={lbl}>Pincode</label>
+                <input value={form.pincode} onChange={set('pincode')} placeholder="302001" className={inp} />
+              </div>
+            </div>
           </div>
-          <div className="flex justify-end gap-3 pt-3">
-            <button type="button" onClick={onClose} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">{t('common.cancel')}</button>
-            <button type="submit" disabled={submitting} className="rounded-lg bg-gold-500 px-4 py-2 text-sm font-medium text-white hover:bg-gold-600 disabled:opacity-50">
+
+          {/* ── Joining Type ────────────────────────────────────────────── */}
+          <div>
+            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Joining Type</h3>
+            <div className="flex gap-4">
+              {[
+                { value: 'FULL_TIME', label: '🕐 Full Time', desc: 'Primary profession' },
+                { value: 'PART_TIME', label: '⏱ Part Time', desc: 'Side business' },
+              ].map((opt) => (
+                <label
+                  key={opt.value}
+                  className={`flex-1 flex items-start gap-3 border-2 rounded-xl p-4 cursor-pointer transition-all ${
+                    form.joiningType === opt.value
+                      ? 'border-gold-400 bg-gold-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="joiningType"
+                    value={opt.value}
+                    checked={form.joiningType === opt.value}
+                    onChange={set('joiningType')}
+                    className="mt-0.5 accent-gold-500"
+                  />
+                  <div>
+                    <div className="font-medium text-sm text-gray-800">{opt.label}</div>
+                    <div className="text-xs text-gray-500">{opt.desc}</div>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* ── Nominee Details ─────────────────────────────────────────── */}
+          <div>
+            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Nominee Details</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className={lbl}>Nominee Name</label>
+                <input value={form.nomineeName} onChange={set('nomineeName')} placeholder="e.g. Sunita Devi" className={inp} />
+              </div>
+              <div>
+                <label className={lbl}>Relation with Nominee</label>
+                <select value={form.nomineeRelation} onChange={set('nomineeRelation')} className={inp}>
+                  <option value="">Select Relation</option>
+                  <option value="Spouse">Spouse</option>
+                  <option value="Father">Father</option>
+                  <option value="Mother">Mother</option>
+                  <option value="Son">Son</option>
+                  <option value="Daughter">Daughter</option>
+                  <option value="Brother">Brother</option>
+                  <option value="Sister">Sister</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label className={lbl}>Nominee Date of Birth</label>
+                <input type="date" value={form.nomineeDob} onChange={set('nomineeDob')} className={inp} />
+              </div>
+            </div>
+          </div>
+
+          {/* ── Registration Fields (new associate only) ─────────────────── */}
+          {!associate && (
+            <div>
+              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Account Setup</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className={lbl}>Sponsor ID (optional)</label>
+                  <input value={form.sponsorId} onChange={set('sponsorId')} placeholder="e.g. IWR100001" className={inp} />
+                </div>
+                <div>
+                  <label className={lbl}>Password *</label>
+                  <input type="password" value={form.password} onChange={set('password')} required placeholder="Set a strong password" className={inp} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── Actions ─────────────────────────────────────────────────── */}
+          <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
+            <button type="button" onClick={onClose} className="rounded-lg border border-gray-300 px-5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+              {t('common.cancel')}
+            </button>
+            <button type="submit" disabled={submitting} className="rounded-lg bg-gold-500 px-5 py-2 text-sm font-medium text-white hover:bg-gold-600 disabled:opacity-50">
               {submitting ? t('common.loading') : t('common.save')}
             </button>
           </div>
@@ -508,3 +634,4 @@ function AddAssociateModal({ associate, onClose, onSuccess }) {
     </div>
   );
 }
+

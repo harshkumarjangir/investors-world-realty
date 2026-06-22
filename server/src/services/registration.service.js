@@ -4,7 +4,7 @@ import prisma from '../utils/prisma.js';
 // ─── User ID Generation ───────────────────────────────────────────────────────
 
 /**
- * Generate the next sequential userId in IW######  format.
+ * Generate the next sequential userId in IWR######  format.
  * Runs inside a serializable transaction to prevent race conditions.
  */
 export async function generateUserId() {
@@ -14,7 +14,7 @@ export async function generateUserId() {
     const result = await tx.$queryRaw`
       SELECT "userId"
       FROM "Associate"
-      WHERE "userId" ~ '^IW[0-9]{6}$'
+      WHERE "userId" ~ '^IWR[0-9]{6}$'
       ORDER BY "userId" DESC
       LIMIT 1
       FOR UPDATE
@@ -22,18 +22,18 @@ export async function generateUserId() {
 
     let nextNumber = 100001;
     if (result.length > 0) {
-      const lastNumber = parseInt(result[0].userId.slice(2), 10);
+      const lastNumber = parseInt(result[0].userId.slice(3), 10);
       nextNumber = lastNumber + 1;
     }
 
-    return `IW${String(nextNumber).padStart(6, '0')}`;
+    return `IWR${String(nextNumber).padStart(6, '0')}`;
   }, { isolationLevel: 'Serializable' });
 }
 
 // ─── Sponsor Validation ───────────────────────────────────────────────────────
 
 /**
- * Find an active, non-deleted associate by their userId (e.g. IW100001).
+ * Find an active, non-deleted associate by their userId (e.g. IWR100001).
  * Throws 400 if not found or not ACTIVE.
  */
 export async function validateSponsor(sponsorId) {
@@ -121,6 +121,12 @@ export async function registerAssociate(data) {
     sponsorId,
     dateOfBirth,
     password,
+    // Nominee details
+    nomineeName,
+    nomineeRelation,
+    nomineeDob,
+    // Joining type
+    joiningType,
   } = data;
 
   // ── Mandatory field check ──────────────────────────────────────────────────
@@ -137,6 +143,11 @@ export async function registerAssociate(data) {
     );
   }
 
+  // Validate joiningType if provided
+  if (joiningType && !['FULL_TIME', 'PART_TIME'].includes(joiningType)) {
+    throw Object.assign(new Error('joiningType must be FULL_TIME or PART_TIME'), { statusCode: 400 });
+  }
+
   // ── Uniqueness checks ──────────────────────────────────────────────────────
   const [existingPhone, existingEmail] = await Promise.all([
     prisma.associate.findUnique({ where: { phone } }),
@@ -151,8 +162,6 @@ export async function registerAssociate(data) {
   }
 
   // ── Validate sponsor (optional) ────────────────────────────────────────────
-  // If sponsorId is provided, validate it. If not, associate will be assigned
-  // to the root/default sponsor by admin when activating.
   let sponsor = null;
   if (sponsorId && sponsorId.trim()) {
     sponsor = await validateSponsor(sponsorId.trim());
@@ -179,20 +188,27 @@ export async function registerAssociate(data) {
       email,
       phone,
       password: hashedPassword,
-      address: address || null,
-      city: city || null,
-      state: state || null,
-      pincode: pincode || null,
+      address:   address   || null,
+      city:      city      || null,
+      state:     state     || null,
+      pincode:   pincode   || null,
       panNumber: panNumber || null,
-      sponsorId: sponsor?.id || null,   // null if no sponsor provided
+      sponsorId: sponsor?.id || null,
       status: 'INACTIVE',
       rank: 1,
       dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
+      // Nominee
+      nomineeName:     nomineeName     || null,
+      nomineeRelation: nomineeRelation || null,
+      nomineeDob:      nomineeDob      ? new Date(nomineeDob) : null,
+      // Joining type
+      joiningType: joiningType || null,
     },
   });
 
   return newAssociate;
 }
+
 
 // ─── Activate Associate ───────────────────────────────────────────────────────
 export async function activateAssociate(associateId) {

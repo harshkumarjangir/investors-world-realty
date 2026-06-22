@@ -141,6 +141,7 @@ model Associate {
   profession        String?
   maritalStatus     String?   // Single, Married, Divorced, Widowed
   aadhaarNo         String?
+  joiningType       String?   // FULL_TIME or PART_TIME
 
   // Nominee details
   nomineeName       String?

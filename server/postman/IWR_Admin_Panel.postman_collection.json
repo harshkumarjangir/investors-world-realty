@@ -334,7 +334,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Updated Name\",\n  \"city\": \"Delhi\"\n}"
+              "raw": "{\n  \"name\": \"Updated Name\",\n  \"city\": \"Delhi\",\n  \"joiningType\": \"FULL_TIME\",\n  \"nomineeName\": \"Sunita Devi\",\n  \"nomineeRelation\": \"Spouse\",\n  \"nomineeDob\": \"1992-08-20\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/admin/associates/:id",
@@ -352,7 +352,8 @@
                   "value": "associate-uuid"
                 }
               ]
-            }
+            },
+            "description": "Update any associate field. All fields are optional.\n\n**Editable fields:**\n- `name`, `email`, `phone`, `address`, `city`, `state`, `pincode`\n- `status` (ACTIVE/INACTIVE/SUSPENDED), `rank` (1–10)\n- `joiningType`: `FULL_TIME` or `PART_TIME`\n- `nomineeName`, `nomineeRelation` (Spouse/Father/Mother/Son/Daughter/Brother/Sister/Other), `nomineeDob` (YYYY-MM-DD)\n- `password` (will be hashed automatically)"
           }
         },
         {

@@ -181,6 +181,12 @@ export async function adminGetAssociate(associateId) {
     joiningDate: associate.joiningDate,
     activationDate: associate.activationDate,
     sponsor: associate.sponsor || null,
+    // Nominee
+    nomineeName: associate.nomineeName,
+    nomineeRelation: associate.nomineeRelation,
+    nomineeDob: associate.nomineeDob,
+    // Joining type
+    joiningType: associate.joiningType,
     kyc: associate.kycDocuments,
     wallet: associate.wallet
       ? {
@@ -215,7 +221,11 @@ export async function adminEditAssociate(associateId, data, adminId) {
   const existing = await prisma.associate.findUnique({ where: { id: associateId, deletedAt: null } });
   if (!existing) throw Object.assign(new Error('Associate not found'), { statusCode: 404 });
 
-  const { name, email, phone, address, city, state, pincode, status, password, rank } = data;
+  const {
+    name, email, phone, address, city, state, pincode, status, password, rank,
+    nomineeName, nomineeRelation, nomineeDob,
+    joiningType,
+  } = data;
 
   let hashedPassword;
   if (password) {
@@ -231,26 +241,38 @@ export async function adminEditAssociate(associateId, data, adminId) {
     }
   }
 
+  // Validate joiningType if provided
+  if (joiningType && !['FULL_TIME', 'PART_TIME'].includes(joiningType)) {
+    throw Object.assign(new Error('joiningType must be FULL_TIME or PART_TIME'), { statusCode: 400 });
+  }
+
   const updated = await prisma.associate.update({
     where: { id: associateId },
     data: {
-      ...(name      !== undefined && { name }),
-      ...(email     !== undefined && { email }),
-      ...(phone     !== undefined && { phone }),
-      ...(address   !== undefined && { address }),
-      ...(city      !== undefined && { city }),
-      ...(state     !== undefined && { state }),
-      ...(pincode   !== undefined && { pincode }),
-      ...(status    !== undefined && { status }),
-      ...(rank      !== undefined && { rank: parseInt(rank, 10) }),
-      ...(hashedPassword && { password: hashedPassword, failedAttempts: 0 }),
+      ...(name             !== undefined && { name }),
+      ...(email            !== undefined && { email }),
+      ...(phone            !== undefined && { phone }),
+      ...(address          !== undefined && { address }),
+      ...(city             !== undefined && { city }),
+      ...(state            !== undefined && { state }),
+      ...(pincode          !== undefined && { pincode }),
+      ...(status           !== undefined && { status }),
+      ...(rank             !== undefined && { rank: parseInt(rank, 10) }),
+      ...(hashedPassword               && { password: hashedPassword, failedAttempts: 0 }),
+      // Nominee
+      ...(nomineeName      !== undefined && { nomineeName:     nomineeName     || null }),
+      ...(nomineeRelation  !== undefined && { nomineeRelation: nomineeRelation || null }),
+      ...(nomineeDob       !== undefined && { nomineeDob:      nomineeDob ? new Date(nomineeDob) : null }),
+      // Joining type
+      ...(joiningType      !== undefined && { joiningType:     joiningType     || null }),
     },
-    select: { id: true, userId: true, name: true, email: true, phone: true, status: true, rank: true },
+    select: { id: true, userId: true, name: true, email: true, phone: true, status: true, rank: true, nomineeName: true, nomineeRelation: true, nomineeDob: true, joiningType: true },
   });
 
   await logAdminAction(adminId, 'EDIT_ASSOCIATE', 'Associate', associateId, { changes: data });
   return updated;
 }
+
 
 // ─── adminActivateAssociate ────────────────────────────────────────────────────
 

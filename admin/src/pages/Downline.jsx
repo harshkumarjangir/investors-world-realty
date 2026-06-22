@@ -98,7 +98,7 @@ export default function Downline() {
             <label className="block text-xs text-gray-500 mb-1">Associate ID</label>
             <input
               type="text"
-              placeholder="IW100001"
+              placeholder="IWR100001"
               value={associateId}
               onChange={(e) => setAssociateId(e.target.value)}
               className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold-400 focus:ring-2 focus:ring-gold-200"

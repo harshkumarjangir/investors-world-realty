@@ -456,6 +456,13 @@
                   "disabled": true
                 },
                 {
+                  "key": "joiningType",
+                  "value": "FULL_TIME",
+                  "type": "text",
+                  "description": "Optional joining type: FULL_TIME or PART_TIME",
+                  "disabled": true
+                },
+                {
                   "key": "aadhaarNo",
                   "value": "123456789012",
                   "type": "text",
@@ -523,7 +530,7 @@
                 "profile"
               ]
             },
-            "description": "Update profile fields and optionally upload profile photo. Uses `multipart/form-data`. All fields are optional.\n\n**Updatable text fields:**\n- Basic: `phone`, `email`, `address`, `city`, `state`, `pincode`\n- Extended: `fatherHusbandName`, `gender` (Male/Female/Other), `profession`, `maritalStatus` (Single/Married/Divorced/Widowed), `aadhaarNo`\n- Nominee: `nomineeName`, `nomineeRelation`, `nomineeDob` (YYYY-MM-DD)\n- Bank: `bankName`, `bankBranchName`, `bankAccountNo`, `bankIfscCode`"
+            "description": "Update profile fields and optionally upload profile photo. Uses `multipart/form-data`. All fields are optional.\n\n**Updatable text fields:**\n- Basic: `phone`, `email`, `address`, `city`, `state`, `pincode`\n- Extended: `fatherHusbandName`, `gender` (Male/Female/Other), `profession`, `maritalStatus` (Single/Married/Divorced/Widowed), `aadhaarNo`\n- Joining type: `joiningType` = `FULL_TIME` or `PART_TIME`\n- Nominee: `nomineeName`, `nomineeRelation`, `nomineeDob` (YYYY-MM-DD)\n- Bank: `bankName`, `bankBranchName`, `bankAccountNo`, `bankIfscCode`"
           }
         },
         {
@@ -1375,7 +1382,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"John Doe\",\n  \"phone\": \"9876543210\",\n  \"email\": \"john@example.com\",\n  \"address\": \"123 Main Street\",\n  \"city\": \"Mumbai\",\n  \"state\": \"Maharashtra\",\n  \"pincode\": \"400001\",\n  \"panNumber\": \"ABCDE1234F\",\n  \"sponsorId\": \"IW100002\",\n  \"password\": \"John@1234\",\n  \"dateOfBirth\": \"1990-05-15\"\n}",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"phone\": \"9876543210\",\n  \"email\": \"john@example.com\",\n  \"address\": \"123 Main Street\",\n  \"city\": \"Mumbai\",\n  \"state\": \"Maharashtra\",\n  \"pincode\": \"400001\",\n  \"panNumber\": \"ABCDE1234F\",\n  \"sponsorId\": \"IW100002\",\n  \"password\": \"John@1234\",\n  \"dateOfBirth\": \"1990-05-15\",\n  \"joiningType\": \"FULL_TIME\",\n  \"nomineeName\": \"Jane Doe\",\n  \"nomineeRelation\": \"Spouse\",\n  \"nomineeDob\": \"1993-08-20\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1392,7 +1399,7 @@
                 "register"
               ]
             },
-            "description": "Register a new associate.\n\n**sponsorId is OPTIONAL.** If the user downloaded from Play Store without a referral link, they can register without one. When admin activates the account, they will be assigned under the root associate.\n\nIf sponsorId is provided, it must be an ACTIVE associate with downline capacity (rank 2+).\n\nAssociate starts as INACTIVE — admin must activate from the admin panel.\n\nPassword rules: min 8 chars, 1 uppercase, 1 number, 1 special character."
+            "description": "Register a new associate.\n\n**sponsorId is OPTIONAL.** If the user downloaded from Play Store without a referral link, they can register without one. When admin activates the account, they will be assigned under the root associate.\n\nIf sponsorId is provided, it must be an ACTIVE associate with downline capacity (rank 2+).\n\nAssociate starts as INACTIVE — admin must activate from the admin panel.\n\nPassword rules: min 8 chars, 1 uppercase, 1 number, 1 special character.\n\n**joiningType** (optional): `FULL_TIME` or `PART_TIME` — can also be updated later via `PATCH /associate/profile`.\n\n**Nominee fields** (all optional): `nomineeName`, `nomineeRelation` (Spouse/Father/Mother/Son/Daughter/Brother/Sister/Other), `nomineeDob` (YYYY-MM-DD) — can also be updated later via profile update."
           }
         },
         {

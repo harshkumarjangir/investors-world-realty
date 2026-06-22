@@ -236,7 +236,7 @@ export default function Genealogy() {
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Enter User ID (e.g. IW100010)"
+            placeholder="Enter User ID (e.g. IWR100010)"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="rounded-lg border border-gray-300 pl-9 pr-3 py-2 text-sm w-64 focus:border-gold-400 focus:ring-2 focus:ring-gold-200"

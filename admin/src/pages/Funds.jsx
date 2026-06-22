@@ -95,12 +95,12 @@ function FundActionForm({ type }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className={lc}>From Associate ID *</label>
-                <input className={ic} value={form.fromAssociateId} onChange={e=>setForm({...form,fromAssociateId:e.target.value})} onBlur={()=>lookup(form.fromAssociateId,setFromInfo)} placeholder="IW100001" required />
+                <input className={ic} value={form.fromAssociateId} onChange={e=>setForm({...form,fromAssociateId:e.target.value})} onBlur={()=>lookup(form.fromAssociateId,setFromInfo)} placeholder="IWR100001" required />
                 {fromInfo && <p className="text-xs text-green-600 mt-1">✓ {fromInfo.name} — Balance: ₹{(fromInfo.walletBalance||0).toLocaleString()}</p>}
               </div>
               <div>
                 <label className={lc}>To Associate ID *</label>
-                <input className={ic} value={form.toAssociateId} onChange={e=>setForm({...form,toAssociateId:e.target.value})} onBlur={()=>lookup(form.toAssociateId,setToInfo)} placeholder="IW100002" required />
+                <input className={ic} value={form.toAssociateId} onChange={e=>setForm({...form,toAssociateId:e.target.value})} onBlur={()=>lookup(form.toAssociateId,setToInfo)} placeholder="IWR100002" required />
                 {toInfo && <p className="text-xs text-green-600 mt-1">✓ {toInfo.name}</p>}
               </div>
             </div>
@@ -108,7 +108,7 @@ function FundActionForm({ type }) {
         ) : (
           <div>
             <label className={lc}>Associate ID *</label>
-            <input className={ic} value={form.associateId} onChange={e=>setForm({...form,associateId:e.target.value})} onBlur={()=>lookup(form.associateId,setAssocInfo)} placeholder="IW100001" required />
+            <input className={ic} value={form.associateId} onChange={e=>setForm({...form,associateId:e.target.value})} onBlur={()=>lookup(form.associateId,setAssocInfo)} placeholder="IWR100001" required />
             {assocInfo && <p className="text-xs text-green-600 mt-1">✓ {assocInfo.name} ({assocInfo.status})</p>}
           </div>
         )}
@@ -179,7 +179,7 @@ function CreditDebitReport() {
         <div className="flex flex-wrap gap-3 items-end">
           <div><label className={lc}>Date From</label><input className={ic} type="date" value={filters.startDate} onChange={e=>setFilters({...filters,startDate:e.target.value})} /></div>
           <div><label className={lc}>Date To</label><input className={ic} type="date" value={filters.endDate} onChange={e=>setFilters({...filters,endDate:e.target.value})} /></div>
-          <div><label className={lc}>Associate ID</label><input className={ic} value={filters.associateId} onChange={e=>setFilters({...filters,associateId:e.target.value})} placeholder="IW100001 or leave blank" /></div>
+          <div><label className={lc}>Associate ID</label><input className={ic} value={filters.associateId} onChange={e=>setFilters({...filters,associateId:e.target.value})} placeholder="IWR100001 or leave blank" /></div>
           <div>
             <label className={lc}>Select Wallet</label>
             <select className={ic} value={filters.walletType} onChange={e=>setFilters({...filters,walletType:e.target.value})}>
@@ -327,7 +327,7 @@ function AddAmountToAdvance() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className={lc}>Distributor ID *</label>
-              <input className={ic} value={form.distributorId} onChange={e=>setForm({...form,distributorId:e.target.value})} onBlur={lookupDist} placeholder="IW100001" required />
+              <input className={ic} value={form.distributorId} onChange={e=>setForm({...form,distributorId:e.target.value})} onBlur={lookupDist} placeholder="IWR100001" required />
             </div>
             <div>
               <label className={lc}>Distributor Name</label>

@@ -5,14 +5,14 @@ import { getTree } from '../genealogy.service.js';
 
 /**
  * Return the binary tree for an associate up to the given depth.
- * Accepts either database UUID or userId (IW######).
+ * Accepts either database UUID or userId (IWR######).
  * @param {string} associateIdOrUserId
  * @param {number} depth
  */
 export async function adminGetTree(associateIdOrUserId, depth = 5) {
   // Resolve userId to database id if it looks like a userId pattern
   let associateId = associateIdOrUserId;
-  if (/^IW\d+$/.test(associateIdOrUserId)) {
+  if (/^IWR\d+$/.test(associateIdOrUserId)) {
     const associate = await prisma.associate.findFirst({
       where: { userId: associateIdOrUserId, deletedAt: null },
       select: { id: true },
@@ -115,12 +115,12 @@ export async function adminGetLevelAnalysis() {
 
 /**
  * Return an associate's TreeNode volumes and paired volume.
- * Accepts either database UUID or userId (IW######).
+ * Accepts either database UUID or userId (IWR######).
  * @param {string} associateIdOrUserId
  */
 export async function adminGetBusinessTracking(associateIdOrUserId) {
   let associateId = associateIdOrUserId;
-  if (/^IW\d+$/.test(associateIdOrUserId)) {
+  if (/^IWR\d+$/.test(associateIdOrUserId)) {
     const associate = await prisma.associate.findFirst({
       where: { userId: associateIdOrUserId, deletedAt: null },
       select: { id: true },
