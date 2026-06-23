@@ -80,7 +80,7 @@ When a property is sold, commissions are calculated using the **GAP method** (di
 ### Promotion Hierarchy:
 ```
 Level 0: Business Associate      → Sell 500 gaj personally → Promoted to Level 1
-Level 1: Business Adviser        → 3 downlines sell 500 gaj each → Promoted to Level 2
+Level 1: Business Adviser        → 3 downlines sell 500 gaj each OR 2000 gaj personal sale → Promoted to Level 2
 Level 2: Business Head           → 3 downlines achieve Adviser criteria → Promoted to Level 3
 Level 3: Dist. Business Head     → Same pattern → Level 4
 Level 4: State Business Head     → Same pattern → Level 5

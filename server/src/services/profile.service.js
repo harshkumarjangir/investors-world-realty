@@ -1,4 +1,5 @@
 import prisma from '../utils/prisma.js';
+import { parseDateString } from '../utils/dateUtils.js';
 
 const RANK_NAMES = [
   '', 'Business Associate', 'Business Adviser', 'Business Head',
@@ -104,7 +105,7 @@ export async function updateProfile(associateId, data) {
     if (data[field] !== undefined) {
       // nomineeDob and dateOfBirth need to be cast to Date
       if ((field === 'nomineeDob' || field === 'dateOfBirth') && data[field]) {
-        updateData[field] = new Date(data[field]);
+        updateData[field] = parseDateString(data[field]);
       } else {
         updateData[field] = data[field];
       }

@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import prisma from '../utils/prisma.js';
+import { parseDateString } from '../utils/dateUtils.js';
 
 // ─── User ID Generation ───────────────────────────────────────────────────────
 
@@ -196,11 +197,11 @@ export async function registerAssociate(data) {
       sponsorId: sponsor?.id || null,
       status: 'INACTIVE',
       rank: 1,
-      dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
+      dateOfBirth: dateOfBirth ? parseDateString(dateOfBirth) : null,
       // Nominee
       nomineeName:     nomineeName     || null,
       nomineeRelation: nomineeRelation || null,
-      nomineeDob:      nomineeDob      ? new Date(nomineeDob) : null,
+      nomineeDob:      nomineeDob      ? parseDateString(nomineeDob) : null,
       // Joining type
       joiningType: joiningType || null,
     },

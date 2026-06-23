@@ -58,12 +58,22 @@ export async function checkAndPromote(associateId) {
         data: { rank: 2 },
       });
       console.log(`[PROMOTION] ${associate.userId} promoted to Business Adviser (sold ${associate.totalAreaSold} gaj)`);
+      
+      // Recursively check if they now immediately qualify for Rank 3 (e.g. they sold 2000+ gaj directly)
+      const furtherPromotion = await checkAndPromote(associateId);
+      if (furtherPromotion) {
+        return furtherPromotion;
+      }
+      
       return { associateId, oldRank: 1, newRank: 2, rankName: 'Business Adviser' };
     }
     return null;
   }
 
-  // Subsequent promotions: Rank 2+ → need 3 direct downlines with 500 gaj each
+  // Subsequent promotions: Rank 2+
+  let qualifiesForNextRank = false;
+  let promotionReason = '';
+
   const directDownlines = await prisma.associate.findMany({
     where: {
       sponsorId: associateId,
@@ -74,6 +84,14 @@ export async function checkAndPromote(associateId) {
   });
 
   if (directDownlines.length >= MAX_DIRECT_DOWNLINES) {
+    qualifiesForNextRank = true;
+    promotionReason = '3 downlines qualified';
+  } else if (associate.rank === 2 && associate.totalAreaSold >= 2000) {
+    qualifiesForNextRank = true;
+    promotionReason = `personal sales of ${associate.totalAreaSold} gaj`;
+  }
+
+  if (qualifiesForNextRank) {
     const newRank = Math.min(associate.rank + 1, 10);
     if (newRank > associate.rank) {
       await prisma.associate.update({
@@ -82,14 +100,23 @@ export async function checkAndPromote(associateId) {
       });
 
       // Also promote the qualifying downlines to rank 2 (Business Adviser) if they're still rank 1
-      for (const dl of directDownlines.slice(0, 3)) {
-        await prisma.associate.updateMany({
-          where: { id: dl.id, rank: 1 },
-          data: { rank: 2 },
-        });
+      if (directDownlines.length >= MAX_DIRECT_DOWNLINES) {
+        for (const dl of directDownlines.slice(0, 3)) {
+          await prisma.associate.updateMany({
+            where: { id: dl.id, rank: 1 },
+            data: { rank: 2 },
+          });
+        }
       }
 
-      console.log(`[PROMOTION] ${associate.userId} promoted to ${getRankName(newRank)} (3 downlines qualified)`);
+      console.log(`[PROMOTION] ${associate.userId} promoted to ${getRankName(newRank)} (${promotionReason})`);
+      
+      // If promoted to Rank 2, and they already qualify for Rank 3, check again!
+      const furtherPromotion = await checkAndPromote(associateId);
+      if (furtherPromotion) {
+        return furtherPromotion;
+      }
+      
       return { associateId, oldRank: associate.rank, newRank, rankName: getRankName(newRank) };
     }
   }

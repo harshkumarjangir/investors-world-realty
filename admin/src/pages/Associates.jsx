@@ -467,6 +467,39 @@ function AddAssociateModal({ associate, onClose, onSuccess }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
+  const [publicStates, setPublicStates] = useState([]);
+  const [publicCities, setPublicCities] = useState([]);
+
+  useEffect(() => {
+    fetchPublicStates();
+  }, []);
+
+  useEffect(() => {
+    if (form.state) {
+      fetchPublicCities(form.state);
+    } else {
+      setPublicCities([]);
+    }
+  }, [form.state]);
+
+  const fetchPublicStates = async () => {
+    try {
+      const res = await api.get('/public/states');
+      setPublicStates(res.data?.data || []);
+    } catch (err) {
+      console.error('Failed to load public states', err);
+    }
+  };
+
+  const fetchPublicCities = async (stateName) => {
+    try {
+      const res = await api.get('/public/cities', { params: { state: stateName } });
+      setPublicCities(res.data?.data || []);
+    } catch (err) {
+      console.error('Failed to load public cities', err);
+    }
+  };
+
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
   const handleSubmit = async (e) => {
@@ -527,12 +560,18 @@ function AddAssociateModal({ associate, onClose, onSuccess }) {
                 <input value={form.address} onChange={set('address')} placeholder="House No., Street, Area" className={inp} />
               </div>
               <div>
-                <label className={lbl}>City</label>
-                <input value={form.city} onChange={set('city')} placeholder="Jaipur" className={inp} />
+                <label className={lbl}>State</label>
+                <select value={form.state} onChange={e => { set('state')(e); setForm(f => ({ ...f, city: '' })); }} className={inp}>
+                  <option value="">Select State</option>
+                  {publicStates.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
+                </select>
               </div>
               <div>
-                <label className={lbl}>State</label>
-                <input value={form.state} onChange={set('state')} placeholder="Rajasthan" className={inp} />
+                <label className={lbl}>City</label>
+                <select value={form.city} onChange={set('city')} className={inp} disabled={!form.state}>
+                  <option value="">Select City</option>
+                  {publicCities.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+                </select>
               </div>
               <div>
                 <label className={lbl}>Pincode</label>
