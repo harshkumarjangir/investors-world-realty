@@ -35,20 +35,29 @@ const ALLOWED_IMAGE_MIMES = [
   'image/heif-sequence',
 ];
 
+const ALLOWED_IMAGE_EXTS = ['.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif'];
+
+function isImage(file) {
+  const ext = path.extname(file.originalname).toLowerCase();
+  return ALLOWED_IMAGE_MIMES.includes(file.mimetype) || ALLOWED_IMAGE_EXTS.includes(ext);
+}
+
 function imageFilter(req, file, cb) {
-  ALLOWED_IMAGE_MIMES.includes(file.mimetype)
+  isImage(file)
     ? cb(null, true)
     : cb(new Error('Only JPEG, JPG, PNG, WebP and HEIC/HEIF images are allowed'), false);
 }
 
 function documentFilter(req, file, cb) {
-  [...ALLOWED_IMAGE_MIMES, 'application/pdf'].includes(file.mimetype)
+  const ext = path.extname(file.originalname).toLowerCase();
+  (isImage(file) || file.mimetype === 'application/pdf' || ext === '.pdf')
     ? cb(null, true)
     : cb(new Error('Only JPEG, JPG, PNG, WebP, HEIC/HEIF and PDF files are allowed'), false);
 }
 
 function videoFilter(req, file, cb) {
-  ['video/mp4', 'video/quicktime'].includes(file.mimetype)
+  const ext = path.extname(file.originalname).toLowerCase();
+  (['video/mp4', 'video/quicktime', 'application/octet-stream'].includes(file.mimetype) && ['.mp4', '.mov'].includes(ext) || ['video/mp4', 'video/quicktime'].includes(file.mimetype) || ['.mp4', '.mov'].includes(ext))
     ? cb(null, true)
     : cb(new Error('Only MP4 and MOV video formats are allowed'), false);
 }
