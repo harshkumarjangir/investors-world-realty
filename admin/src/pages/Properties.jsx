@@ -352,9 +352,11 @@ function PropertyForm({ property, schemes, defaultScheme, onClose, onSuccess }) 
   const [error, setError] = useState('');
   const [publicStates, setPublicStates] = useState([]);
   const [publicCities, setPublicCities] = useState([]);
+  const [schemeTypes, setSchemeTypes] = useState([]);
 
   useEffect(() => {
     fetchPublicStates();
+    api.get('/admin/masters/plot-types', {params:{pageSize:100}}).then(r => setSchemeTypes(r.data?.data || [])).catch(()=>{});
   }, []);
 
   useEffect(() => {
@@ -473,12 +475,9 @@ function PropertyForm({ property, schemes, defaultScheme, onClose, onSuccess }) 
             <input name="price" placeholder="Price *" type="number" value={form.price} onChange={handleChange} required className={ic} />
             <select name="type" value={form.type} onChange={handleChange} required className={ic}>
               <option value="">{t('properties.selectType')}</option>
-              <option value="RESIDENTIAL">Residential</option>
-              <option value="COMMERCIAL">Commercial</option>
-              <option value="PLOT">Plot</option>
-              <option value="FARMHOUSE">Farmhouse</option>
-              <option value="APARTMENT">Apartment</option>
-              <option value="VILLA">Villa</option>
+              {schemeTypes.map((s) => (
+                <option key={s.id} value={s.typeName}>{s.typeName}</option>
+              ))}
             </select>
             <input name="bookingMinAmount" placeholder="Booking Min Amount" type="number" value={form.bookingMinAmount} onChange={handleChange} className={ic} />
             <input name="bookingMaxAmount" placeholder="Booking Max Amount" type="number" value={form.bookingMaxAmount} onChange={handleChange} className={ic} />

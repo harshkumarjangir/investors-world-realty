@@ -97,7 +97,12 @@ export async function calculatePropertySaleCommission(
   } else {
     sellerPercent = rankSlabPercents[sellerRank - 1] || rankSlabPercents[0];
   }
-  const sellerAmount = (propertyPrice * sellerPercent) / 100;
+  
+  // 2% TDS deduction on property price before commission calculation
+  const tdsDeduction = propertyPrice * 0.02;
+  const commissionablePrice = propertyPrice - tdsDeduction;
+
+  const sellerAmount = (commissionablePrice * sellerPercent) / 100;
 
   const sellerRecord = await prisma.propertySaleCommission.create({
     data: {
@@ -178,7 +183,7 @@ export async function calculatePropertySaleCommission(
       continue;
     }
 
-    const commissionAmount = (propertyPrice * gapPercent) / 100;
+    const commissionAmount = (commissionablePrice * gapPercent) / 100;
 
     const record = await prisma.propertySaleCommission.create({
       data: {
@@ -206,7 +211,7 @@ export async function calculatePropertySaleCommission(
     currentNode = parentNode;
   }
 
-  console.log(`[COMMISSION] Property sale: ₹${propertyPrice} | Area: ${propertyAreaGaj} gaj | Distributed: ₹${totalDistributed.toFixed(2)} across ${1 + uplineCommissions.length} associates`);
+  console.log(`[COMMISSION] Property sale: ₹${propertyPrice} (After TDS: ₹${commissionablePrice}) | Area: ${propertyAreaGaj} gaj | Distributed: ₹${totalDistributed.toFixed(2)} across ${1 + uplineCommissions.length} associates`);
 
   // 4. Record sale area and check promotion
   try {

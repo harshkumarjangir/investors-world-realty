@@ -179,19 +179,20 @@ export default function Commissions() {
                   <th className="px-4 py-3 text-left font-medium text-gray-600">Date</th>
                   <th className="px-4 py-3 text-left font-medium text-gray-600">Associate</th>
                   <th className="px-4 py-3 text-left font-medium text-gray-600">Level</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-600">Area (gaj)</th>
                   <th className="px-4 py-3 text-left font-medium text-gray-600">Property Price</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">TDS Deduction (2%)</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">Comm. Base</th>
                   <th className="px-4 py-3 text-left font-medium text-gray-600">Rate</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-600">Commission</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">Net Commission</th>
                   <th className="px-4 py-3 text-left font-medium text-gray-600">Status</th>
                   {activeTab === 'pending' && <th className="px-4 py-3 text-left font-medium text-gray-600">Actions</th>}
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={9} className="py-8 text-center text-gray-400">Loading...</td></tr>
+                  <tr><td colSpan={10} className="py-8 text-center text-gray-400">Loading...</td></tr>
                 ) : commissions.length === 0 ? (
-                  <tr><td colSpan={9} className="py-8 text-center text-gray-400">No commissions found</td></tr>
+                  <tr><td colSpan={10} className="py-8 text-center text-gray-400">No commissions found</td></tr>
                 ) : (
                   commissions.map((c) => (
                     <tr key={c.id} className="border-b border-gray-50 even:bg-gray-50">
@@ -208,9 +209,10 @@ export default function Commissions() {
                           {c.level === 0 ? 'Seller' : `Level ${c.level}`}
                         </span>
                       </td>
-                      <td className="px-4 py-3">{Number(c.propertyArea).toLocaleString()}</td>
                       <td className="px-4 py-3 font-medium">₹{Number(c.propertyPrice).toLocaleString('en-IN')}</td>
-                      <td className="px-4 py-3">{c.percentage}%</td>
+                      <td className="px-4 py-3 text-red-600 font-medium">-₹{Number(c.propertyPrice * 0.02).toLocaleString('en-IN')}</td>
+                      <td className="px-4 py-3 text-gray-600">₹{Number(c.propertyPrice * 0.98).toLocaleString('en-IN')}</td>
+                      <td className="px-4 py-3 font-medium">{c.percentage}%</td>
                       <td className="px-4 py-3 font-bold text-green-700">{Number(c.commissionAmount).toLocaleString('en-IN')} Coins</td>
                       <td className="px-4 py-3">
                         <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${

@@ -139,6 +139,19 @@ function SchemeForm() {
   const [editId, setEditId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState('');
+  const [statesList, setStatesList] = useState([]);
+  const [citiesList, setCitiesList] = useState([]);
+  const [schemeTypes, setSchemeTypes] = useState([]);
+
+  useEffect(() => {
+    api.get('/public/states').then(r => setStatesList(r.data?.data || [])).catch(()=>{});
+    api.get('/admin/masters/plot-types', {params:{pageSize:100}}).then(r => setSchemeTypes(r.data?.data || [])).catch(()=>{});
+  }, []);
+
+  useEffect(() => {
+    if (!form.state) { setCitiesList([]); return; }
+    api.get('/public/cities', { params: { state: form.state } }).then(r => setCitiesList(r.data?.data || [])).catch(()=>{});
+  }, [form.state]);
 
   const handleSubmit = async (e) => {
     e.preventDefault(); setLoading(true);
@@ -151,9 +164,6 @@ function SchemeForm() {
     setLoading(false);
   };
 
-  const STATES = ['Rajasthan','Uttar Pradesh','Gujarat','Maharashtra','Madhya Pradesh','Delhi','Haryana','Punjab','Karnataka','Tamil Nadu','Bihar','West Bengal','Odisha','Assam','Other'];
-  const SCHEME_TYPES = ['Residential','Commercial','Industrial','Agricultural','Mixed Use','Township'];
-
   return (
     <div className="rounded-xl bg-white p-6 shadow-sm border border-gray-100">
       <h2 className="text-lg font-bold text-gray-800 mb-1">{editId ? 'Edit Scheme' : 'Add Scheme'}</h2>
@@ -163,18 +173,22 @@ function SchemeForm() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div><label className={lc}>Enter Scheme Name *</label><input className={ic} value={form.schemeName} onChange={e=>setForm({...form,schemeName:e.target.value})} required /></div>
           <div><label className={lc}>State</label>
-            <select className={ic} value={form.state} onChange={e=>setForm({...form,state:e.target.value})}>
-              <option value="">Select State</option>{STATES.map(s=><option key={s}>{s}</option>)}
+            <select className={ic} value={form.state} onChange={e=>setForm({...form,state:e.target.value,city:''})}>
+              <option value="">Select State</option>{statesList.map(s=><option key={s.id} value={s.name}>{s.name}</option>)}
             </select>
           </div>
-          <div><label className={lc}>City</label><input className={ic} value={form.city} onChange={e=>setForm({...form,city:e.target.value})} placeholder="Select City" /></div>
+          <div><label className={lc}>City</label>
+            <select className={ic} value={form.city} onChange={e=>setForm({...form,city:e.target.value})}>
+              <option value="">Select City</option>{citiesList.map(c=><option key={c.id} value={c.name}>{c.name}</option>)}
+            </select>
+          </div>
         </div>
         <div><label className={lc}>Address *</label><textarea className={ic+' resize-none'} rows={2} value={form.address} onChange={e=>setForm({...form,address:e.target.value})} required /></div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div><label className={lc}>Pin Code</label><input className={ic} value={form.pinCode} onChange={e=>setForm({...form,pinCode:e.target.value})} /></div>
           <div><label className={lc}>Scheme Type</label>
             <select className={ic} value={form.schemeType} onChange={e=>setForm({...form,schemeType:e.target.value})}>
-              <option value="">Select Scheme Type</option>{SCHEME_TYPES.map(s=><option key={s}>{s}</option>)}
+              <option value="">Select Scheme Type</option>{schemeTypes.map(s=><option key={s.id} value={s.typeName}>{s.typeName}</option>)}
             </select>
           </div>
           <div><label className={lc}>Featured Scheme</label>
@@ -351,7 +365,19 @@ function SchemeDetails() {
   const [loading, setLoading] = useState(true);
   const [editId, setEditId] = useState(null);
   const [editData, setEditData] = useState({});
-  const STATES = ['Rajasthan','Uttar Pradesh','Gujarat','Maharashtra','Madhya Pradesh','Delhi','Haryana','Punjab','Karnataka','Tamil Nadu','Bihar','West Bengal','Odisha','Assam','Other'];
+  const [statesList, setStatesList] = useState([]);
+  const [citiesList, setCitiesList] = useState([]);
+  const [schemeTypes, setSchemeTypes] = useState([]);
+
+  useEffect(() => {
+    api.get('/public/states').then(r => setStatesList(r.data?.data || [])).catch(()=>{});
+    api.get('/admin/masters/plot-types', {params:{pageSize:100}}).then(r => setSchemeTypes(r.data?.data || [])).catch(()=>{});
+  }, []);
+
+  useEffect(() => {
+    if (!editData.state) { setCitiesList([]); return; }
+    api.get('/public/cities', { params: { state: editData.state } }).then(r => setCitiesList(r.data?.data || [])).catch(()=>{});
+  }, [editData.state]);
 
   useEffect(() => { load(); }, []);
   const load = async () => {
@@ -371,13 +397,13 @@ function SchemeDetails() {
           <h3 className="font-medium text-gray-700">Edit Scheme</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div><label className={lc}>Scheme Name</label><input className={ic} value={editData.schemeName||''} onChange={e=>setEditData({...editData,schemeName:e.target.value})} /></div>
-            <div><label className={lc}>State</label><select className={ic} value={editData.state||''} onChange={e=>setEditData({...editData,state:e.target.value})}><option value="">Select</option>{STATES.map(s=><option key={s}>{s}</option>)}</select></div>
-            <div><label className={lc}>City</label><input className={ic} value={editData.city||''} onChange={e=>setEditData({...editData,city:e.target.value})} /></div>
+            <div><label className={lc}>State</label><select className={ic} value={editData.state||''} onChange={e=>setEditData({...editData,state:e.target.value,city:''})}><option value="">Select</option>{statesList.map(s=><option key={s.id} value={s.name}>{s.name}</option>)}</select></div>
+            <div><label className={lc}>City</label><select className={ic} value={editData.city||''} onChange={e=>setEditData({...editData,city:e.target.value})}><option value="">Select</option>{citiesList.map(c=><option key={c.id} value={c.name}>{c.name}</option>)}</select></div>
           </div>
           <div><label className={lc}>Address</label><input className={ic} value={editData.address||''} onChange={e=>setEditData({...editData,address:e.target.value})} /></div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div><label className={lc}>Pin Code</label><input className={ic} value={editData.pinCode||''} onChange={e=>setEditData({...editData,pinCode:e.target.value})} /></div>
-            <div><label className={lc}>Scheme Type</label><input className={ic} value={editData.schemeType||''} onChange={e=>setEditData({...editData,schemeType:e.target.value})} /></div>
+            <div><label className={lc}>Scheme Type</label><select className={ic} value={editData.schemeType||''} onChange={e=>setEditData({...editData,schemeType:e.target.value})}><option value="">Select</option>{schemeTypes.map(s=><option key={s.id} value={s.typeName}>{s.typeName}</option>)}</select></div>
             <div><label className={lc}>Featured</label><select className={ic} value={editData.featuredScheme} onChange={e=>setEditData({...editData,featuredScheme:e.target.value})}><option>Yes</option><option>No</option></select></div>
           </div>
           <div><label className={lc}>Short Description</label><textarea className={ic+' resize-none'} rows={2} value={editData.shortDescription||''} onChange={e=>setEditData({...editData,shortDescription:e.target.value})} /></div>

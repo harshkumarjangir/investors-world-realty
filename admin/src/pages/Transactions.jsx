@@ -95,6 +95,26 @@ function PlotBookingForm() {
     setForm((f) => ({ ...f, totalBCV: bcv.toString(), totalCost: total.toString() }));
   }, [form.plotArea, form.costPerUnit, form.chargeOfPlot, form.discount]);
 
+  const handlePropertyChange = (e) => {
+    const pId = e.target.value;
+    if (!pId) {
+      setForm({ ...form, propertyId: '', plotType: '', plotArea: '', costPerUnit: '' });
+      return;
+    }
+    const prop = properties.find((p) => p.id === pId);
+    if (prop) {
+      setForm({
+        ...form,
+        propertyId: pId,
+        plotType: prop.type || '',
+        plotArea: prop.area ? prop.area.toString() : '',
+        costPerUnit: prop.price ? prop.price.toString() : '',
+      });
+    } else {
+      setForm({ ...form, propertyId: pId });
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -171,10 +191,14 @@ function PlotBookingForm() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <label className={labelClass}>Select Scheme (Property) *</label>
-            <select className={inputClass} value={form.propertyId} onChange={(e) => setForm({ ...form, propertyId: e.target.value })} required>
+            <select className={inputClass} value={form.propertyId} onChange={handlePropertyChange} required>
               <option value="">Select Scheme...</option>
-              {properties.map((p) => (
-                <option key={p.id} value={p.id}>{p.name} - {p.location}</option>
+              {Array.from(new Set(properties.map(p => p.schemeName || 'Other Schemes'))).map(schemeName => (
+                <optgroup key={schemeName} label={schemeName}>
+                  {properties.filter(p => (p.schemeName || 'Other Schemes') === schemeName).map(p => (
+                    <option key={p.id} value={p.id}>{p.name} - {p.location}</option>
+                  ))}
+                </optgroup>
               ))}
             </select>
           </div>
@@ -182,8 +206,13 @@ function PlotBookingForm() {
             <label className={labelClass}>Select Plot Type</label>
             <select className={inputClass} value={form.plotType} onChange={(e) => setForm({ ...form, plotType: e.target.value })}>
               <option value="">Select Type...</option>
+              {form.plotType && !['Residential', 'Commercial', 'Villa', 'Farmhouse', 'Industrial', 'Agricultural'].includes(form.plotType) && (
+                <option value={form.plotType}>{form.plotType}</option>
+              )}
               <option value="Residential">Residential</option>
               <option value="Commercial">Commercial</option>
+              <option value="Apartment">Apartment</option>
+              <option value="Plot">Plot</option>
               <option value="Villa">Villa</option>
               <option value="Farmhouse">Farmhouse</option>
               <option value="Industrial">Industrial</option>
