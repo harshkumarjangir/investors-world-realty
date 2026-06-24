@@ -3,9 +3,16 @@ import { sendToDevices } from '../../utils/firebase.js';
 
 // ─── Generate Receipt Number ──────────────────────────────────────────────────
 async function generateReceiptNo() {
-  const count = await prisma.booking.count({ where: { receiptNo: { not: null } } });
-  const next = count + 1;
-  return `REC${String(next).padStart(6, '0')}`;
+  const lastBooking = await prisma.booking.findFirst({
+    where: { receiptNo: { not: null, startsWith: 'REC' } },
+    orderBy: { receiptNo: 'desc' },
+  });
+  let nextNum = 1;
+  if (lastBooking && lastBooking.receiptNo) {
+    const match = lastBooking.receiptNo.match(/REC(\d+)/);
+    if (match) nextNum = parseInt(match[1], 10) + 1;
+  }
+  return `REC${String(nextNum).padStart(6, '0')}`;
 }
 
 // ─── Create Plot Booking ──────────────────────────────────────────────────────
@@ -151,9 +158,17 @@ export async function approvePlotBooking(bookingId) {
     }
   }
 
-  // Generate receipt number
-  const count = await prisma.booking.count({ where: { receiptNo: { not: null } } });
-  const receiptNo = `REC${String(count + 1).padStart(6, '0')}`;
+  // Generate receipt number safely
+  const lastBooking = await prisma.booking.findFirst({
+    where: { receiptNo: { not: null, startsWith: 'REC' } },
+    orderBy: { receiptNo: 'desc' },
+  });
+  let nextNum = 1;
+  if (lastBooking && lastBooking.receiptNo) {
+    const match = lastBooking.receiptNo.match(/REC(\d+)/);
+    if (match) nextNum = parseInt(match[1], 10) + 1;
+  }
+  const receiptNo = `REC${String(nextNum).padStart(6, '0')}`;
 
   const ops = [
     prisma.booking.update({

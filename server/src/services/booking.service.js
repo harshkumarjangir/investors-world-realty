@@ -395,8 +395,16 @@ export async function verifyPropertyPayment(associateId, { razorpayOrderId, razo
   }
 
   // 3. Confirm booking and update property status in transaction
-  const count = await prisma.booking.count({ where: { receiptNo: { not: null } } });
-  const receiptNo = `REC${String(count + 1).padStart(6, '0')}`;
+  const lastBooking = await prisma.booking.findFirst({
+    where: { receiptNo: { not: null, startsWith: 'REC' } },
+    orderBy: { receiptNo: 'desc' },
+  });
+  let nextNum = 1;
+  if (lastBooking && lastBooking.receiptNo) {
+    const match = lastBooking.receiptNo.match(/REC(\d+)/);
+    if (match) nextNum = parseInt(match[1], 10) + 1;
+  }
+  const receiptNo = `REC${String(nextNum).padStart(6, '0')}`;
 
   const [updatedBooking] = await prisma.$transaction([
     prisma.booking.update({
