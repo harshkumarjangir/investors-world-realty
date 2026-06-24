@@ -43,10 +43,10 @@ export async function getDashboard(associateId) {
 
   // ── Cards ──────────────────────────────────────────────────────────────────
   const incomeTypes = ['DIRECT_INCOME', 'LEVEL_INCOME', 'MATCHING_INCOME', 'REWARD_INCOME'];
-  const lastPayment  = transactions.length > 0 ? Number(transactions[0].amount) : 0;
-  const totalPayment = transactions.filter((t) => incomeTypes.includes(t.type)).reduce((s, t) => s + Number(t.amount), 0);
-  const selfAmount   = transactions.filter((t) => t.type === 'DIRECT_INCOME').reduce((s, t) => s + Number(t.amount), 0);
-  const totalAmount  = transactions.filter((t) => Number(t.amount) > 0).reduce((s, t) => s + Number(t.amount), 0);
+  const lastPayment  = transactions.length > 0 ? Number(Number(transactions[0].amount).toFixed(2)) : 0;
+  const totalPayment = Number(transactions.filter((t) => incomeTypes.includes(t.type)).reduce((s, t) => s + Number(t.amount), 0).toFixed(2));
+  const selfAmount   = Number(transactions.filter((t) => t.type === 'DIRECT_INCOME').reduce((s, t) => s + Number(t.amount), 0).toFixed(2));
+  const totalAmount  = Number(transactions.filter((t) => Number(t.amount) > 0).reduce((s, t) => s + Number(t.amount), 0).toFixed(2));
 
   // ── Advance Payment (safe — model may not exist on older deployments) ──────
   let advCredit = 0, advDebit = 0;
