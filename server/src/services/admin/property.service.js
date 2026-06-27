@@ -94,6 +94,34 @@ export async function adminUploadPropertyImages(propertyId, files) {
   return images;
 }
 
+// ─── adminDeletePropertyImage ───────────────────────────────────────────────────
+
+export async function adminDeletePropertyImage(propertyId, imageId) {
+  const image = await prisma.propertyImage.findUnique({
+    where: { id: imageId },
+  });
+
+  if (!image || image.propertyId !== propertyId) {
+    throw Object.assign(new Error('Image not found'), { statusCode: 404 });
+  }
+
+  await prisma.propertyImage.delete({
+    where: { id: imageId },
+  });
+
+  // Optionally delete file from disk if it starts with 'uploads/'
+  if (image.url.startsWith('uploads/')) {
+    const fs = await import('fs');
+    const path = await import('path');
+    const filePath = path.join(process.cwd(), image.url);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  }
+
+  return true;
+}
+
 // ─── adminUploadPropertyVideo ─────────────────────────────────────────────────
 
 /**

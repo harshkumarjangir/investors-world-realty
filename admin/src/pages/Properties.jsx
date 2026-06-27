@@ -1,7 +1,7 @@
 import { useState, useEffect, Fragment } from 'react';
 import { Plus, Edit, Image, Video, Trash2, X, ChevronDown, ChevronUp, Building2, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import api from '../common/api.js';
+import api, { SERVER_URL } from '../common/api.js';
 import { useI18n } from '../common/i18n.jsx';
 
 const ic = 'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold-400 focus:ring-2 focus:ring-gold-200 outline-none';
@@ -501,11 +501,29 @@ function ImageUploadModal({ propertyId, onClose }) {
   const { t } = useI18n();
   const [files, setFiles] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [existingImages, setExistingImages] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchImages();
+  }, [propertyId]);
+
+  const fetchImages = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get(`/admin/properties/${propertyId}`);
+      setExistingImages(res.data?.data?.images || []);
+    } catch (err) {
+      console.error('Failed to fetch property images', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleUpload = async () => {
     if (!files || files.length === 0) return;
-    if (files.length > 10) {
-      alert('Maximum 10 images allowed');
+    if (existingImages.length + files.length > 10) {
+      alert(`Maximum 10 images allowed. You can only upload ${10 - existingImages.length} more.`);
       return;
     }
     try {
@@ -516,11 +534,22 @@ function ImageUploadModal({ propertyId, onClose }) {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       alert('Images uploaded successfully');
-      onClose();
+      setFiles(null);
+      fetchImages(); // refresh list
     } catch (err) {
       alert(err.response?.data?.message || 'Upload failed');
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleDelete = async (imageId) => {
+    if (!confirm('Are you sure you want to delete this image?')) return;
+    try {
+      await api.delete(`/admin/properties/${propertyId}/images/${imageId}`);
+      setExistingImages(prev => prev.filter(img => img.id !== imageId));
+    } catch (err) {
+      alert(err.response?.data?.message || 'Delete failed');
     }
   };
 
@@ -532,15 +561,44 @@ function ImageUploadModal({ propertyId, onClose }) {
           <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
         </div>
         <div className="space-y-4">
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={(e) => setFiles(e.target.files)}
-            className="w-full text-sm text-gray-600 file:mr-4 file:rounded-lg file:border-0 file:bg-gold-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-gold-600 hover:file:bg-gold-100"
-          />
-          <p className="text-xs text-gray-500">Max 10 images. Supported: JPG, PNG, WebP</p>
-          <div className="flex justify-end gap-3">
+          {loading ? (
+            <p className="text-sm text-gray-500 text-center py-4">Loading images...</p>
+          ) : (
+            <div className="grid grid-cols-3 gap-3 max-h-[300px] overflow-y-auto">
+              {existingImages.map((img) => {
+                const src = img.url.startsWith('uploads/') ? `${SERVER_URL}/${img.url}` : img.url;
+                return (
+                  <div key={img.id} className="relative aspect-square rounded-lg border border-gray-200 overflow-hidden group">
+                    <img src={src} alt="Property" className="w-full h-full object-cover" />
+                    <button
+                      onClick={() => handleDelete(img.id)}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-sm"
+                      title="Delete Image"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                );
+              })}
+              {existingImages.length === 0 && (
+                <div className="col-span-3 py-4 text-center text-sm text-gray-500">No images uploaded yet.</div>
+              )}
+            </div>
+          )}
+
+          <div className="border-t border-gray-100 pt-4">
+            <h3 className="text-sm font-medium text-gray-700 mb-2">Upload New Images</h3>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(e) => setFiles(e.target.files)}
+              className="w-full text-sm text-gray-600 file:mr-4 file:rounded-lg file:border-0 file:bg-gold-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-gold-600 hover:file:bg-gold-100"
+            />
+            <p className="text-xs text-gray-500 mt-2">Max 10 images. Supported: JPG, PNG, WebP</p>
+          </div>
+
+          <div className="flex justify-end gap-3 mt-4">
             <button type="button" onClick={onClose} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
               {t('common.cancel')}
             </button>

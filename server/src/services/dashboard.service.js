@@ -46,7 +46,10 @@ export async function getDashboard(associateId) {
   const lastPayment  = transactions.length > 0 ? Number(Number(transactions[0].amount).toFixed(2)) : 0;
   const totalPayment = Number(transactions.filter((t) => incomeTypes.includes(t.type)).reduce((s, t) => s + Number(t.amount), 0).toFixed(2));
   const selfAmount   = Number(transactions.filter((t) => t.type === 'DIRECT_INCOME').reduce((s, t) => s + Number(t.amount), 0).toFixed(2));
-  const totalAmount  = Number(transactions.filter((t) => Number(t.amount) > 0).reduce((s, t) => s + Number(t.amount), 0).toFixed(2));
+  
+  // Use actual wallet balance instead of just summing positive transactions
+  const walletBalance = Number(associate.wallet?.balance ?? 0);
+  const totalAmount = walletBalance;
 
   // ── Advance Payment (safe — model may not exist on older deployments) ──────
   let advCredit = 0, advDebit = 0;
@@ -82,6 +85,7 @@ export async function getDashboard(associateId) {
       totalPayment,
       selfAmount,
       totalAmount,
+      walletBalance,
     },
     userDetails: {
       userId:          associate.userId,

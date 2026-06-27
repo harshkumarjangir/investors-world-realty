@@ -2,6 +2,7 @@ import {
   adminCreateProperty,
   adminUploadPropertyImages,
   adminUploadPropertyVideo,
+  adminDeletePropertyImage,
   adminEditProperty,
   adminUpdatePropertyStatus,
   adminSoftDeleteProperty,
@@ -40,6 +41,8 @@ export async function listPropertiesAdminHandler(req, res, next) {
       schemeId: p.schemeId,
       schemeName: p.scheme?.schemeName || null,
       name: p.name,
+      description: p.description,
+      amenities: p.amenities,
       location: p.location,
       city: p.city,
       state: p.state,
@@ -114,6 +117,16 @@ export async function uploadPropertyImagesHandler(req, res, next) {
 
     const images = await adminUploadPropertyImages(id, files);
     return createdResponse(res, images, 'Images uploaded successfully');
+  } catch (err) {
+    return next(err);
+  }
+}
+
+export async function deletePropertyImageHandler(req, res, next) {
+  try {
+    const { id, imageId } = req.params;
+    await adminDeletePropertyImage(id, imageId);
+    return successResponse(res, null, 'Image deleted successfully');
   } catch (err) {
     return next(err);
   }

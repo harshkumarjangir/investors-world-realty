@@ -6,6 +6,7 @@ import {
   getPropertyAdminHandler,
   createPropertyHandler,
   uploadPropertyImagesHandler,
+  deletePropertyImageHandler,
   uploadPropertyVideoHandler,
   editPropertyHandler,
   updatePropertyStatusHandler,
@@ -34,6 +35,9 @@ router.post(
   uploadPropertyImages.array('images', 10),
   uploadPropertyImagesHandler,
 );
+
+// DELETE /api/v1/admin/properties/:id/images/:imageId
+router.delete('/:id/images/:imageId', requirePermission('properties:write'), deletePropertyImageHandler);
 
 // POST /api/v1/admin/properties/:id/video
 router.post(

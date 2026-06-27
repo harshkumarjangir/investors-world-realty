@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, Building2, Tag, CheckCircle2, Ruler, PlayCircle, Image as ImageIcon } from 'lucide-react';
-import api from '../common/api.js';
+import api, { SERVER_URL } from '../common/api.js';
 import { useI18n } from '../common/i18n.jsx';
 
 const statusColors = {
@@ -57,7 +57,10 @@ export default function PropertyDetail() {
   }
 
   const { images = [], videos = [] } = property;
-  const mainImage = images[0]?.url || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80';
+  let mainImage = images[0]?.url || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80';
+  if (mainImage.startsWith('uploads/')) {
+    mainImage = `${SERVER_URL}/${mainImage}`;
+  }
 
   return (
     <div className="p-6 space-y-6 max-w-6xl mx-auto">
@@ -164,11 +167,14 @@ export default function PropertyDetail() {
                 <p className="text-sm text-gray-500 text-center py-4">No images uploaded.</p>
               ) : (
                 <div className="grid grid-cols-2 gap-3">
-                  {images.map((img) => (
-                    <div key={img.id} className="aspect-square rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
-                      <img src={img.url} alt="Property" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
-                    </div>
-                  ))}
+                  {images.map((img) => {
+                    const src = img.url.startsWith('uploads/') ? `${SERVER_URL}/${img.url}` : img.url;
+                    return (
+                      <div key={img.id} className="aspect-square rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
+                        <img src={src} alt="Property" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -184,7 +190,7 @@ export default function PropertyDetail() {
                 </h2>
               </div>
               <div className="p-4">
-                <video src={videos[0].url} controls className="w-full rounded-lg bg-black" />
+                <video src={videos[0].url.startsWith('uploads/') ? `${SERVER_URL}/${videos[0].url}` : videos[0].url} controls className="w-full rounded-lg bg-black" />
               </div>
             </div>
           )}
