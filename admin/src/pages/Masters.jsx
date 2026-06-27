@@ -27,7 +27,7 @@ export default function Masters() {
   const [activeTab, setActiveTab] = useState('account');
   return (
     <div className="p-6 space-y-4">
-      <h1 className="text-2xl font-bold text-gray-800">Masters</h1>
+      <h1 className="text-2xl font-bold text-gray-800 lg:hidden">Masters</h1>
       <div className="flex flex-wrap gap-1 border-b border-gray-200">
         {TABS.map((tab) => (
           <button key={tab.key} onClick={() => setActiveTab(tab.key)}
@@ -44,7 +44,7 @@ export default function Masters() {
       {activeTab === 'plc-charge-list' && <PlcChargeList />}
       {activeTab === 'plot-type-list' && <PlotTypeList />}
       {activeTab === 'property-list' && (
-        <div className="-mx-6 -mt-4">
+        <div className="mt-2">
           <Properties embedded={true} />
         </div>
       )}

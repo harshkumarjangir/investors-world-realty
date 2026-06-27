@@ -80,7 +80,7 @@ export default function Dashboard() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-800">{t('dashboard.title')}</h1>
+        <h1 className="text-2xl font-bold text-gray-800 lg:hidden">{t('dashboard.title')}</h1>
         <div className="flex items-center gap-2 text-sm text-gray-500">
           <Activity size={16} />
           <span>Live</span>
