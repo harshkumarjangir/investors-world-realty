@@ -32,7 +32,6 @@ const navItems = [
   { key: 'nav.reports', icon: FileText, path: '/reports', permission: 'reports:read' },
   { key: 'Bookings', icon: CalendarCheck, path: '/bookings', permission: 'transactions:read' },
   { key: 'nav.funds', icon: DollarSign, path: '/funds', permission: 'funds:read' },
-  { key: 'nav.properties', icon: Building, path: '/properties', permission: 'properties:read' },
   { key: 'nav.notifications', icon: Bell, path: '/notifications', permission: 'notifications:read' },
   { key: 'Commissions', icon: DollarSign, path: '/commissions', permission: 'payouts:read' },
   { key: 'Promotions', icon: Users, path: '/promotions', permission: 'associates:read' },

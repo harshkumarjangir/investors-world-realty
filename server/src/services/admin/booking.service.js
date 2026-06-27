@@ -78,7 +78,7 @@ export async function createPlotBooking(data) {
     },
     include: {
       associate: { select: { userId: true, name: true } },
-      property: { select: { name: true, location: true } },
+      property: { select: { name: true, location: true, schemeId: true } },
     },
   });
 
@@ -234,14 +234,21 @@ export async function approvePlotBooking(bookingId) {
 
 // ─── Unapprove (Reject) Plot Booking ─────────────────────────────────────────
 export async function unapprovePlotBooking(bookingId) {
-  const booking = await prisma.booking.findUnique({ where: { id: bookingId } });
+  const booking = await prisma.booking.findUnique({
+    where: { id: bookingId },
+    include: { property: true },
+  });
   if (!booking) throw Object.assign(new Error('Booking not found'), { statusCode: 404 });
   if (booking.status !== 'PENDING') throw Object.assign(new Error('Booking is not pending'), { statusCode: 400 });
 
-  const updated = await prisma.booking.update({
-    where: { id: bookingId },
-    data: { status: 'CANCELLED' },
-  });
+  const ops = [
+    prisma.booking.update({
+      where: { id: bookingId },
+      data: { status: 'CANCELLED' },
+    }),
+  ];
+
+  const [updated] = await prisma.$transaction(ops);
 
   return updated;
 }

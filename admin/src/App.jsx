@@ -13,8 +13,6 @@ import Funds from './pages/Funds.jsx';
 import Transactions from './pages/Transactions.jsx';
 import Reports from './pages/Reports.jsx';
 import Bookings from './pages/Bookings.jsx';
-import Properties from './pages/Properties.jsx';
-import PropertyDetail from './pages/PropertyDetail.jsx';
 import KYC from './pages/KYC.jsx';
 import Support from './pages/Support.jsx';
 import Notifications from './pages/Notifications.jsx';
@@ -25,6 +23,7 @@ import CompanyDetails from './pages/CompanyDetails.jsx';
 import Downline from './pages/Downline.jsx';
 import Masters from './pages/Masters.jsx';
 import MyAccount from './pages/MyAccount.jsx';
+import PropertyDetail from './pages/PropertyDetail.jsx';
 
 export default function App() {
   return (
@@ -50,9 +49,8 @@ export default function App() {
               <Route path="transactions" element={<Transactions />} />
               <Route path="reports" element={<Reports />} />
               <Route path="bookings" element={<Bookings />} />
-              <Route path="properties" element={<Properties />} />
-              <Route path="properties/:id" element={<PropertyDetail />} />
               <Route path="kyc" element={<KYC />} />
+              <Route path="properties/:id" element={<PropertyDetail />} />
               <Route path="support" element={<Support />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="commissions" element={<Commissions />} />

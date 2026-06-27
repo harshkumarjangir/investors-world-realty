@@ -6,7 +6,6 @@ import {
   upsertSchemeImagesHandler,
   listPlcChargesHandler, createPlcChargeHandler, updatePlcChargeHandler, deletePlcChargeHandler,
   listPlotTypesHandler, createPlotTypeHandler, updatePlotTypeHandler, deletePlotTypeHandler,
-  listPlotsHandler, createPlotHandler, updatePlotHandler, deletePlotHandler,
 } from '../../controllers/admin/masters.controller.js';
 
 const router = Router();
@@ -38,11 +37,5 @@ router.get('/plot-types', perm, listPlotTypesHandler);
 router.post('/plot-types', permW, createPlotTypeHandler);
 router.put('/plot-types/:id', permW, updatePlotTypeHandler);
 router.delete('/plot-types/:id', permW, deletePlotTypeHandler);
-
-// Plots
-router.get('/plots', perm, listPlotsHandler);
-router.post('/plots', permW, createPlotHandler);
-router.put('/plots/:id', permW, updatePlotHandler);
-router.delete('/plots/:id', permW, deletePlotHandler);
 
 export default router;

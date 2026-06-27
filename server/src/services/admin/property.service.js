@@ -18,7 +18,7 @@ function parseAmenities(amenities) {
 }
 
 export async function adminCreateProperty(data) {
-  const { schemeId, name, description, location, city, state, area, price, type, amenities, bookingMinAmount, bookingMaxAmount } = data;
+  const { schemeId, name, description, location, city, state, area, price, type, amenities, bookingMinAmount, bookingMaxAmount, plotTypeId, plotSizeUnit, plotNo, plcId, chargeOfPlot, totalCostOfPlot } = data;
 
   if (!schemeId) {
     throw Object.assign(new Error('schemeId is required — select a scheme first'), { statusCode: 400 });
@@ -43,6 +43,12 @@ export async function adminCreateProperty(data) {
       amenities: parseAmenities(amenities),
       bookingMinAmount: bookingMinAmount ? Number(bookingMinAmount) : null,
       bookingMaxAmount: bookingMaxAmount ? Number(bookingMaxAmount) : null,
+      plotTypeId: plotTypeId || null,
+      plotSizeUnit: plotSizeUnit || null,
+      plotNo: plotNo || null,
+      plcId: plcId || null,
+      chargeOfPlot: Number(chargeOfPlot) || 0,
+      totalCostOfPlot: totalCostOfPlot ? Number(totalCostOfPlot) : null,
     },
     include: {
       scheme: { select: { id: true, schemeName: true, city: true, state: true } },
@@ -173,12 +179,12 @@ export async function adminEditProperty(propertyId, data, adminId) {
     throw Object.assign(new Error('Property not found'), { statusCode: 404 });
   }
 
-  const allowedFields = ['schemeId', 'name', 'description', 'location', 'city', 'state', 'area', 'price', 'type', 'amenities', 'isFeatured', 'bookingMinAmount', 'bookingMaxAmount'];
+  const allowedFields = ['schemeId', 'name', 'description', 'location', 'city', 'state', 'area', 'price', 'type', 'amenities', 'isFeatured', 'bookingMinAmount', 'bookingMaxAmount', 'plotTypeId', 'plotSizeUnit', 'plotNo', 'plcId', 'chargeOfPlot', 'totalCostOfPlot'];
   const updateData = {};
 
   for (const field of allowedFields) {
     if (data[field] !== undefined) {
-      if (field === 'area' || field === 'price' || field === 'bookingMinAmount' || field === 'bookingMaxAmount') {
+      if (field === 'area' || field === 'price' || field === 'bookingMinAmount' || field === 'bookingMaxAmount' || field === 'chargeOfPlot' || field === 'totalCostOfPlot') {
         updateData[field] = data[field] ? Number(data[field]) : null;
       } else if (field === 'amenities') {
         updateData[field] = parseAmenities(data[field]);

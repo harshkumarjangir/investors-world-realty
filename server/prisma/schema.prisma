@@ -324,6 +324,15 @@ model Property {
   heldByAssociateId String?
   heldAssociate Associate?      @relation("HeldProperties", fields: [heldByAssociateId], references: [id])
 
+  // Merged Plot fields
+  plotTypeId      String?
+  plotType        PlotType?       @relation(fields: [plotTypeId], references: [id])
+  plotSizeUnit    String?         @default("Square Yards")
+  plotNo          String?
+  plcId           String?         // FK to PlcCharge
+  chargeOfPlot    Decimal         @default(0) // calculated plc charge
+  totalCostOfPlot Decimal?        // base cost + chargeOfPlot
+
   images      PropertyImage[]
   videos      PropertyVideo[]
   inquiries   PropertyInquiry[]
@@ -720,7 +729,6 @@ model Scheme {
   isActive         Boolean  @default(true)
 
   images           SchemeImage[]
-  plots            Plot[]
   properties       Property[]
 
   createdAt        DateTime @default(now())
@@ -755,35 +763,13 @@ model PlotType {
   id        String   @id @default(uuid())
   typeName  String   @unique
 
-  plots     Plot[]
+  properties Property[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-// Plot — individual plot/unit within a scheme
-model Plot {
-  id              String   @id @default(uuid())
-  schemeId        String
-  scheme          Scheme   @relation(fields: [schemeId], references: [id], onDelete: Cascade)
-  plotTypeId      String?
-  plotType        PlotType? @relation(fields: [plotTypeId], references: [id])
 
-  plotSizeUnit    String?  // Square Yards, Square Feet, etc.
-  plotSize        Decimal  // size number
-  totalCost       Decimal  // base cost (size * rate)
-  plotNo          String
-  plcId           String?  // FK to PlcCharge
-  chargeOfPlot    Decimal  @default(0) // calculated plc charge
-  totalCostOfPlot Decimal  // totalCost + chargeOfPlot
-  status          String   @default("Not Used") // Not Used, Booked, Sold
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  @@index([schemeId])
-  @@index([status])
-}
 
 // ─── Advance Payment Ledger ───────────────────────────────────────────────────
 // Tracks admin-managed advance credits/debits per associate (separate from wallet)

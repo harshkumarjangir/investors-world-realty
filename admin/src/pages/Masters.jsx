@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { Pencil, Trash2, Plus, Download, X, Save, ChevronDown, ChevronRight } from 'lucide-react';
-import api from '../common/api.js';
+import { Pencil, Trash2, Plus, Download, X, Save, ChevronDown, ChevronRight, Image } from 'lucide-react';
+import api, { SERVER_URL } from '../common/api.js';
 
 const ic = 'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold-400 focus:ring-2 focus:ring-gold-200 outline-none';
 const lc = 'block text-xs font-medium text-gray-600 mb-1';
@@ -13,14 +13,15 @@ const btnDel = 'text-red-500 hover:text-red-600 text-sm font-medium';
 const TABS = [
   { key: 'account', label: 'Account Master' },
   { key: 'scheme', label: 'Scheme' },
-  { key: 'scheme-image', label: 'Scheme Image' },
   { key: 'plc-charge', label: 'Plc Charge' },
   { key: 'flat-plot', label: 'Flat/Plot Master' },
   { key: 'scheme-details', label: 'Scheme Details' },
   { key: 'plc-charge-list', label: 'Plc Charge List' },
   { key: 'plot-type-list', label: 'Plot Type List' },
-  { key: 'plot-list', label: 'Plot List' },
+  { key: 'property-list', label: 'Property List' },
 ];
+
+import Properties from './Properties.jsx';
 
 export default function Masters() {
   const [activeTab, setActiveTab] = useState('account');
@@ -37,13 +38,16 @@ export default function Masters() {
       </div>
       {activeTab === 'account' && <AccountMaster />}
       {activeTab === 'scheme' && <SchemeForm />}
-      {activeTab === 'scheme-image' && <SchemeImage />}
       {activeTab === 'plc-charge' && <PlcChargeForm />}
       {activeTab === 'flat-plot' && <FlatPlotMaster />}
       {activeTab === 'scheme-details' && <SchemeDetails />}
       {activeTab === 'plc-charge-list' && <PlcChargeList />}
       {activeTab === 'plot-type-list' && <PlotTypeList />}
-      {activeTab === 'plot-list' && <PlotList />}
+      {activeTab === 'property-list' && (
+        <div className="-mx-6 -mt-4">
+          <Properties embedded={true} />
+        </div>
+      )}
     </div>
   );
 }
@@ -209,27 +213,27 @@ function SchemeForm() {
   );
 }
 
-// ─── Scheme Image ─────────────────────────────────────────────────────────────
-function SchemeImage() {
-  const [schemes, setSchemes] = useState([]);
-  const [selectedScheme, setSelectedScheme] = useState('');
+// ─── Scheme Image Modal ───────────────────────────────────────────────────────
+function SchemeImageModal({ schemeId, schemeName, onClose }) {
   const [images, setImages] = useState(Array(6).fill(null)); // URLs
   const [previews, setPreviews] = useState(Array(6).fill(null));
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState('');
 
-  useEffect(() => { loadSchemes(); }, []);
-  useEffect(() => { if (selectedScheme) loadImages(); }, [selectedScheme]);
+  useEffect(() => { loadImages(); }, [schemeId]);
 
-  const loadSchemes = async () => {
-    try { const r = await api.get('/admin/masters/schemes', {params:{pageSize:100}}); setSchemes(r.data?.data||[]); } catch {}
-  };
   const loadImages = async () => {
     try {
-      const r = await api.get(`/admin/masters/schemes/${selectedScheme}`);
+      const r = await api.get(`/admin/masters/schemes/${schemeId}`);
       const imgs = r.data?.data?.images || [];
       const arr = Array(6).fill(null);
-      imgs.forEach(img => { if (img.slot >= 1 && img.slot <= 6) arr[img.slot-1] = img.imageUrl; });
+      imgs.forEach(img => { 
+        if (img.slot >= 1 && img.slot <= 6) {
+          const isLocal = img.imageUrl.includes('uploads');
+          const cleanUrl = img.imageUrl.startsWith('/') ? img.imageUrl.slice(1) : img.imageUrl;
+          arr[img.slot-1] = isLocal ? `${SERVER_URL}/${cleanUrl}` : img.imageUrl;
+        } 
+      });
       setImages(arr); setPreviews(arr);
     } catch {}
   };
@@ -245,43 +249,42 @@ function SchemeImage() {
   };
 
   const handleSave = async () => {
-    if (!selectedScheme) { setMsg('Please select a scheme'); return; }
     setLoading(true);
     try {
       const payload = images.map((url, i) => ({ slot: i+1, imageUrl: url || '' })).filter(i => i.imageUrl);
-      await api.put(`/admin/masters/schemes/${selectedScheme}/images`, { images: payload });
+      await api.put(`/admin/masters/schemes/${schemeId}/images`, { images: payload });
       setMsg('Images saved!');
     } catch (err) { setMsg(err.response?.data?.message || 'Error'); }
     setLoading(false);
   };
 
   return (
-    <div className="rounded-xl bg-white p-6 shadow-sm border border-gray-100">
-      <h2 className="text-lg font-bold text-gray-800 mb-4">Project Image</h2>
-      {msg && <div className="mb-4 rounded-lg bg-blue-50 px-4 py-2 text-sm text-blue-700">{msg}</div>}
-      <div className="mb-6">
-        <label className={lc}>Select Scheme</label>
-        <select className={ic} style={{maxWidth:400}} value={selectedScheme} onChange={e=>setSelectedScheme(e.target.value)}>
-          <option value="">Select Project...</option>
-          {schemes.map(s=><option key={s.id} value={s.id}>{s.schemeName}</option>)}
-        </select>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {Array(6).fill(0).map((_,i) => (
-          <div key={i} className="flex items-center gap-4">
-            <div>
-              <label className="block text-xs text-gray-500 mb-1">Select UPLOAD IMAGE {i+1}</label>
-              <input type="file" accept="image/*" onChange={e=>handleFileChange(i, e.target.files[0])} className="text-sm" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-gray-800">Project Images: {schemeName}</h2>
+          <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
+        </div>
+        {msg && <div className="mb-4 rounded-lg bg-blue-50 px-4 py-2 text-sm text-blue-700">{msg}</div>}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {Array(6).fill(0).map((_,i) => (
+            <div key={i} className="flex flex-col gap-2 p-3 border border-gray-100 rounded-lg">
+              <label className="block text-xs font-medium text-gray-700">Image Slot {i+1}</label>
+              <div className="flex items-center gap-4">
+                <input type="file" accept="image/*" onChange={e=>handleFileChange(i, e.target.files[0])} className="text-xs w-full text-gray-500 file:mr-2 file:rounded file:border-0 file:bg-gray-100 file:px-2 file:py-1 hover:file:bg-gray-200" />
+                {previews[i] ? (
+                  <img src={previews[i]} alt={`slot ${i+1}`} className="w-16 h-16 object-cover rounded shadow-sm border border-gray-200 shrink-0" />
+                ) : (
+                  <div className="w-16 h-16 rounded border-2 border-dashed border-gray-200 flex items-center justify-center text-[10px] text-gray-400 shrink-0 bg-gray-50">Empty</div>
+                )}
+              </div>
             </div>
-            {previews[i] && (
-              <img src={previews[i]} alt={`slot ${i+1}`} className="w-24 h-16 object-cover rounded-lg border border-gray-200" />
-            )}
-            {!previews[i] && <div className="w-24 h-16 rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center text-xs text-gray-400">No image</div>}
-          </div>
-        ))}
-      </div>
-      <div className="mt-6">
-        <button onClick={handleSave} disabled={loading} className={btn}>{loading?'Saving...':'Save'}</button>
+          ))}
+        </div>
+        <div className="mt-6 flex justify-end gap-3">
+          <button onClick={onClose} className={btnGray}>Close</button>
+          <button onClick={handleSave} disabled={loading} className={btn}>{loading?'Saving...':'Save Images'}</button>
+        </div>
       </div>
     </div>
   );
@@ -365,6 +368,7 @@ function SchemeDetails() {
   const [loading, setLoading] = useState(true);
   const [editId, setEditId] = useState(null);
   const [editData, setEditData] = useState({});
+  const [imageModal, setImageModal] = useState(null);
   const [statesList, setStatesList] = useState([]);
   const [citiesList, setCitiesList] = useState([]);
   const [schemeTypes, setSchemeTypes] = useState([]);
@@ -424,11 +428,23 @@ function SchemeDetails() {
             <td className="px-4 py-2.5 font-medium">{s.schemeName}</td>
             <td className="px-4 py-2.5 uppercase">{s.city||'-'}</td>
             <td className="px-4 py-2.5 max-w-xs truncate">{s.address}</td>
-            <td className="px-4 py-2.5"><button onClick={()=>handleEdit(s)} className={btnEdit}>Edit</button></td>
+            <td className="px-4 py-2.5 flex items-center gap-3">
+              <button onClick={()=>handleEdit(s)} className={btnEdit} title="Edit Scheme"><Pencil size={15} /></button>
+              <button onClick={()=>setImageModal(s)} className="text-purple-600 hover:text-purple-700 flex items-center gap-1" title="Images">
+                <Image size={15} />
+              </button>
+            </td>
             <td className="px-4 py-2.5"><span className="text-blue-600 text-sm cursor-pointer hover:underline">View</span></td>
           </tr>)}
         </tbody></table>
       </div>
+      {imageModal && (
+        <SchemeImageModal 
+          schemeId={imageModal.id} 
+          schemeName={imageModal.schemeName} 
+          onClose={() => setImageModal(null)} 
+        />
+      )}
     </div>
   );
 }
@@ -532,166 +548,6 @@ function PlotTypeList() {
       </div>
       <div className="p-4 flex justify-center border-t border-gray-100">
         <button onClick={exportCsv} className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 flex items-center gap-2"><Download size={14}/>Export To Excel</button>
-      </div>
-    </div>
-  );
-}
-
-// ─── Plot List ────────────────────────────────────────────────────────────────
-function PlotList() {
-  const [plots, setPlots] = useState([]);
-  const [schemes, setSchemes] = useState([]);
-  const [plotTypes, setPlotTypes] = useState([]);
-  const [plcCharges, setPlcCharges] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [editId, setEditId] = useState(null);
-  const [showAdd, setShowAdd] = useState(false);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const empty = { schemeId:'', plotTypeId:'', plotSizeUnit:'Square Yards', plotSize:'', totalCost:'', plotNo:'', plcId:'', chargeOfPlot:'0', totalCostOfPlot:'', status:'Not Used' };
-  const [form, setForm] = useState(empty);
-
-  useEffect(() => { loadAll(); }, [page]);
-  const loadAll = async () => {
-    try {
-      setLoading(true);
-      const [pr, sr, tr, cr] = await Promise.all([
-        api.get('/admin/masters/plots', {params:{page,pageSize:20}}),
-        api.get('/admin/masters/schemes', {params:{pageSize:100}}),
-        api.get('/admin/masters/plot-types', {params:{pageSize:100}}),
-        api.get('/admin/masters/plc-charges', {params:{pageSize:100}}),
-      ]);
-      setPlots(pr.data?.data||[]); setTotalPages(pr.data?.totalPages||1);
-      setSchemes(sr.data?.data||[]); setPlotTypes(tr.data?.data||[]); setPlcCharges(cr.data?.data||[]);
-    } catch {} finally { setLoading(false); }
-  };
-
-  // Auto calc totalCostOfPlot
-  const calcTotal = (f) => {
-    const base = parseFloat(f.totalCost)||0;
-    const plc = plcCharges.find(p=>p.id===f.plcId);
-    let charge = 0;
-    if (plc) charge = plc.chargeType==='Percentage' ? base * (Number(plc.plcCharge)/100) : Number(plc.plcCharge);
-    return { chargeOfPlot: charge.toFixed(2), totalCostOfPlot: (base+charge).toFixed(2) };
-  };
-  const onFormChange = (field, val) => {
-    const next = {...form, [field]: val};
-    if (['totalCost','plcId'].includes(field)) {
-      const calc = calcTotal(next);
-      next.chargeOfPlot = calc.chargeOfPlot; next.totalCostOfPlot = calc.totalCostOfPlot;
-    }
-    setForm(next);
-  };
-
-  const handleSave = async () => {
-    try { await api.post('/admin/masters/plots', form); setShowAdd(false); setForm(empty); loadAll(); } catch {}
-  };
-  const handleUpdate = async () => {
-    try { await api.put(`/admin/masters/plots/${editId}`, form); setEditId(null); setForm(empty); loadAll(); } catch {}
-  };
-  const handleDelete = async (id) => { if (!confirm('Delete plot?')) return; await api.delete(`/admin/masters/plots/${id}`); loadAll(); };
-  const handleEdit = (p) => {
-    setEditId(p.id); setShowAdd(false);
-    setForm({schemeId:p.schemeId, plotTypeId:p.plotTypeId||'', plotSizeUnit:p.plotSizeUnit||'Square Yards', plotSize:p.plotSize, totalCost:p.totalCost, plotNo:p.plotNo, plcId:p.plcId||'', chargeOfPlot:p.chargeOfPlot, totalCostOfPlot:p.totalCostOfPlot, status:p.status});
-  };
-
-  const SIZE_UNITS = ['Square Yards','Square Feet','Square Meters','Gaj','Acre','Bigha'];
-
-  const PlotForm = ({onSave, onCancel, saving}) => (
-    <div className="p-4 bg-gray-50 border-b border-gray-200 space-y-4">
-      <h3 className="font-medium text-gray-700">Flat/Plot/Shop</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div><label className={lc}>Select Scheme *</label>
-          <select className={ic} value={form.schemeId} onChange={e=>onFormChange('schemeId',e.target.value)} required>
-            <option value="">Select Scheme...</option>{schemes.map(s=><option key={s.id} value={s.id}>{s.schemeName}</option>)}
-          </select>
-        </div>
-        <div><label className={lc}>Plot Type</label>
-          <select className={ic} value={form.plotTypeId} onChange={e=>onFormChange('plotTypeId',e.target.value)}>
-            <option value="">Select Type...</option>{plotTypes.map(t=><option key={t.id} value={t.id}>{t.typeName}</option>)}
-          </select>
-        </div>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div><label className={lc}>Select Plot Size</label>
-          <select className={ic} value={form.plotSizeUnit} onChange={e=>onFormChange('plotSizeUnit',e.target.value)}>
-            {SIZE_UNITS.map(u=><option key={u}>{u}</option>)}
-          </select>
-        </div>
-        <div><label className={lc}>Enter Size *</label><input className={ic} type="number" step="0.01" value={form.plotSize} onChange={e=>onFormChange('plotSize',e.target.value)} required /></div>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div><label className={lc}>Total Cost *</label><input className={ic} type="number" step="0.01" value={form.totalCost} onChange={e=>onFormChange('totalCost',e.target.value)} required /></div>
-        <div><label className={lc}>Plot No *</label><input className={ic} value={form.plotNo} onChange={e=>onFormChange('plotNo',e.target.value)} required /></div>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div><label className={lc}>Plc</label>
-          <select className={ic} value={form.plcId} onChange={e=>onFormChange('plcId',e.target.value)}>
-            <option value="">Select Plc</option>{plcCharges.map(p=><option key={p.id} value={p.id}>{p.plcName} ({p.chargeType}: {p.plcCharge})</option>)}
-          </select>
-        </div>
-        <div><label className={lc}>Charge of Plot</label><input className={ic+' bg-gray-50'} value={form.chargeOfPlot} readOnly /></div>
-      </div>
-      <div style={{maxWidth:400}}><label className={lc}>Total Cost of Plot</label><input className={ic+' bg-gray-50'} value={form.totalCostOfPlot} readOnly /></div>
-      <div className="flex gap-3">
-        <button onClick={onSave} className={btn}>Save</button>
-        <button onClick={onCancel} className={btnGray}>Cancel</button>
-      </div>
-    </div>
-  );
-
-  return (
-    <div className="rounded-xl bg-white shadow-sm border border-gray-100 overflow-hidden">
-      <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-        <h2 className="text-lg font-bold text-gray-800">Plot List</h2>
-        <button onClick={()=>{setShowAdd(!showAdd);setEditId(null);setForm(empty);}} className={btn}><Plus size={14} className="inline mr-1"/>Add Plot</button>
-      </div>
-      {showAdd && !editId && <PlotForm onSave={handleSave} onCancel={()=>{setShowAdd(false);setForm(empty);}} />}
-      {editId && <PlotForm onSave={handleUpdate} onCancel={()=>{setEditId(null);setForm(empty);}} />}
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm"><thead className="bg-gray-50 border-b border-gray-200">
-          <tr>
-            <th className="px-3 py-3 text-left text-gray-600">S.No</th>
-            <th className="px-3 py-3 text-left text-gray-600">Project Name</th>
-            <th className="px-3 py-3 text-left text-gray-600">Property Type</th>
-            <th className="px-3 py-3 text-left text-gray-600">Property Size</th>
-            <th className="px-3 py-3 text-left text-gray-600">Property Amount</th>
-            <th className="px-3 py-3 text-left text-gray-600">Plot No</th>
-            <th className="px-3 py-3 text-left text-gray-600">Status</th>
-            <th className="px-3 py-3 text-left text-gray-600">Plc Name</th>
-            <th className="px-3 py-3 text-left text-gray-600">Charge</th>
-            <th className="px-3 py-3 text-left text-gray-600">Property Total Cost</th>
-            <th className="px-3 py-3 text-left text-gray-600">Edit</th>
-            <th className="px-3 py-3 text-left text-gray-600">Delete</th>
-          </tr>
-        </thead><tbody>
-          {loading ? <tr><td colSpan={12} className="py-8 text-center text-gray-400">Loading...</td></tr>
-           : plots.length === 0 ? <tr><td colSpan={12} className="py-8 text-center text-gray-400">No plots found</td></tr>
-           : plots.map((p,i) => {
-            const plc = plcCharges.find(c=>c.id===p.plcId);
-            return <tr key={p.id} className="border-b border-gray-50 even:bg-gray-50">
-              <td className="px-3 py-2.5">{(page-1)*20+i+1}</td>
-              <td className="px-3 py-2.5">{p.schemeName}</td>
-              <td className="px-3 py-2.5">{p.plotTypeName||'PLOT'}</td>
-              <td className="px-3 py-2.5">{p.plotSize}</td>
-              <td className="px-3 py-2.5">{p.totalCost?.toLocaleString()}</td>
-              <td className="px-3 py-2.5">{p.plotNo}</td>
-              <td className="px-3 py-2.5"><span className={`rounded-full px-2 py-0.5 text-xs font-medium ${p.status==='Not Used'?'bg-gray-100 text-gray-600':p.status==='Booked'?'bg-yellow-100 text-yellow-700':'bg-green-100 text-green-700'}`}>{p.status}</span></td>
-              <td className="px-3 py-2.5">{plc ? `${plc.plcName} (${plc.chargeType}: ${plc.plcCharge})` : 'Select Plc'}</td>
-              <td className="px-3 py-2.5">{p.chargeOfPlot}</td>
-              <td className="px-3 py-2.5">{p.totalCostOfPlot?.toLocaleString()}</td>
-              <td className="px-3 py-2.5"><button onClick={()=>handleEdit(p)} className={btnEdit}>Edit</button></td>
-              <td className="px-3 py-2.5"><button onClick={()=>handleDelete(p.id)} className={btnDel}>Delete</button></td>
-            </tr>;
-          })}
-        </tbody></table>
-      </div>
-      <div className="flex items-center justify-between p-4 border-t border-gray-100">
-        <p className="text-sm text-gray-500">Page {page} of {totalPages}</p>
-        <div className="flex gap-2">
-          <button onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={page===1} className={btnGray+' disabled:opacity-50'}>Previous</button>
-          <button onClick={()=>setPage(p=>Math.min(totalPages,p+1))} disabled={page===totalPages} className={btnGray+' disabled:opacity-50'}>Next</button>
-        </div>
       </div>
     </div>
   );

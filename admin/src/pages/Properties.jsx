@@ -14,7 +14,7 @@ const statusColors = {
   HOLD: 'bg-orange-100 text-orange-700',
 };
 
-export default function Properties() {
+export default function Properties({ embedded = false }) {
   const { t } = useI18n();
   const [schemes, setSchemes] = useState([]);
   const [schemesLoading, setSchemesLoading] = useState(true);
@@ -25,6 +25,7 @@ export default function Properties() {
   const [editingProperty, setEditingProperty] = useState(null);
   const [imageModal, setImageModal] = useState(null);
   const [videoModal, setVideoModal] = useState(null);
+  const [bookingProperty, setBookingProperty] = useState(null);
   const [expandedInquiry, setExpandedInquiry] = useState(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -105,26 +106,28 @@ export default function Properties() {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <Building2 size={24} className="text-gold-500" />
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800">{t('properties.title')}</h1>
-            <p className="text-sm text-gray-500">{t('properties.schemeHint')}</p>
+    <div className={embedded ? "space-y-6" : "p-6 space-y-6"}>
+      {!embedded && (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Building2 size={24} className="text-gold-500" />
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800">{t('properties.title')}</h1>
+              <p className="text-sm text-gray-500">{t('properties.schemeHint')}</p>
+            </div>
           </div>
+          {selectedScheme && (
+            <button
+              type="button"
+              onClick={() => { setEditingProperty(null); setShowForm(true); }}
+              className="inline-flex items-center gap-2 rounded-lg bg-gold-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-gold-600"
+            >
+              <Plus size={16} />
+              {t('properties.add')}
+            </button>
+          )}
         </div>
-        {selectedScheme && (
-          <button
-            type="button"
-            onClick={() => { setEditingProperty(null); setShowForm(true); }}
-            className="inline-flex items-center gap-2 rounded-lg bg-gold-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-gold-600"
-          >
-            <Plus size={16} />
-            {t('properties.add')}
-          </button>
-        )}
-      </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Schemes list */}
@@ -183,14 +186,24 @@ export default function Properties() {
             </div>
           ) : (
             <>
-              <div className="rounded-lg bg-gold-50 border border-gold-100 px-4 py-3 text-sm">
-                <span className="text-gray-600">{t('properties.underScheme')}:</span>{' '}
-                <span className="font-semibold text-gray-800">{selectedScheme.schemeName}</span>
-                {selectedScheme.city && (
-                  <span className="text-gray-500 ml-2">
-                    — {selectedScheme.city}{selectedScheme.state ? `, ${selectedScheme.state}` : ''}
-                  </span>
-                )}
+              <div className="rounded-lg bg-gold-50 border border-gold-100 px-4 py-3 text-sm flex justify-between items-center">
+                <div>
+                  <span className="text-gray-600">{t('properties.underScheme')}:</span>{' '}
+                  <span className="font-semibold text-gray-800">{selectedScheme.schemeName}</span>
+                  {selectedScheme.city && (
+                    <span className="text-gray-500 ml-2">
+                      — {selectedScheme.city}{selectedScheme.state ? `, ${selectedScheme.state}` : ''}
+                    </span>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setEditingProperty(null); setShowForm(true); }}
+                  className="inline-flex items-center gap-2 rounded-lg bg-gold-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-gold-600"
+                >
+                  <Plus size={14} />
+                  Add Property / Plot
+                </button>
               </div>
 
               <div className="rounded-xl bg-white shadow-sm border border-gray-100 overflow-hidden">
@@ -199,11 +212,13 @@ export default function Properties() {
                     <thead className="bg-gray-50 border-b border-gray-200">
                       <tr>
                         <th className="px-4 py-3 text-left font-medium text-gray-600">#</th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-600">Name</th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-600">Location</th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-600">Price</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-600">Plot/Unit No</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-600">Name/Desc</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-600">Size</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-600">Base Price</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-600">Plc Charge</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-600">Total Cost</th>
                         <th className="px-4 py-3 text-left font-medium text-gray-600">Type</th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-600">Booking Limits</th>
                         <th className="px-4 py-3 text-left font-medium text-gray-600">Status</th>
                         <th className="px-4 py-3 text-left font-medium text-gray-600">Actions</th>
                       </tr>
@@ -218,15 +233,13 @@ export default function Properties() {
                           <Fragment key={p.id}>
                             <tr className="border-b border-gray-50 even:bg-gray-50 hover:bg-gray-100">
                               <td className="px-4 py-3 text-gray-500">{(page - 1) * 15 + idx + 1}</td>
-                              <td className="px-4 py-3 font-medium text-gray-800">{p.name}</td>
-                              <td className="px-4 py-3 text-gray-600">{p.location || `${p.city || ''}, ${p.state || ''}`}</td>
+                              <td className="px-4 py-3 font-medium text-gray-800">{p.plotNo || '-'}</td>
+                              <td className="px-4 py-3 font-medium text-gray-800 truncate max-w-[120px]" title={p.name}>{p.name}</td>
+                              <td className="px-4 py-3 text-gray-600">{p.area} {p.plotSizeUnit || ''}</td>
                               <td className="px-4 py-3 font-medium text-gray-800">₹{Number(p.price || 0).toLocaleString()}</td>
+                              <td className="px-4 py-3 text-gray-600">₹{Number(p.chargeOfPlot || 0).toLocaleString()}</td>
+                              <td className="px-4 py-3 font-bold text-gray-800">₹{Number(p.totalCostOfPlot || p.price || 0).toLocaleString()}</td>
                               <td className="px-4 py-3 text-gray-600">{p.type || '-'}</td>
-                              <td className="px-4 py-3 text-gray-600 text-xs">
-                                {p.bookingMinAmount || p.bookingMaxAmount 
-                                  ? `₹${Number(p.bookingMinAmount || 0).toLocaleString()} - ₹${Number(p.bookingMaxAmount || 0).toLocaleString()}`
-                                  : '-'}
-                              </td>
                               <td className="px-4 py-3">
                                 <select
                                   value={p.status}
@@ -243,6 +256,16 @@ export default function Properties() {
                               </td>
                               <td className="px-4 py-3">
                                 <div className="flex items-center gap-1">
+                                  {p.status === 'AVAILABLE' && (
+                                    <button
+                                      type="button"
+                                      onClick={() => setBookingProperty(p)}
+                                      className="rounded bg-gold-100 px-2 py-1 text-xs font-medium text-gold-700 hover:bg-gold-200"
+                                      title="Book"
+                                    >
+                                      Book
+                                    </button>
+                                  )}
                                   <Link to={`/properties/${p.id}`} className="rounded p-1.5 text-emerald-600 hover:bg-emerald-50" title="View Details">
                                     <Eye size={15} />
                                   </Link>
@@ -324,6 +347,13 @@ export default function Properties() {
 
       {imageModal && <ImageUploadModal propertyId={imageModal} onClose={() => setImageModal(null)} />}
       {videoModal && <VideoUploadModal propertyId={videoModal} onClose={() => setVideoModal(null)} />}
+      {bookingProperty && (
+        <BookPropertyModal 
+          property={bookingProperty} 
+          onClose={() => setBookingProperty(null)} 
+          onSuccess={() => { setBookingProperty(null); fetchProperties(); }} 
+        />
+      )}
     </div>
   );
 }
@@ -347,16 +377,24 @@ function PropertyForm({ property, schemes, defaultScheme, onClose, onSuccess }) 
     amenities: amenitiesStr,
     bookingMinAmount: property?.bookingMinAmount ?? '',
     bookingMaxAmount: property?.bookingMaxAmount ?? '',
+    plotTypeId: property?.plotTypeId || '',
+    plotSizeUnit: property?.plotSizeUnit || 'Square Yards',
+    plotNo: property?.plotNo || '',
+    plcId: property?.plcId || '',
+    chargeOfPlot: property?.chargeOfPlot ?? 0,
+    totalCostOfPlot: property?.totalCostOfPlot ?? '',
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [publicStates, setPublicStates] = useState([]);
   const [publicCities, setPublicCities] = useState([]);
   const [schemeTypes, setSchemeTypes] = useState([]);
+  const [plcCharges, setPlcCharges] = useState([]);
 
   useEffect(() => {
     fetchPublicStates();
     api.get('/admin/masters/plot-types', {params:{pageSize:100}}).then(r => setSchemeTypes(r.data?.data || [])).catch(()=>{});
+    api.get('/admin/masters/plc-charges', {params:{pageSize:100}}).then(r => setPlcCharges(r.data?.data || [])).catch(()=>{});
   }, []);
 
   useEffect(() => {
@@ -400,13 +438,29 @@ function PropertyForm({ property, schemes, defaultScheme, onClose, onSuccess }) 
     }));
   };
 
+  const calcTotal = (f) => {
+    const base = parseFloat(f.price) || 0;
+    const plc = plcCharges.find((p) => p.id === f.plcId);
+    let charge = 0;
+    if (plc) {
+      charge = plc.chargeType === 'Percentage' ? base * (Number(plc.plcCharge) / 100) : Number(plc.plcCharge);
+    }
+    return { chargeOfPlot: charge.toFixed(2), totalCostOfPlot: (base + charge).toFixed(2) };
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === 'schemeId') {
       handleSchemeChange(value);
       return;
     }
-    setForm({ ...form, [name]: value });
+    const next = { ...form, [name]: value };
+    if (name === 'price' || name === 'plcId') {
+      const calc = calcTotal(next);
+      next.chargeOfPlot = calc.chargeOfPlot;
+      next.totalCostOfPlot = calc.totalCostOfPlot;
+    }
+    setForm(next);
   };
 
   const handleSubmit = async (e) => {
@@ -471,14 +525,38 @@ function PropertyForm({ property, schemes, defaultScheme, onClose, onSuccess }) 
                 <option key={c.id} value={c.name}>{c.name}</option>
               ))}
             </select>
-            <input name="area" placeholder="Area (sq ft) *" value={form.area} onChange={handleChange} required className={ic} />
-            <input name="price" placeholder="Price *" type="number" value={form.price} onChange={handleChange} required className={ic} />
             <select name="type" value={form.type} onChange={handleChange} required className={ic}>
               <option value="">{t('properties.selectType')}</option>
+              <option value="Residential">Residential</option>
+              <option value="Commercial">Commercial</option>
+              <option value="Industrial">Industrial</option>
+              <option value="Agricultural">Agricultural</option>
+            </select>
+            <select name="plotTypeId" value={form.plotTypeId} onChange={handleChange} className={ic}>
+              <option value="">Select Property Type</option>
               {schemeTypes.map((s) => (
-                <option key={s.id} value={s.typeName}>{s.typeName}</option>
+                <option key={s.id} value={s.id}>{s.typeName}</option>
               ))}
             </select>
+            <input name="plotNo" placeholder="Plot/Unit No" value={form.plotNo} onChange={handleChange} className={ic} />
+            <select name="plotSizeUnit" value={form.plotSizeUnit} onChange={handleChange} className={ic}>
+              <option value="Square Yards">Square Yards</option>
+              <option value="Square Feet">Square Feet</option>
+              <option value="Square Meters">Square Meters</option>
+              <option value="Gaj">Gaj</option>
+              <option value="Acre">Acre</option>
+              <option value="Bigha">Bigha</option>
+            </select>
+            <input name="area" placeholder="Area Size *" type="number" step="0.01" value={form.area} onChange={handleChange} required className={ic} />
+            <input name="price" placeholder="Base Price *" type="number" step="0.01" value={form.price} onChange={handleChange} required className={ic} />
+            <select name="plcId" value={form.plcId} onChange={handleChange} className={ic}>
+              <option value="">Select PLC</option>
+              {plcCharges.map((p) => (
+                <option key={p.id} value={p.id}>{p.plcName} ({p.chargeType}: {p.plcCharge})</option>
+              ))}
+            </select>
+            <input name="chargeOfPlot" placeholder="PLC Charge" value={form.chargeOfPlot} readOnly className={`${ic} bg-gray-50`} />
+            <input name="totalCostOfPlot" placeholder="Total Cost" value={form.totalCostOfPlot} readOnly className={`${ic} bg-gray-50 font-bold`} />
             <input name="bookingMinAmount" placeholder="Booking Min Amount" type="number" value={form.bookingMinAmount} onChange={handleChange} className={ic} />
             <input name="bookingMaxAmount" placeholder="Booking Max Amount" type="number" value={form.bookingMaxAmount} onChange={handleChange} className={ic} />
           </div>
@@ -566,7 +644,9 @@ function ImageUploadModal({ propertyId, onClose }) {
           ) : (
             <div className="grid grid-cols-3 gap-3 max-h-[300px] overflow-y-auto">
               {existingImages.map((img) => {
-                const src = img.url.startsWith('uploads/') ? `${SERVER_URL}/${img.url}` : img.url;
+                const isLocal = img.url.includes('uploads');
+                const cleanUrl = img.url.startsWith('/') ? img.url.slice(1) : img.url;
+                const src = isLocal ? `${SERVER_URL}/${cleanUrl}` : img.url;
                 return (
                   <div key={img.id} className="relative aspect-square rounded-lg border border-gray-200 overflow-hidden group">
                     <img src={src} alt="Property" className="w-full h-full object-cover" />
@@ -700,6 +780,85 @@ function InquiriesSection({ propertyId }) {
           <p className="text-gray-600 mt-1">{inq.message || inq.phone || '-'}</p>
         </div>
       ))}
+    </div>
+  );
+}
+
+export function BookPropertyModal({ property, onClose, onSuccess }) {
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    associateId: '',
+    customerName: '',
+    customerMobile: '',
+    customerAddress: '',
+    amount: property.bookingMinAmount || property.price || '',
+    modeOfPayment: 'Cash',
+    paymentDate: new Date().toISOString().split('T')[0],
+  });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const payload = {
+        ...form,
+        propertyId: property.id,
+        plotNo: property.plotNo,
+        plotArea: property.area,
+        totalCost: property.totalCostOfPlot || property.price,
+        chargeOfPlot: property.chargeOfPlot,
+      };
+      await api.post('/admin/bookings', payload);
+      alert('Property booked successfully!');
+      onSuccess();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to book property');
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-y-auto">
+      <div className="w-full max-w-xl rounded-xl bg-white p-6 shadow-xl my-8">
+        <div className="flex items-center justify-between mb-4 border-b pb-3">
+          <h2 className="text-lg font-bold text-gray-800">Book Property: {property.name} {property.plotNo ? `(${property.plotNo})` : ''}</h2>
+          <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="col-span-2">
+              <label className={lc}>Associate ID *</label>
+              <input className={ic} placeholder="IWR100001" value={form.associateId} onChange={e=>setForm({...form,associateId:e.target.value})} required />
+            </div>
+          </div>
+          
+          <h3 className="text-sm font-semibold text-gray-700 pt-2 border-t mt-4">Customer Details</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div><label className={lc}>Customer Name *</label><input className={ic} value={form.customerName} onChange={e=>setForm({...form,customerName:e.target.value})} required /></div>
+            <div><label className={lc}>Customer Mobile *</label><input className={ic} value={form.customerMobile} onChange={e=>setForm({...form,customerMobile:e.target.value})} required /></div>
+          </div>
+          <div><label className={lc}>Customer Address</label><input className={ic} value={form.customerAddress} onChange={e=>setForm({...form,customerAddress:e.target.value})} /></div>
+
+          <h3 className="text-sm font-semibold text-gray-700 pt-2 border-t mt-4">Payment Details</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={lc}>Booking Amount *</label>
+              <input type="number" className={ic} value={form.amount} onChange={e=>setForm({...form,amount:e.target.value})} required />
+              <p className="text-xs text-gray-500 mt-1">Total Cost: ₹{Number(property.totalCostOfPlot || property.price || 0).toLocaleString()}</p>
+            </div>
+            <div>
+              <label className={lc}>Payment Mode *</label>
+              <select className={ic} value={form.modeOfPayment} onChange={e=>setForm({...form,modeOfPayment:e.target.value})} required>
+                <option>Cash</option><option>Cheque</option><option>Online</option><option>NEFT/RTGS</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex justify-end gap-3 pt-4 border-t">
+            <button type="button" onClick={onClose} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
+            <button type="submit" disabled={loading} className="rounded-lg bg-gold-500 px-4 py-2 text-sm font-medium text-white hover:bg-gold-600 disabled:opacity-50">{loading ? 'Booking...' : 'Book Property'}</button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

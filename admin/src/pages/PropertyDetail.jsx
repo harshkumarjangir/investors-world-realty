@@ -58,8 +58,10 @@ export default function PropertyDetail() {
 
   const { images = [], videos = [] } = property;
   let mainImage = images[0]?.url || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80';
-  if (mainImage.startsWith('uploads/')) {
-    mainImage = `${SERVER_URL}/${mainImage}`;
+  const isMainLocal = mainImage.includes('uploads');
+  const mainCleanUrl = mainImage.startsWith('/') ? mainImage.slice(1) : mainImage;
+  if (isMainLocal) {
+    mainImage = `${SERVER_URL}/${mainCleanUrl}`;
   }
 
   return (
@@ -144,13 +146,43 @@ export default function PropertyDetail() {
                 <span className="text-sm font-medium text-gray-800">{property.type || '-'}</span>
               </div>
 
+              {property.plotNo && (
+                <div className="flex items-center justify-between border-b border-gray-50 pb-3">
+                  <div className="flex items-center gap-2 text-gray-500">
+                    <Tag size={16} />
+                    <span className="text-sm font-medium">Plot/Unit No</span>
+                  </div>
+                  <span className="text-sm font-medium text-gray-800">{property.plotNo}</span>
+                </div>
+              )}
+
               <div className="flex items-center justify-between border-b border-gray-50 pb-3">
                 <div className="flex items-center gap-2 text-gray-500">
                   <Ruler size={16} />
                   <span className="text-sm font-medium">Area</span>
                 </div>
-                <span className="text-sm font-medium text-gray-800">{property.area} sq.ft</span>
+                <span className="text-sm font-medium text-gray-800">{property.area} {property.plotSizeUnit || 'sq.ft'}</span>
               </div>
+
+              {Number(property.chargeOfPlot) > 0 && (
+                <div className="flex items-center justify-between border-b border-gray-50 pb-3">
+                  <div className="flex items-center gap-2 text-gray-500">
+                    <Tag size={16} />
+                    <span className="text-sm font-medium">PLC Charge</span>
+                  </div>
+                  <span className="text-sm font-medium text-gray-800">₹{Number(property.chargeOfPlot).toLocaleString()}</span>
+                </div>
+              )}
+
+              {Number(property.totalCostOfPlot) > 0 && (
+                <div className="flex items-center justify-between border-b border-gray-50 pb-3">
+                  <div className="flex items-center gap-2 text-gray-500">
+                    <Tag size={16} />
+                    <span className="text-sm font-medium text-gold-600">Total Cost</span>
+                  </div>
+                  <span className="text-sm font-bold text-gray-800">₹{Number(property.totalCostOfPlot).toLocaleString()}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -168,7 +200,9 @@ export default function PropertyDetail() {
               ) : (
                 <div className="grid grid-cols-2 gap-3">
                   {images.map((img) => {
-                    const src = img.url.startsWith('uploads/') ? `${SERVER_URL}/${img.url}` : img.url;
+                    const isLocal = img.url.includes('uploads');
+                    const cleanUrl = img.url.startsWith('/') ? img.url.slice(1) : img.url;
+                    const src = isLocal ? `${SERVER_URL}/${cleanUrl}` : img.url;
                     return (
                       <div key={img.id} className="aspect-square rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
                         <img src={src} alt="Property" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
@@ -190,7 +224,12 @@ export default function PropertyDetail() {
                 </h2>
               </div>
               <div className="p-4">
-                <video src={videos[0].url.startsWith('uploads/') ? `${SERVER_URL}/${videos[0].url}` : videos[0].url} controls className="w-full rounded-lg bg-black" />
+                {videos.map(vid => {
+                  const isLocal = vid.url.includes('uploads');
+                  const cleanUrl = vid.url.startsWith('/') ? vid.url.slice(1) : vid.url;
+                  const src = isLocal ? `${SERVER_URL}/${cleanUrl}` : vid.url;
+                  return <video key={vid.id} src={src} controls className="w-full rounded-lg bg-black mb-4" />;
+                })}
               </div>
             </div>
           )}

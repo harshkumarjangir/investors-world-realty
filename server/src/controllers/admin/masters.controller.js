@@ -119,29 +119,3 @@ export async function deletePlotTypeHandler(req, res, next) {
   } catch (e) { return next(e); }
 }
 
-// ─── Plots ────────────────────────────────────────────────────────────────────
-export async function listPlotsHandler(req, res, next) {
-  try {
-    const { schemeId } = req.query;
-    const result = await svc.listPlots({ schemeId }, parsePagination(req.query));
-    return paginatedResponse(res, result.items, result.totalItems, result.page, result.pageSize);
-  } catch (e) { return next(e); }
-}
-export async function createPlotHandler(req, res, next) {
-  try {
-    const result = await svc.createPlot(req.body);
-    return successResponse(res, result, 'Plot created', 201);
-  } catch (e) { return next(e); }
-}
-export async function updatePlotHandler(req, res, next) {
-  try {
-    const result = await svc.updatePlot(req.params.id, req.body);
-    return successResponse(res, result, 'Plot updated');
-  } catch (e) { return next(e); }
-}
-export async function deletePlotHandler(req, res, next) {
-  try {
-    await svc.deletePlot(req.params.id);
-    return successResponse(res, null, 'Deleted');
-  } catch (e) { return next(e); }
-}
