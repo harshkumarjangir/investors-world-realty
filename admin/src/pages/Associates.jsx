@@ -186,7 +186,7 @@ export default function Associates() {
     <div className="p-6 space-y-5">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-gray-800">{t('associates.title')}</h1>
+        <h1 className="text-2xl font-bold text-gray-800 lg:hidden">{t('associates.title')}</h1>
         <button
           onClick={() => { setEditingAssociate(null); setShowAddModal(true); }}
           className="inline-flex items-center gap-2 rounded-lg bg-gold-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-gold-600"

@@ -19,7 +19,7 @@ export default function MyAccount() {
   const [activeTab, setActiveTab] = useState('search');
   return (
     <div className="p-6 space-y-4">
-      <h1 className="text-2xl font-bold text-gray-800">My Account</h1>
+      <h1 className="text-2xl font-bold text-gray-800 lg:hidden">My Account</h1>
       <div className="flex flex-wrap gap-1 border-b border-gray-200">
         {TABS.map((tab) => {
           const Icon = tab.icon;

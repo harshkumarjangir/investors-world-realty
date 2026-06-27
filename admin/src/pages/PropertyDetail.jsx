@@ -75,7 +75,7 @@ export default function PropertyDetail() {
           <ArrowLeft size={20} />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">{property.name}</h1>
+          <h1 className="text-2xl font-bold text-gray-800 lg:hidden">{property.name}</h1>
           <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
             <MapPin size={14} />
             <span>{property.location || `${property.city || ''}, ${property.state || ''}`}</span>

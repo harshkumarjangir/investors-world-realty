@@ -112,7 +112,7 @@ export default function Properties({ embedded = false }) {
           <div className="flex items-center gap-3">
             <Building2 size={24} className="text-gold-500" />
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">{t('properties.title')}</h1>
+              <h1 className="text-2xl font-bold text-gray-800 lg:hidden">{t('properties.title')}</h1>
               <p className="text-sm text-gray-500">{t('properties.schemeHint')}</p>
             </div>
           </div>

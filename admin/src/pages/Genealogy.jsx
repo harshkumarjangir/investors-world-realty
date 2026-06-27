@@ -228,7 +228,7 @@ export default function Genealogy() {
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800">Genealogy Tree</h1>
+      <h1 className="text-2xl font-bold text-gray-800 lg:hidden">Genealogy Tree</h1>
 
       {/* Search */}
       <form onSubmit={handleSearch} className="flex gap-3 items-center">

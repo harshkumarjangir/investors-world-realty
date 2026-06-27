@@ -55,28 +55,28 @@ export default function Layout() {
   const isMastersActive = location.pathname === '/masters';
   const isMyAccountActive = location.pathname === '/my-account';
 
-  const getPageTitle = (path) => {
-    if (path === '/') return t('nav.dashboard') || 'Dashboard';
-    if (path.startsWith('/associates/')) return 'Associate Details';
-    if (path === '/associates') return t('nav.associates') || 'Associates';
-    if (path === '/genealogy') return t('nav.genealogy') || 'Genealogy';
-    if (path === '/downline') return 'Downline';
-    if (path === '/payouts') return t('nav.payouts') || 'Payouts';
-    if (path === '/reports') return t('nav.reports') || 'Reports';
-    if (path === '/bookings') return 'Bookings';
-    if (path === '/funds') return t('nav.funds') || 'Fund Management';
-    if (path === '/notifications') return t('nav.notifications') || 'Notifications';
-    if (path === '/commissions') return 'Commissions';
-    if (path === '/promotions') return 'Promotions';
-    if (path === '/kyc') return t('nav.kyc') || 'KYC';
-    if (path === '/support') return t('nav.support') || 'Support Tickets';
-    if (path === '/config') return t('nav.config') || 'Configuration';
-    if (path === '/transactions') return t('nav.transactions') || 'Transactions';
-    if (path === '/my-account') return 'My Account';
-    if (path === '/masters') return 'Masters';
-    if (path.startsWith('/properties/')) return 'Property Details';
-    if (path === '/company') return 'Company Details';
-    return '';
+  const getPageDetails = (path) => {
+    let title = '';
+    let icon = null;
+
+    const navItem = navItems.find(item => item.path === path);
+    if (navItem) {
+      title = t(navItem.key) || navItem.key.replace('nav.', '');
+      icon = navItem.icon;
+    }
+
+    if (path === '/') { title = t('nav.dashboard') || 'Dashboard'; icon = LayoutDashboard; }
+    else if (path.startsWith('/associates/')) { title = 'Associate Details'; icon = Users; }
+    else if (path === '/downline') { title = 'Downline'; icon = GitBranch; }
+    else if (path === '/bookings') { title = 'Bookings'; icon = CalendarCheck; }
+    else if (path === '/commissions') { title = 'Commissions'; icon = DollarSign; }
+    else if (path === '/promotions') { title = 'Promotions'; icon = Users; }
+    else if (path === '/my-account') { title = 'My Account'; icon = UserCircle; }
+    else if (path === '/masters') { title = 'Masters'; icon = BookOpen; }
+    else if (path.startsWith('/properties/')) { title = 'Property Details'; icon = Building; }
+    else if (path === '/company') { title = 'Company Details'; icon = Building; }
+
+    return { title, icon };
   };
 
   return (
@@ -131,10 +131,11 @@ export default function Layout() {
       </aside>
 
       <div className="flex flex-1 flex-col overflow-hidden">
-        <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 shadow-sm">
+        <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 shadow-sm shrink-0">
           <button className="lg:hidden text-gray-600 hover:text-gray-900" onClick={() => setSidebarOpen(true)}><Menu size={24} /></button>
-          <div className="hidden lg:block">
-            <h1 className="text-xl font-bold text-gray-800 tracking-tight">{getPageTitle(location.pathname)}</h1>
+          <div className="hidden lg:flex items-center gap-3">
+            {getPageDetails(location.pathname).icon && (() => { const PageIcon = getPageDetails(location.pathname).icon; return <PageIcon size={24} className="text-gold-500" />; })()}
+            <h1 className="text-xl font-bold text-gray-800 tracking-tight">{getPageDetails(location.pathname).title}</h1>
           </div>
           <div className="flex items-center gap-4">
             <NavLink to="/company" className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gold-50 hover:text-gold-600 transition-colors">

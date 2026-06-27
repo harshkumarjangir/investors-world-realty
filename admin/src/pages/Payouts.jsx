@@ -90,7 +90,7 @@ export default function Payouts() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-gray-800">{t('payouts.title')}</h1>
+        <h1 className="text-2xl font-bold text-gray-800 lg:hidden">{t('payouts.title')}</h1>
         <button
           onClick={handleGenerate}
           disabled={generating}
