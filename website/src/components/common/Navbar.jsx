@@ -30,7 +30,7 @@ export default function Navbar() {
     window.addEventListener('scroll', onScroll);
     fetch('/api/projects-proxy').catch(() => { });
     // Fetch projects for dropdown
-    fetch('http://localhost:5001/api/projects')
+    fetch((process.env.NEXT_PUBLIC_WEBSITE_API_URL || "http://localhost:5001/api") + "/projects")
       .then(r => r.json())
       .then(data => setProjects(Array.isArray(data) ? data : []))
       .catch(() => { });

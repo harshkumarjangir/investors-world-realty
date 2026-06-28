@@ -24,7 +24,8 @@ const ImageUpload = ({ value, onChange, folder = 'misc', label = 'Image' }) => {
 
     try {
       // Assuming your backend is running on port 5001
-      const response = await axios.post(`http://localhost:5001/api/upload/${folder}`, formData, {
+      const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+      const response = await axios.post(`${baseURL}/upload/${folder}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

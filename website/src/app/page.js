@@ -8,7 +8,7 @@ import TestimonialsSection from '@/components/home/TestimonialsSection';
 
 async function getHomeData() {
   try {
-    const res = await fetch('http://localhost:5001/api/home', { cache: 'no-store' });
+    const res = await fetch((process.env.NEXT_PUBLIC_WEBSITE_API_URL || "http://localhost:5001/api") + "/home", { cache: 'no-store' });
     if (!res.ok) throw new Error('Failed to fetch home data');
     return res.json();
   } catch (error) {

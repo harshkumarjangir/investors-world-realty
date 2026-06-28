@@ -3,7 +3,7 @@ import { MapPin, Compass } from 'lucide-react';
 
 async function getProjects() {
   try {
-    const res = await fetch('http://localhost:5001/api/projects', { cache: 'no-store' });
+    const res = await fetch((process.env.NEXT_PUBLIC_WEBSITE_API_URL || "http://localhost:5001/api") + "/projects", { cache: 'no-store' });
     if (!res.ok) throw new Error('Failed to fetch projects');
     return res.json();
   } catch (error) {

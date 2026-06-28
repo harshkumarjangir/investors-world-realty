@@ -11,7 +11,7 @@ export default function PropertyCard({ property }) {
 
   // Safe check for images, default if none
   const imageUrl = property.thumbnail 
-    ? `http://localhost:5000/${property.thumbnail}` 
+    ? `${process.env.NEXT_PUBLIC_IMAGE_SERVER || "http://localhost:5000"}/${property.thumbnail}` 
     : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80';
 
   return (

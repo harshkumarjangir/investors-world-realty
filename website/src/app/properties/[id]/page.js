@@ -41,7 +41,7 @@ export default async function PropertyDetailsPage({ params }) {
   };
 
   const images = property.images && property.images.length > 0 
-    ? property.images.map(img => `http://localhost:5000/${img.url}`) 
+    ? property.images.map(img => `${process.env.NEXT_PUBLIC_IMAGE_SERVER || "http://localhost:5000"}/${img.url}`) 
     : ['https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=2000&q=80'];
 
   return (

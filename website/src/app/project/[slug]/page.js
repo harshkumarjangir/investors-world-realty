@@ -14,7 +14,7 @@ import ProjectSimilar from '@/components/project/ProjectSimilar';
 
 async function getProjectData(slug) {
   try {
-    const res = await fetch(`http://localhost:5001/api/projects/${slug}`, { cache: 'no-store' });
+    const res = await fetch(`${process.env.NEXT_PUBLIC_WEBSITE_API_URL || "http://localhost:5001/api"}/projects/${slug}`, { cache: 'no-store' });
     if (!res.ok) return null;
     return res.json();
   } catch (error) {
