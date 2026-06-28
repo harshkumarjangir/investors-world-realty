@@ -34,7 +34,8 @@ router.post('/:folder', upload.single('image'), (req, res) => {
   
   const folder = req.params.folder || 'misc';
   // Return the public URL for the image
-  const imageUrl = `http://localhost:5001/uploads/${folder}/${req.file.filename}`;
+  const baseUrl = process.env.BASE_URL || 'http://localhost:5001';
+  const imageUrl = `${baseUrl}/uploads/${folder}/${req.file.filename}`;
   
   res.json({ 
     message: 'File uploaded successfully',
