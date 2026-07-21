@@ -52,7 +52,6 @@ async function resetDatabase() {
   console.log('   ✓ Properties, images, videos');
 
   await prisma.schemeImage.deleteMany({});
-  await prisma.plot.deleteMany({});
   await prisma.scheme.deleteMany({});
   await prisma.plotType.deleteMany({});
   await prisma.plcCharge.deleteMany({});
@@ -63,11 +62,9 @@ async function resetDatabase() {
   console.log('   ✓ Schemes, plots, plot types, PLC charges, masters');
 
   await prisma.propertyCommissionSlab.deleteMany({});
-  await prisma.incomePlan.deleteMany({});
   await prisma.appVersion.deleteMany({});
   await prisma.brandingAsset.deleteMany({});
-  await prisma.package.deleteMany({});
-  console.log('   ✓ Commission slabs, income plans, packages, app versions');
+  console.log('   ✓ Commission slabs, app versions, branding assets');
 
   await prisma.admin.deleteMany({});
   await prisma.adminRole.deleteMany({});

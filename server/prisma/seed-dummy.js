@@ -95,12 +95,6 @@ async function main() {
 
   const hashedPassword = await bcrypt.hash('Test@1234', 12);
 
-  // ─── Get existing package ──────────────────────────────────────────────────
-  const pkg = await prisma.package.findFirst({ where: { isActive: true } });
-  if (!pkg) {
-    console.error('❌ No active package found. Run the main seed first: npm run db:seed');
-    process.exit(1);
-  }
 
   // ─── Create Root Associate (Sponsor for all) ───────────────────────────────
   console.log('Looking up root sponsor IW100010 (President Club)...');
@@ -138,7 +132,7 @@ async function main() {
         state: loc.state,
         pincode: `${400000 + i * 11}`,
         panNumber: `${String.fromCharCode(65 + (i % 26))}BCDE${1000 + i}${String.fromCharCode(70 + (i % 6))}`,
-        packageId: pkg.id,
+
         sponsorId: rootAssociate.id,
         status,
         joiningDate,

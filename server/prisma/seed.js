@@ -140,9 +140,28 @@ async function main() {
   ]) {
     const totalCost = p.size * 2500;
     const charge = p.corner && cornerPlc ? totalCost * (Number(cornerPlc.plcCharge) / 100) : 0;
-    await prisma.plot.upsert({
+    await prisma.property.upsert({
       where: { id: `plot-sn-${p.no}` }, update: {},
-      create: { id:`plot-sn-${p.no}`, schemeId:scheme1.id, plotTypeId:plotType?.id||null, plotSizeUnit:'Square Yards', plotSize:p.size, totalCost, plotNo:p.no, plcId:p.corner ? cornerPlc?.id||null : null, chargeOfPlot:charge, totalCostOfPlot:totalCost+charge, status:'Not Used' },
+      create: { 
+        id:`plot-sn-${p.no}`, 
+        name: `Plot ${p.no} - Swarn Nagar`,
+        description: `Premium residential plot ${p.no} in Swarn Nagar`,
+        location: 'Chaksu Bypass, Jaipur',
+        city: 'Jaipur',
+        state: 'Rajasthan',
+        price: totalCost,
+        area: p.size,
+        type: 'Plot',
+        amenities: [],
+        schemeId:scheme1.id, 
+        plotTypeId:plotType?.id||null, 
+        plotSizeUnit:'Square Yards', 
+        plotNo:p.no, 
+        plcId:p.corner ? cornerPlc?.id||null : null, 
+        chargeOfPlot:charge, 
+        totalCostOfPlot:totalCost+charge, 
+        status:'AVAILABLE' 
+      },
     });
   }
   console.log('✅ Sample plots seeded for Swarn Nagar');
