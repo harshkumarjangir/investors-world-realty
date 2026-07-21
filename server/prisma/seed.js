@@ -83,7 +83,6 @@ async function main() {
     { id:'slab-005', minArea:20001, maxArea:25000,  sellerPercent:1.8, level1Percent:2.7,  level2Percent:3.4,  level3Percent:4.1,  level4Percent:4.8,  level5Percent:5.5,  level6Percent:6.1,  level7Percent:6.7,  level8Percent:7.3,  level9Percent:2, level10Percent:0 },
     { id:'slab-006', minArea:25001, maxArea:30000,  sellerPercent:1.5, level1Percent:2.3,  level2Percent:2.9,  level3Percent:3.5,  level4Percent:4.1,  level5Percent:4.7,  level6Percent:5.2,  level7Percent:5.7,  level8Percent:6.2,  level9Percent:2, level10Percent:0 },
     { id:'slab-007', minArea:30001, maxArea:35000,  sellerPercent:1.3, level1Percent:2,    level2Percent:2.6,  level3Percent:3.2,  level4Percent:3.7,  level5Percent:4.2,  level6Percent:4.7,  level7Percent:5.1,  level8Percent:5.6,  level9Percent:2, level10Percent:0 },
-    { id:'slab-008', minArea:35001, maxArea:999999, sellerPercent:1,   level1Percent:1.5,  level2Percent:2,    level3Percent:2.5,  level4Percent:3,    level5Percent:3.5,  level6Percent:4,    level7Percent:4.5,  level8Percent:5,    level9Percent:2, level10Percent:0 },
   ]) {
     await prisma.propertyCommissionSlab.upsert({ where: { id: s.id }, update: {}, create: { ...s, isActive: true } });
   }
@@ -179,28 +178,28 @@ async function main() {
   // Each higher-rank associate sponsors the next one down.
   // This lets you test registration under any rank level.
   //
-  // IW100010 = President Club    (rank 10) — root sponsor, unlimited downlines
-  // IW100009 = President Sales   (rank 9)
-  // IW100008 = Vice President    (rank 8)
-  // IW100007 = National BH       (rank 7)
-  // IW100006 = Regional BH       (rank 6)
-  // IW100005 = State BH          (rank 5)
-  // IW100004 = Dist. BH          (rank 4)
-  // IW100003 = Business Head     (rank 3)
-  // IW100002 = Business Adviser  (rank 2) ← good sponsor to test new registration
-  // IW100001 = Business Associate(rank 1) ← cannot sponsor (rank 1 restriction)
+  // IWR100010 = President Club    (rank 10) — root sponsor, unlimited downlines
+  // IWR100009 = President Sales   (rank 9)
+  // IWR100008 = Vice President    (rank 8)
+  // IWR100007 = National BH       (rank 7)
+  // IWR100006 = Regional BH       (rank 6)
+  // IWR100005 = State BH          (rank 5)
+  // IWR100004 = Dist. BH          (rank 4)
+  // IWR100003 = Business Head     (rank 3)
+  // IWR100002 = Business Adviser  (rank 2) ← good sponsor to test new registration
+  // IWR100001 = Business Associate(rank 1) ← cannot sponsor (rank 1 restriction)
 
   const rankData = [
-    { userId:'IW100010', name:'Arjun Singhania',  email:'arjun@example.com',   phone:'9999900010', rank:10, area:15000, pan:'ARJUN1234A', city:'Mumbai',    addr:'1, Sea View, Marine Drive',  join:'2022-01-01', act:'2022-01-05' },
-    { userId:'IW100009', name:'Meena Kapoor',     email:'meena@example.com',   phone:'9999900009', rank:9,  area:12000, pan:'MEENA5678B', city:'Delhi',     addr:'9, Green Park, New Delhi',   join:'2022-03-01', act:'2022-03-05' },
-    { userId:'IW100008', name:'Sunil Rathore',    email:'sunil@example.com',   phone:'9999900008', rank:8,  area:9500,  pan:'SUNIL9012C', city:'Jaipur',    addr:'8, Civil Lines, Jaipur',     join:'2022-06-01', act:'2022-06-05' },
-    { userId:'IW100007', name:'Pooja Agarwal',    email:'pooja@example.com',   phone:'9999900007', rank:7,  area:7200,  pan:'POOJA3456D', city:'Lucknow',   addr:'7, Hazratganj, Lucknow',     join:'2022-09-01', act:'2022-09-05' },
-    { userId:'IW100006', name:'Deepak Verma',     email:'deepak@example.com',  phone:'9999900006', rank:6,  area:5500,  pan:'DEPAK7890E', city:'Pune',      addr:'6, Koregaon Park, Pune',     join:'2023-01-01', act:'2023-01-05' },
-    { userId:'IW100005', name:'Anita Sharma',     email:'anita@example.com',   phone:'9999900005', rank:5,  area:4000,  pan:'ANITA1234F', city:'Bangalore', addr:'5, Indiranagar, Bangalore',  join:'2023-04-01', act:'2023-04-05' },
-    { userId:'IW100004', name:'Vikram Joshi',     email:'vikram@example.com',  phone:'9999900004', rank:4,  area:2800,  pan:'VIKRM5678G', city:'Chennai',   addr:'4, Anna Nagar, Chennai',     join:'2023-07-01', act:'2023-07-05' },
-    { userId:'IW100003', name:'Priya Verma',      email:'priya@example.com',   phone:'9999900003', rank:3,  area:1800,  pan:'PRIYA9012H', city:'Hyderabad', addr:'3, Banjara Hills, Hyderabad',join:'2023-10-01', act:'2023-10-05' },
-    { userId:'IW100002', name:'Suresh Sharma',    email:'developmenttestingtest@gmail.com',  phone:'9999900002', rank:2,  area:800,   pan:'SURESH345I', city:'Jaipur',    addr:'2, Malviya Nagar, Jaipur',   join:'2024-01-01', act:'2024-01-05' },
-    { userId:'IW100001', name:'Rajesh Kumar',     email:'developertest@yopmail.com',  phone:'9999900001', rank:1,  area:300,   pan:'ABCDE1234F', city:'Jaipur',    addr:'1, Gandhi Nagar, Jaipur',    join:'2024-06-01', act:'2024-06-05' },
+    { userId:'IWR100010', name:'Arjun Singhania',  email:'arjun@example.com',   phone:'9999900010', rank:10, area:15000, pan:'ARJUN1234A', city:'Mumbai',    addr:'1, Sea View, Marine Drive',  join:'2022-01-01', act:'2022-01-05' },
+    { userId:'IWR100009', name:'Meena Kapoor',     email:'meena@example.com',   phone:'9999900009', rank:9,  area:12000, pan:'MEENA5678B', city:'Delhi',     addr:'9, Green Park, New Delhi',   join:'2022-03-01', act:'2022-03-05' },
+    { userId:'IWR100008', name:'Sunil Rathore',    email:'sunil@example.com',   phone:'9999900008', rank:8,  area:9500,  pan:'SUNIL9012C', city:'Jaipur',    addr:'8, Civil Lines, Jaipur',     join:'2022-06-01', act:'2022-06-05' },
+    { userId:'IWR100007', name:'Pooja Agarwal',    email:'pooja@example.com',   phone:'9999900007', rank:7,  area:7200,  pan:'POOJA3456D', city:'Lucknow',   addr:'7, Hazratganj, Lucknow',     join:'2022-09-01', act:'2022-09-05' },
+    { userId:'IWR100006', name:'Deepak Verma',     email:'deepak@example.com',  phone:'9999900006', rank:6,  area:5500,  pan:'DEPAK7890E', city:'Pune',      addr:'6, Koregaon Park, Pune',     join:'2023-01-01', act:'2023-01-05' },
+    { userId:'IWR100005', name:'Anita Sharma',     email:'anita@example.com',   phone:'9999900005', rank:5,  area:4000,  pan:'ANITA1234F', city:'Bangalore', addr:'5, Indiranagar, Bangalore',  join:'2023-04-01', act:'2023-04-05' },
+    { userId:'IWR100004', name:'Vikram Joshi',     email:'vikram@example.com',  phone:'9999900004', rank:4,  area:2800,  pan:'VIKRM5678G', city:'Chennai',   addr:'4, Anna Nagar, Chennai',     join:'2023-07-01', act:'2023-07-05' },
+    { userId:'IWR100003', name:'Priya Verma',      email:'priya@example.com',   phone:'9999900003', rank:3,  area:1800,  pan:'PRIYA9012H', city:'Hyderabad', addr:'3, Banjara Hills, Hyderabad',join:'2023-10-01', act:'2023-10-05' },
+    { userId:'IWR100002', name:'Suresh Sharma',    email:'developmenttestingtest@gmail.com',  phone:'9999900002', rank:2,  area:800,   pan:'SURESH345I', city:'Jaipur',    addr:'2, Malviya Nagar, Jaipur',   join:'2024-01-01', act:'2024-01-05' },
+    { userId:'IWR100001', name:'Rajesh Kumar',     email:'developertest@yopmail.com',  phone:'9999900001', rank:1,  area:300,   pan:'ABCDE1234F', city:'Jaipur',    addr:'1, Gandhi Nagar, Jaipur',    join:'2024-06-01', act:'2024-06-05' },
   ];
 
   // Create in top-down order so sponsorId can be set
@@ -235,19 +234,19 @@ async function main() {
   }
 
   // Convenient aliases (used below for bookings/tree)
-  const assoc10 = assocMap['IW100010']; // President Club — root
-  const assoc9  = assocMap['IW100009'];
-  const assoc8  = assocMap['IW100008'];
-  const assoc7  = assocMap['IW100007'];
-  const assoc6  = assocMap['IW100006'];
-  const assoc5  = assocMap['IW100005'];
-  const assoc4  = assocMap['IW100004'];
-  const assoc3  = assocMap['IW100003'];
-  const assoc2  = assocMap['IW100002']; // Business Adviser — good test sponsor
-  const assoc1  = assocMap['IW100001']; // Business Associate — rank 1
+  const assoc10 = assocMap['IWR100010']; // President Club — root
+  const assoc9  = assocMap['IWR100009'];
+  const assoc8  = assocMap['IWR100008'];
+  const assoc7  = assocMap['IWR100007'];
+  const assoc6  = assocMap['IWR100006'];
+  const assoc5  = assocMap['IWR100005'];
+  const assoc4  = assocMap['IWR100004'];
+  const assoc3  = assocMap['IWR100003'];
+  const assoc2  = assocMap['IWR100002']; // Business Adviser — good test sponsor
+  const assoc1  = assocMap['IWR100001']; // Business Associate — rank 1
 
-  console.log(`✅ Associates seeded (IW100001–IW100010, full rank ladder rank 1–10)');
-  console.log('   Tip: Use IW100002–IW100010 as sponsorId when testing new registration`);
+  console.log(`✅ Associates seeded (IWR100001–IWR100010, full rank ladder rank 1–10)');
+  console.log('   Tip: Use IWR100002–IWR100010 as sponsorId when testing new registration`);
 
   // ─── Wallets ──────────────────────────────────────────────────────────────
   const walletData = [
@@ -273,7 +272,7 @@ async function main() {
 
   // ─── Binary Tree (linear chain: 10→9→8→7→6→5→4→3→2→1) ────────────────────
   const treeNodes = {};
-  const orderedIds = ['IW100010','IW100009','IW100008','IW100007','IW100006','IW100005','IW100004','IW100003','IW100002','IW100001'];
+  const orderedIds = ['IWR100010','IWR100009','IWR100008','IWR100007','IWR100006','IWR100005','IWR100004','IWR100003','IWR100002','IWR100001'];
 
   for (let i = 0; i < orderedIds.length; i++) {
     const assoc = assocMap[orderedIds[i]];
@@ -304,7 +303,7 @@ async function main() {
       }
     }
   }
-  console.log('✅ Binary tree seeded (IW100010 root → linear chain down to IW100001)');
+  console.log('✅ Binary tree seeded (IWR100010 root → linear chain down to IWR100001)');
 
   // ─── Plot Bookings ────────────────────────────────────────────────────────
   const bookings = [
@@ -326,15 +325,15 @@ async function main() {
     const existingCount = await prisma.transaction.count({ where:{walletId:wallet1.id} });
     if (existingCount === 0) {
       const txRows = [
-        { type:'FUND_TRANSFER_OUT', amount:3254, desc:'Fund transfer to IW100002', daysAgo:150 },
+        { type:'FUND_TRANSFER_OUT', amount:3254, desc:'Fund transfer to IWR100002', daysAgo:150 },
         { type:'WITHDRAWAL',        amount:4638, desc:'Withdrawal request',         daysAgo:135 },
         { type:'ADMIN_CREDIT',      amount:2466, desc:'Admin bonus credit',          daysAgo:120 },
-        { type:'FUND_TRANSFER_OUT', amount:4935, desc:'Fund transfer to IW100003',  daysAgo:105 },
-        { type:'DIRECT_INCOME',     amount:2307, desc:'Direct income from IW100004 sale', daysAgo:90 },
-        { type:'FUND_TRANSFER_OUT', amount:3327, desc:'Fund transfer to IW100002',  daysAgo:75 },
+        { type:'FUND_TRANSFER_OUT', amount:4935, desc:'Fund transfer to IWR100003',  daysAgo:105 },
+        { type:'DIRECT_INCOME',     amount:2307, desc:'Direct income from IWR100004 sale', daysAgo:90 },
+        { type:'FUND_TRANSFER_OUT', amount:3327, desc:'Fund transfer to IWR100002',  daysAgo:75 },
         { type:'ADMIN_CREDIT',      amount:2992, desc:'Festival bonus',              daysAgo:60 },
         { type:'LEVEL_INCOME',      amount:3450, desc:'Level income - Level 2',      daysAgo:45 },
-        { type:'FUND_TRANSFER_IN',  amount:127,  desc:'Fund received from IW100004', daysAgo:30 },
+        { type:'FUND_TRANSFER_IN',  amount:127,  desc:'Fund received from IWR100004', daysAgo:30 },
         { type:'ADMIN_CREDIT',      amount:1738, desc:'Promotion reward',            daysAgo:15 },
       ];
       const CREDITS = ['DIRECT_INCOME','LEVEL_INCOME','ADMIN_CREDIT','FUND_TRANSFER_IN'];
@@ -353,7 +352,7 @@ async function main() {
   console.log('\n🎉 Database seeding complete!');
   console.log('\n📋 Credentials:');
   console.log('   Admin:      admindevelopertest@yopmail.com  /  Admin@123456');
-  console.log('   Associates: IW100001 – IW100010       /  Test@1234');
+  console.log('   Associates: IWR100001 – IWR100010       /  Test@1234');
   console.log('\n📦 What was seeded:');
   console.log('   • 4 admin roles + 1 super admin');
   console.log('   • 1 default package + income plans');
@@ -362,20 +361,20 @@ async function main() {
   console.log('   • 5 PLC charges, 6 plot types, 2 account masters');
   console.log('   • 2 schemes (Swarn Nagar, Veera Residency) + 10 sample plots');
   console.log('   • 3 sample properties');
-  console.log('   • 10 associates (IW100001–IW100010) — full rank ladder rank 1 to 10');
+  console.log('   • 10 associates (IWR100001–IWR100010) — full rank ladder rank 1 to 10');
   console.log('   • 6 plot bookings (3 confirmed/receipted, 3 pending)');
-  console.log('   • 10 sample wallet transactions for IW100010');
+  console.log('   • 10 sample wallet transactions for IWR100010');
   console.log('\n🏅 Rank ladder for registration testing:');
-  console.log('   IW100010  President Club    (rank 10) — unlimited downlines');
-  console.log('   IW100009  President Sales   (rank 9)');
-  console.log('   IW100008  Vice President    (rank 8)');
-  console.log('   IW100007  National BH       (rank 7)');
-  console.log('   IW100006  Regional BH       (rank 6)');
-  console.log('   IW100005  State BH          (rank 5)');
-  console.log('   IW100004  Dist. BH          (rank 4)');
-  console.log('   IW100003  Business Head     (rank 3)');
-  console.log('   IW100002  Business Adviser  (rank 2) ← best for testing (can add up to 3)');
-  console.log('   IW100001  Business Associate(rank 1) ← cannot sponsor new members');
+  console.log('   IWR100010  President Club    (rank 10) — unlimited downlines');
+  console.log('   IWR100009  President Sales   (rank 9)');
+  console.log('   IWR100008  Vice President    (rank 8)');
+  console.log('   IWR100007  National BH       (rank 7)');
+  console.log('   IWR100006  Regional BH       (rank 6)');
+  console.log('   IWR100005  State BH          (rank 5)');
+  console.log('   IWR100004  Dist. BH          (rank 4)');
+  console.log('   IWR100003  Business Head     (rank 3)');
+  console.log('   IWR100002  Business Adviser  (rank 2) ← best for testing (can add up to 3)');
+  console.log('   IWR100001  Business Associate(rank 1) ← cannot sponsor new members');
 }
 
 main()

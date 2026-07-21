@@ -122,20 +122,6 @@ async function main() {
       level9Percent: 2,
       level10Percent: 0,
     },
-    {
-      minArea: 35001, maxArea: 999999,
-      sellerPercent: 1,
-      level1Percent: 1.5,
-      level2Percent: 2,
-      level3Percent: 2.5,
-      level4Percent: 3,
-      level5Percent: 3.5,
-      level6Percent: 4,
-      level7Percent: 4.5,
-      level8Percent: 5,
-      level9Percent: 2,
-      level10Percent: 0,
-    },
   ];
 
   for (const slab of slabs) {

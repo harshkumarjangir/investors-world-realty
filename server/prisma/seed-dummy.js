@@ -76,9 +76,9 @@ async function main() {
   await prisma.property.deleteMany({});
   await prisma.schemeImage.deleteMany({});
   await prisma.scheme.deleteMany({});
-  // Only delete dummy associates (IW100011+), preserving rank-ladder IW100001–IW100010
+  // Only delete dummy associates (IWR100011+), preserving rank-ladder IWR100001–IWR100010
   const dummyAssociates = await prisma.associate.findMany({
-    where: { userId: { gte: 'IW100011' } },
+    where: { userId: { gte: 'IWR100011' } },
     select: { id: true },
   });
   const dummyIds = dummyAssociates.map((a) => a.id);
@@ -97,16 +97,16 @@ async function main() {
 
 
   // ─── Create Root Associate (Sponsor for all) ───────────────────────────────
-  console.log('Looking up root sponsor IW100010 (President Club)...');
-  const rootAssociate = await prisma.associate.findUnique({ where: { userId: 'IW100010' } });
+  console.log('Looking up root sponsor IWR100010 (President Club)...');
+  const rootAssociate = await prisma.associate.findUnique({ where: { userId: 'IWR100010' } });
   if (!rootAssociate) {
-    console.error('❌ IW100010 not found. Run: npm run db:seed first.');
+    console.error('❌ IWR100010 not found. Run: npm run db:seed first.');
     process.exit(1);
   }
   console.log(`  ✅ Root: ${rootAssociate.userId} (${rootAssociate.name}) — rank ${rootAssociate.rank}`);
 
   // ─── Create 29 More Associates ─────────────────────────────────────────────
-  console.log('\nCreating 20 dummy associates (IW100011–IW100030)...');
+  console.log('\nCreating 20 dummy associates (IWR100011–IWR100030)...');
   const associates = [rootAssociate];
   const rootTreeNode = await prisma.treeNode.findUnique({ where: { associateId: rootAssociate.id } });
   const treeNodes = [rootTreeNode];
@@ -199,7 +199,7 @@ async function main() {
     associates.push(associate);
     if (i % 10 === 0) console.log(`  ✅ Created ${i}/29 associates`);
   }
-  console.log(`  ✅ All 20 dummy associates created (IW100011–IW100030)`);
+  console.log(`  ✅ All 20 dummy associates created (IWR100011–IWR100030)`);
 
   // ─── Create Income Records ─────────────────────────────────────────────────
   console.log('\nCreating income records...');
@@ -424,7 +424,7 @@ async function main() {
   // ─── Summary ───────────────────────────────────────────────────────────────
   console.log('\n🎉 Dummy data seeding complete!');
   console.log('─────────────────────────────────────────');
-  console.log('  20 Dummy Associates IW100011–IW100030 (+ 10 rank-ladder from seed.js)');
+  console.log('  20 Dummy Associates IWR100011–IWR100030 (+ 10 rank-ladder from seed.js)');
   console.log('  50 Income Records');
   console.log('  15 Properties (4 featured)');
   console.log('  40 Wallet Transactions');
@@ -436,7 +436,7 @@ async function main() {
   console.log('─────────────────────────────────────────');
   console.log('\n📋 Login credentials for all associates:');
   console.log('  Password: Test@1234');
-  console.log('  Rank Ladder: IW100001–IW100010 (seed.js) | Dummy: IW100011–IW100030');
+  console.log('  Rank Ladder: IWR100001–IWR100010 (seed.js) | Dummy: IWR100011–IWR100030');
   console.log('\n📋 Admin login:');
   console.log('  Email: admin@investorsworld.com');
   console.log('  Password: Admin@123456');
