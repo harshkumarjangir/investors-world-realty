@@ -526,14 +526,14 @@ function PropertyForm({ property, schemes, defaultScheme, onClose, onSuccess }) 
               ))}
             </select>
             <select name="type" value={form.type} onChange={handleChange} required className={ic}>
-              <option value="">{t('properties.selectType')}</option>
+              <option value="">Select Category</option>
               <option value="Residential">Residential</option>
               <option value="Commercial">Commercial</option>
               <option value="Industrial">Industrial</option>
               <option value="Agricultural">Agricultural</option>
             </select>
             <select name="plotTypeId" value={form.plotTypeId} onChange={handleChange} className={ic}>
-              <option value="">Select Property Type</option>
+              <option value="">Select Plot/Unit Type</option>
               {schemeTypes.map((s) => (
                 <option key={s.id} value={s.id}>{s.typeName}</option>
               ))}

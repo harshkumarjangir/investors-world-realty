@@ -235,6 +235,22 @@ function SchemeViewModal({ scheme, onClose }) {
           <div><span className="block text-xs text-gray-500 font-medium">Created At</span><span className="text-gray-800">{new Date(scheme.createdAt).toLocaleString()}</span></div>
         </div>
 
+        {scheme.images && scheme.images.length > 0 && (
+          <div className="mt-6 border-t pt-4">
+            <span className="block text-sm font-bold text-gray-800 mb-3">Scheme Images</span>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {scheme.images.map((img, i) => (
+                <img 
+                  key={i} 
+                  src={img.imageUrl.startsWith('http') || img.imageUrl.startsWith('data:') ? img.imageUrl : `${SERVER_URL}${img.imageUrl.startsWith('/') ? '' : '/'}${img.imageUrl}`} 
+                  alt={`Scheme img ${i+1}`} 
+                  className="w-full h-28 object-cover rounded-lg shadow-sm border border-gray-200" 
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="mt-6 flex justify-end">
           <button onClick={onClose} className={btnGray}>Close</button>
         </div>

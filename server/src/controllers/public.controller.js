@@ -56,8 +56,8 @@ export async function publicListSchemesHandler(req, res) {
           featuredScheme: true,
           shortDescription: true,
           images: {
-            take: 1,
             select: { imageUrl: true },
+            orderBy: { slot: 'asc' }
           },
           _count: {
             select: {
@@ -79,6 +79,7 @@ export async function publicListSchemesHandler(req, res) {
       state: s.state,
       isFeatured: s.featuredScheme,
       description: s.shortDescription,
+      images: s.images.map(img => img.imageUrl),
       thumbnail: s.images.length > 0 ? s.images[0].imageUrl : null,
       availablePropertiesCount: s._count.properties,
     }));
