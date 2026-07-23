@@ -213,6 +213,36 @@ function SchemeForm() {
   );
 }
 
+// ─── Scheme View Modal ─────────────────────────────────────────────────────────
+function SchemeViewModal({ scheme, onClose }) {
+  if (!scheme) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl relative max-h-[90vh] overflow-y-auto">
+        <button type="button" onClick={onClose} className="absolute right-4 top-4 text-gray-400 hover:text-gray-600"><X size={20} /></button>
+        <h2 className="text-lg font-bold text-gray-800 mb-6 border-b pb-2">Scheme Details</h2>
+        
+        <div className="space-y-4 text-sm">
+          <div className="grid grid-cols-2 gap-4">
+            <div><span className="block text-xs text-gray-500 font-medium">Scheme Name</span><span className="font-semibold text-gray-800">{scheme.schemeName}</span></div>
+            <div><span className="block text-xs text-gray-500 font-medium">Scheme Type</span><span className="font-semibold text-gray-800">{scheme.schemeType || '-'}</span></div>
+            <div><span className="block text-xs text-gray-500 font-medium">State</span><span className="font-semibold text-gray-800">{scheme.state || '-'}</span></div>
+            <div><span className="block text-xs text-gray-500 font-medium">City</span><span className="font-semibold text-gray-800">{scheme.city || '-'}</span></div>
+          </div>
+          <div><span className="block text-xs text-gray-500 font-medium">Address</span><span className="font-semibold text-gray-800">{scheme.address}</span></div>
+          <div><span className="block text-xs text-gray-500 font-medium">Short Description</span><span className="text-gray-800">{scheme.shortDescription || '-'}</span></div>
+          <div><span className="block text-xs text-gray-500 font-medium">Featured</span><span className="font-semibold text-gray-800">{scheme.featuredScheme ? 'Yes' : 'No'}</span></div>
+          <div><span className="block text-xs text-gray-500 font-medium">Created At</span><span className="text-gray-800">{new Date(scheme.createdAt).toLocaleString()}</span></div>
+        </div>
+
+        <div className="mt-6 flex justify-end">
+          <button onClick={onClose} className={btnGray}>Close</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Scheme Image Modal ───────────────────────────────────────────────────────
 function SchemeImageModal({ schemeId, schemeName, onClose }) {
   const [images, setImages] = useState(Array(6).fill(null)); // URLs
@@ -369,6 +399,7 @@ function SchemeDetails() {
   const [editId, setEditId] = useState(null);
   const [editData, setEditData] = useState({});
   const [imageModal, setImageModal] = useState(null);
+  const [viewModal, setViewModal] = useState(null);
   const [statesList, setStatesList] = useState([]);
   const [citiesList, setCitiesList] = useState([]);
   const [schemeTypes, setSchemeTypes] = useState([]);
@@ -434,7 +465,7 @@ function SchemeDetails() {
                 <Image size={15} />
               </button>
             </td>
-            <td className="px-4 py-2.5"><span className="text-blue-600 text-sm cursor-pointer hover:underline">View</span></td>
+            <td className="px-4 py-2.5"><span onClick={() => setViewModal(s)} className="text-blue-600 text-sm cursor-pointer hover:underline">View</span></td>
           </tr>)}
         </tbody></table>
       </div>
@@ -443,6 +474,12 @@ function SchemeDetails() {
           schemeId={imageModal.id} 
           schemeName={imageModal.schemeName} 
           onClose={() => setImageModal(null)} 
+        />
+      )}
+      {viewModal && (
+        <SchemeViewModal
+          scheme={viewModal}
+          onClose={() => setViewModal(null)}
         />
       )}
     </div>
