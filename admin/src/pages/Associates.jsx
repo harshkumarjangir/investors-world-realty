@@ -648,8 +648,8 @@ function AddAssociateModal({ associate, onClose, onSuccess }) {
               <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Account Setup</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className={lbl}>Sponsor ID (optional)</label>
-                  <input value={form.sponsorId} onChange={set('sponsorId')} placeholder="e.g. IWR100001" className={inp} />
+                  <label className={lbl}>Sponsor ID *</label>
+                  <input value={form.sponsorId} onChange={set('sponsorId')} placeholder="e.g. IWR100001" required className={inp} />
                 </div>
                 <div>
                   <label className={lbl}>Password *</label>

@@ -136,6 +136,7 @@ export async function registerAssociate(data) {
   if (!phone) missing.push('phone');
   if (!email) missing.push('email');
   if (!password) missing.push('password');
+  if (!sponsorId) missing.push('sponsorId');
 
   if (missing.length > 0) {
     throw Object.assign(
@@ -162,17 +163,17 @@ export async function registerAssociate(data) {
     throw Object.assign(new Error('Email address is already registered'), { statusCode: 400 });
   }
 
-  // ── Validate sponsor (optional) ────────────────────────────────────────────
-  let sponsor = null;
-  if (sponsorId && sponsorId.trim()) {
-    sponsor = await validateSponsor(sponsorId.trim());
+  // ── Validate sponsor (required) ────────────────────────────────────────────
+  if (!sponsorId || !sponsorId.trim()) {
+    throw Object.assign(new Error('Sponsor ID is required'), { statusCode: 400 });
+  }
+  const sponsor = await validateSponsor(sponsorId.trim());
 
-    // Check if sponsor can add downlines (rank-based)
-    const { canAddDownline } = await import('./promotion.service.js');
-    const downlineCheck = await canAddDownline(sponsor.id);
-    if (!downlineCheck.canAdd) {
-      throw Object.assign(new Error(downlineCheck.reason), { statusCode: 400 });
-    }
+  // Check if sponsor can add downlines (rank-based)
+  const { canAddDownline } = await import('./promotion.service.js');
+  const downlineCheck = await canAddDownline(sponsor.id);
+  if (!downlineCheck.canAdd) {
+    throw Object.assign(new Error(downlineCheck.reason), { statusCode: 400 });
   }
 
   // ── Generate userId ────────────────────────────────────────────────────────
