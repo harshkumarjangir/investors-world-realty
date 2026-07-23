@@ -14,7 +14,7 @@ import {
 // ─── GET / — List properties with filters ────────────────────────────────────
 export async function listPropertiesHandler(req, res) {
   try {
-    const { location, minPrice, maxPrice, type, status } = req.query;
+    const { location, minPrice, maxPrice, type, status, schemeId } = req.query;
     const pagination = parsePagination(req.query);
 
     const filters = {
@@ -23,6 +23,7 @@ export async function listPropertiesHandler(req, res) {
       ...(maxPrice ? { maxPrice } : {}),
       ...(type ? { type } : {}),
       ...(status ? { status } : {}),
+      ...(schemeId ? { schemeId } : {}),
     };
 
     const { items, totalItems, page, pageSize } = await listProperties(filters, pagination);

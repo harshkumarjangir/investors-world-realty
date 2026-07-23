@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { publicRateLimit } from '../middleware/rateLimiter.js';
 import {
   publicListPropertiesHandler,
+  publicListSchemesHandler,
   publicAppVersionHandler,
   publicBrandingHandler,
   publicContactHandler,
@@ -19,6 +20,9 @@ const router = Router();
 
 // POST /api/v1/public/emi-calculator
 router.post('/emi-calculator', publicRateLimit, calculateEMIHandler);
+
+// GET /api/v1/public/schemes
+router.get('/schemes', publicRateLimit, publicListSchemesHandler);
 
 // GET /api/v1/public/properties
 router.get('/properties', publicRateLimit, publicListPropertiesHandler);

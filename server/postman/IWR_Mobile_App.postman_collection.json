@@ -1025,6 +1025,36 @@
       "name": "🏠 8. Properties",
       "item": [
         {
+          "name": "List Schemes (Public)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/public/schemes?page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "schemes"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "No auth required. Returns paginated schemes list."
+          }
+        },
+        {
           "name": "List Properties (Public)",
           "request": {
             "auth": {
@@ -1032,7 +1062,7 @@
             },
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/properties?page=1&pageSize=20",
+              "raw": "{{baseUrl}}/properties?page=1&pageSize=20&schemeId=",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1067,6 +1097,11 @@
                   "key": "maxPrice",
                   "value": "",
                   "description": "optional"
+                },
+                {
+                  "key": "schemeId",
+                  "value": "",
+                  "description": "optional filter by scheme ID"
                 }
               ]
             },

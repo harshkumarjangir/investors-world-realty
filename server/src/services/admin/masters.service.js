@@ -1,4 +1,6 @@
 import prisma from '../../utils/prisma.js';
+import fs from 'fs';
+import path from 'path';
 
 // ─── Account Master ───────────────────────────────────────────────────────────
 export async function listAccountMasters(pagination) {
@@ -82,11 +84,32 @@ export async function deleteScheme(id) {
 export async function upsertSchemeImages(schemeId, images) {
   // images = [{ slot: 1, imageUrl: '...' }, ...]
   await prisma.schemeImage.deleteMany({ where: { schemeId } });
-  const creates = images.filter((i) => i.imageUrl).map((i) => ({
-    schemeId,
-    imageUrl: i.imageUrl,
-    slot: i.slot,
-  }));
+  const creates = [];
+  
+  const schemeImagesDir = 'uploads/schemes';
+  if (!fs.existsSync(schemeImagesDir)) {
+    fs.mkdirSync(schemeImagesDir, { recursive: true });
+  }
+
+  for (const i of images.filter((i) => i.imageUrl)) {
+    let finalUrl = i.imageUrl;
+    if (finalUrl.startsWith('data:image')) {
+      const matches = finalUrl.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+      if (matches && matches.length === 3) {
+        const ext = matches[1].split('/')[1] || 'png';
+        const buffer = Buffer.from(matches[2], 'base64');
+        const filename = `${schemeId}-${i.slot}-${Date.now()}.${ext}`;
+        const filepath = path.join(schemeImagesDir, filename);
+        fs.writeFileSync(filepath, buffer);
+        finalUrl = `${schemeImagesDir}/${filename}`.replace(/\\/g, '/');
+      }
+    }
+    creates.push({
+      schemeId,
+      imageUrl: finalUrl,
+      slot: i.slot,
+    });
+  }
   if (creates.length > 0) {
     await prisma.schemeImage.createMany({ data: creates });
   }

@@ -10,7 +10,7 @@ import {
 // ─── GET /api/v1/public/properties ───────────────────────────────────────────
 export async function publicListPropertiesHandler(req, res) {
   try {
-    const { location, minPrice, maxPrice, type } = req.query;
+    const { location, minPrice, maxPrice, type, schemeId } = req.query;
     const pagination = parsePagination(req.query);
 
     // Always force status=AVAILABLE for public endpoint
@@ -20,10 +20,70 @@ export async function publicListPropertiesHandler(req, res) {
       ...(minPrice ? { minPrice } : {}),
       ...(maxPrice ? { maxPrice } : {}),
       ...(type ? { type } : {}),
+      ...(schemeId ? { schemeId } : {}),
     };
 
     const { items, totalItems, page, pageSize } = await listProperties(filters, pagination);
     return paginatedResponse(res, items, totalItems, page, pageSize, 'Properties fetched successfully');
+  } catch (err) {
+    return errorResponse(res, err.message, err.statusCode || 500);
+  }
+}
+
+// ─── GET /api/v1/public/schemes ──────────────────────────────────────────────
+export async function publicListSchemesHandler(req, res) {
+  try {
+    const { page = 1, pageSize = 20 } = req.query;
+    const skip = (Number(page) - 1) * Number(pageSize);
+    const take = Number(pageSize);
+
+    const where = { isActive: true };
+
+    const [totalItems, schemes] = await Promise.all([
+      prisma.scheme.count({ where }),
+      prisma.scheme.findMany({
+        where,
+        skip,
+        take,
+        orderBy: [{ featuredScheme: 'desc' }, { createdAt: 'desc' }],
+        select: {
+          id: true,
+          schemeName: true,
+          schemeType: true,
+          address: true,
+          city: true,
+          state: true,
+          featuredScheme: true,
+          shortDescription: true,
+          images: {
+            take: 1,
+            select: { imageUrl: true },
+          },
+          _count: {
+            select: {
+              properties: {
+                where: { status: 'AVAILABLE', deletedAt: null }
+              }
+            }
+          }
+        },
+      }),
+    ]);
+
+    const items = schemes.map((s) => ({
+      id: s.id,
+      name: s.schemeName,
+      type: s.schemeType,
+      address: s.address,
+      city: s.city,
+      state: s.state,
+      isFeatured: s.featuredScheme,
+      description: s.shortDescription,
+      thumbnail: s.images.length > 0 ? s.images[0].imageUrl : null,
+      availablePropertiesCount: s._count.properties,
+    }));
+
+    return paginatedResponse(res, items, totalItems, Number(page), Number(pageSize), 'Schemes fetched successfully');
   } catch (err) {
     return errorResponse(res, err.message, err.statusCode || 500);
   }

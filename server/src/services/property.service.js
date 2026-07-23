@@ -71,6 +71,7 @@ export async function listProperties(filters = {}, pagination = {}) {
     type: p.type,
     status: p.status,
     isFeatured: p.isFeatured,
+    iwrCoinPrice: p.price ? p.price / 100 : 0,
     thumbnail: p.images.length > 0 ? p.images[0].url : null,
   }));
 
@@ -102,6 +103,7 @@ export async function getPropertyById(propertyId) {
 
   return {
     ...property,
+    iwrCoinPrice: property.price ? property.price / 100 : 0,
     bookingStatus: property.bookings.length > 0 ? property.bookings[0].status : null,
     bookings: undefined,
   };

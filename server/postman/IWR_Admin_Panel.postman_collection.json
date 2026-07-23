@@ -1181,7 +1181,7 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/admin/properties?page=1&pageSize=20",
+              "raw": "{{baseUrl}}/admin/properties?page=1&pageSize=20&schemeId=",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1197,6 +1197,10 @@
                 {
                   "key": "pageSize",
                   "value": "20"
+                },
+                {
+                  "key": "schemeId",
+                  "value": ""
                 }
               ]
             }
@@ -1217,13 +1221,19 @@
               "raw": "{\n  \"name\": \"Green Valley Plot\",\n  \"description\": \"Residential plot in green area\",\n  \"location\": \"Sector 15\",\n  \"city\": \"Jaipur\",\n  \"state\": \"Rajasthan\",\n  \"area\": 500,\n  \"price\": 2500000,\n  \"type\": \"Plot\",\n  \"amenities\": [\"Water\", \"Electricity\", \"Road\"]\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/admin/properties",
+              "raw": "{{baseUrl}}/admin/properties&schemeId=",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "admin",
                 "properties"
+              ],
+              "query": [
+                {
+                  "key": "schemeId",
+                  "value": ""
+                }
               ]
             }
           }
@@ -1243,7 +1253,7 @@
               "raw": "{\n  \"price\": 2800000,\n  \"status\": \"AVAILABLE\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/admin/properties/:id",
+              "raw": "{{baseUrl}}/admin/properties/:id&schemeId=",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1257,6 +1267,12 @@
                   "key": "id",
                   "value": "property-uuid"
                 }
+              ],
+              "query": [
+                {
+                  "key": "schemeId",
+                  "value": ""
+                }
               ]
             }
           }
@@ -1266,7 +1282,7 @@
           "request": {
             "method": "DELETE",
             "url": {
-              "raw": "{{baseUrl}}/admin/properties/:id",
+              "raw": "{{baseUrl}}/admin/properties/:id&schemeId=",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1279,6 +1295,12 @@
                 {
                   "key": "id",
                   "value": "property-uuid"
+                }
+              ],
+              "query": [
+                {
+                  "key": "schemeId",
+                  "value": ""
                 }
               ]
             }
