@@ -250,13 +250,20 @@ export async function sendNotificationToAssociate(associateId, title, message, t
  */
 export async function sendNotificationToAll(title, message, type, data = {}) {
   try {
-    await sendToTopic(
-      TOPICS.ALL_USERS,
-      { title, body: message },
-      { type, ...Object.fromEntries(Object.entries(data).map(([k, v]) => [k, String(v)])) },
-    );
+    const allTokens = await prisma.deviceToken.findMany({
+      select: { token: true },
+    });
+    const tokens = allTokens.map((d) => d.token);
+    
+    if (tokens.length > 0) {
+      await sendToDevices(
+        tokens,
+        { title, body: message },
+        { type, ...Object.fromEntries(Object.entries(data).map(([k, v]) => [k, String(v)])) }
+      );
+    }
   } catch (err) {
-    console.error('[NOTIFICATION] Broadcast to all_users topic failed:', err.message);
+    console.error('[NOTIFICATION] Broadcast to all devices failed:', err.message);
   }
 
   return { success: true };
