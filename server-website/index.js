@@ -19,6 +19,7 @@ connectDB();
 import homeRoutes from './src/routes/homeRoutes.js';
 import projectRoutes from './src/routes/projectRoutes.js';
 import uploadRoutes from './src/routes/uploadRoutes.js';
+import inquiryRoutes from './src/routes/inquiryRoutes.js';
 import path from 'path';
 
 // ... middleware ...
@@ -27,6 +28,7 @@ import path from 'path';
 app.use('/api/home', homeRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/inquiries', inquiryRoutes);
 
 // Serve static uploads folder
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));

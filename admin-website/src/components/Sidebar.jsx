@@ -1,12 +1,13 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, LayoutDashboard, Building2, Settings } from 'lucide-react';
+import { Home, LayoutDashboard, Building2, Settings, MessageSquare } from 'lucide-react';
 
 const Sidebar = () => {
   const navItems = [
     { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} /> },
     { name: 'Home Page CMS', path: '/home', icon: <Home size={20} /> },
     { name: 'Projects CMS', path: '/projects', icon: <Building2 size={20} /> },
+    { name: 'Contact Inquiries', path: '/inquiries', icon: <MessageSquare size={20} /> },
   ];
 
   return (

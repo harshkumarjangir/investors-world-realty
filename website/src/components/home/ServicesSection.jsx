@@ -1,7 +1,10 @@
+'use client';
 import * as LucideIcons from 'lucide-react';
 import { HelpCircle } from 'lucide-react';
+import { useContactModal } from '@/context/ContactModalContext';
 
 export default function ServicesSection({ data }) {
+  const { openModal } = useContactModal();
   return (
     <section id="services" className="section-padding bg-dark-surface relative overflow-hidden">
       {/* Subtle grid background */}
@@ -25,12 +28,12 @@ export default function ServicesSection({ data }) {
             <p className="text-gray-400 text-lg leading-relaxed mb-6">
               {data?.description || 'Your trusted partner in real estate investments since 13+ years.'}
             </p>
-            <a
-              href={data?.cta?.link || '#contact'}
+            <button
+              onClick={openModal}
               className="inline-flex items-center gap-2 bg-gradient-to-r from-gold-500 to-gold-400 text-[#0a0e1a] font-bold px-6 py-3 rounded-xl hover:from-gold-400 hover:to-gold-300 transition-all duration-300 glow-gold-sm"
             >
               {data?.cta?.text || 'Get Started'}
-            </a>
+            </button>
           </div>
         </div>
 

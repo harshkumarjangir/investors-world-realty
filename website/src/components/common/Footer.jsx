@@ -123,7 +123,7 @@ export default function Footer() {
                 { label: 'Projects', href: '/project' },
                 { label: 'Properties', href: '/properties' },
                 { label: 'Media', href: '/media' },
-                { label: 'Contact', href: '#contact' },
+                { label: 'Contact', href: '/contact' },
               ].map(({ label, href }) => (
                 <li key={label}>
                   <Link href={href} className="text-gray-500 hover:text-gold-400 transition-colors text-sm flex items-center gap-2 group">

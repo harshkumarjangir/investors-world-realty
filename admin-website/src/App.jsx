@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import ManageHome from './pages/ManageHome';
 import ProjectList from './pages/projects/ProjectList';
 import ProjectForm from './pages/projects/ProjectForm';
+import Inquiries from './pages/Inquiries';
 
 const App = () => {
   return (
@@ -16,6 +17,7 @@ const App = () => {
           <Route path="/projects" element={<ProjectList />} />
           <Route path="/projects/new" element={<ProjectForm />} />
           <Route path="/projects/:slug/edit" element={<ProjectForm />} />
+          <Route path="/inquiries" element={<Inquiries />} />
         </Routes>
       </Layout>
     </Router>

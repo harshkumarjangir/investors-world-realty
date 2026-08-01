@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useContactModal } from '@/context/ContactModalContext';
 
 const navLinks = [
   { label: 'About', href: '/about' },
@@ -20,6 +21,7 @@ const navLinks = [
 ];
 
 export default function Navbar() {
+  const { openModal } = useContactModal();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openMobileSection, setOpenMobileSection] = useState(null);
@@ -109,12 +111,12 @@ export default function Navbar() {
 
             {/* CTA + Mobile Toggle */}
             <div className="flex items-center gap-3">
-              <Link
-                href="/#contact"
+              <button
+                onClick={openModal}
                 className="hidden md:inline-flex items-center gap-2 bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-300 text-[#0a0e1a] text-sm font-bold px-5 py-2.5 rounded-xl transition-all duration-300 glow-gold-sm hover:glow-gold transform hover:-translate-y-0.5"
               >
                 Talk to an Expert
-              </Link>
+              </button>
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
                 className="md:hidden text-gray-400 hover:text-white p-2 rounded-xl hover:bg-white/5 transition-colors"
@@ -169,13 +171,15 @@ export default function Navbar() {
               )
             )}
             <div className="mt-4 pt-4 border-t border-white/10">
-              <Link
-                href="/#contact"
-                onClick={() => setMobileOpen(false)}
+              <button
+                onClick={() => {
+                  setMobileOpen(false);
+                  openModal();
+                }}
                 className="block w-full text-center bg-gradient-to-r from-gold-500 to-gold-400 text-[#0a0e1a] font-bold py-4 rounded-2xl transition-all glow-gold"
               >
                 Talk to an Expert
-              </Link>
+              </button>
             </div>
           </div>
         </div>

@@ -1,7 +1,10 @@
+'use client';
 import * as LucideIcons from 'lucide-react';
 import { HelpCircle } from 'lucide-react';
+import { useContactModal } from '@/context/ContactModalContext';
 
 export default function FeaturesSection({ data }) {
+  const { openModal } = useContactModal();
   if (!data) return null;
 
   return (
@@ -25,12 +28,12 @@ export default function FeaturesSection({ data }) {
           </div>
           <div className="lg:max-w-sm">
             <p className="text-gray-400 text-lg mb-6">{data.subtitle}</p>
-            <a
-              href={data.cta?.link || '#contact'}
+            <button
+              onClick={openModal}
               className="inline-flex items-center gap-2 border border-gold-500/50 hover:border-gold-500 text-gold-400 hover:text-white hover:bg-gold-500 font-bold px-6 py-3 rounded-xl transition-all duration-300"
             >
               {data.cta?.text || 'Apply Now'}
-            </a>
+            </button>
           </div>
         </div>
 

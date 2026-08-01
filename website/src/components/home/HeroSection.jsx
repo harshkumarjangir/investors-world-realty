@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { ArrowDown } from 'lucide-react';
+import { useContactModal } from '@/context/ContactModalContext';
 
 const BG_IMAGES = [
   'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=2000&q=80',
@@ -9,6 +10,7 @@ const BG_IMAGES = [
 ];
 
 export default function HeroSection({ data }) {
+  const { openModal } = useContactModal();
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
@@ -67,12 +69,12 @@ export default function HeroSection({ data }) {
 
           {/* CTAs */}
           <div className="flex flex-row items-center gap-3 sm:gap-4">
-            <a
-              href={data?.cta?.primary?.link || '#contact'}
+            <button
+              onClick={openModal}
               className="inline-flex items-center gap-2 bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-300 text-[#0a0e1a] font-bold text-sm sm:text-base px-4 py-3 sm:px-8 sm:py-4 rounded-xl sm:rounded-2xl transition-all duration-300 glow-gold hover:glow-gold transform hover:-translate-y-1 shadow-2xl shrink-0"
             >
               {data?.cta?.primary?.text || 'Talk to an Expert'}
-            </a>
+            </button>
             <a
               href={data?.cta?.secondary?.link || '#projects'}
               className="inline-flex items-center gap-2 sm:gap-3 text-white text-sm sm:text-base font-medium group shrink-0"
