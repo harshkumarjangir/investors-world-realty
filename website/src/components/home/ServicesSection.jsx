@@ -21,7 +21,7 @@ export default function ServicesSection({ data }) {
               {data?.title || 'Our Services'}
             </h2>
           </div>
-          <div className="lg:max-w-sm">
+          <div className="lg:max-w-2xl">
             <p className="text-gray-400 text-lg leading-relaxed mb-6">
               {data?.description || 'Your trusted partner in real estate investments since 13+ years.'}
             </p>

@@ -66,7 +66,8 @@ export default function Navbar() {
               />
               <div className="hidden sm:block">
                 <span className="text-white font-bold text-lg tracking-tight">Investor's </span>
-                <span className="text-gradient-gold font-bold text-lg">World</span>
+                <span className="text-gradient-gold font-bold text-lg">World </span>
+                <span className="text-white font-bold text-lg tracking-tight">Realty</span>
               </div>
             </Link>
 

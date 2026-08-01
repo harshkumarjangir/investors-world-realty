@@ -77,7 +77,8 @@ export default function Footer() {
               <img src="/logo.png" alt="Investor's World Realty" className="h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300" />
               <div>
                 <span className="text-white font-bold text-xl tracking-tight">Investor's </span>
-                <span className="text-gradient-gold font-bold text-xl">World</span>
+                <span className="text-gradient-gold font-bold text-xl">World </span>
+                <span className="text-white font-bold text-xl tracking-tight">Realty</span>
               </div>
             </Link>
             <p className="text-gray-500 text-sm leading-relaxed max-w-sm mb-8">
