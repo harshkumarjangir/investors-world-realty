@@ -108,13 +108,13 @@ export default function ContactPage() {
               </a>
 
               {/* Email Card */}
-              <a href="mailto:info@investorsworld.com" className="group flex items-start gap-4 p-5 bg-[#0d1220]/40 backdrop-blur-xl border border-white/5 hover:border-gold-500/30 rounded-2xl transition-all duration-300 hover:transform hover:translate-x-1">
+              <a href="mailto:supportiwr@gmail.com" className="group flex items-start gap-4 p-5 bg-[#0d1220]/40 backdrop-blur-xl border border-white/5 hover:border-gold-500/30 rounded-2xl transition-all duration-300 hover:transform hover:translate-x-1">
                 <div className="w-12 h-12 rounded-xl bg-gold-500/10 border border-gold-500/20 group-hover:bg-gold-500/20 flex items-center justify-center transition-all duration-300 shrink-0">
                   <Mail className="text-gold-400 w-5 h-5" />
                 </div>
                 <div>
                   <h4 className="text-gray-400 text-xs uppercase tracking-widest mb-1">Email Us</h4>
-                  <p className="text-white font-medium group-hover:text-gold-400 transition-colors text-base sm:text-lg">info@investorsworld.com</p>
+                  <p className="text-white font-medium group-hover:text-gold-400 transition-colors text-base sm:text-lg">supportiwr@gmail.com</p>
                   <p className="text-gray-500 text-xs mt-1">Write to us for detailed inquiries or document shares.</p>
                 </div>
               </a>

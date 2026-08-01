@@ -49,8 +49,8 @@ export default function Footer() {
               {
                 icon: Mail,
                 label: 'Email Us',
-                value: 'info@investorsworld.com',
-                href: 'mailto:info@investorsworld.com',
+                value: 'supportiwr@gmail.com',
+                href: 'mailto:supportiwr@gmail.com',
               },
               {
                 icon: MapPin,
