@@ -1,3 +1,5 @@
+'use client';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Phone, Mail, MapPin } from 'lucide-react';
 
@@ -22,6 +24,14 @@ const XIcon = () => (
 );
 
 export default function Footer() {
+  const [projects, setProjects] = useState([]);
+
+  useEffect(() => {
+    fetch((process.env.NEXT_PUBLIC_WEBSITE_API_URL || "http://localhost:5001/api") + "/projects")
+      .then(r => r.json())
+      .then(data => setProjects(Array.isArray(data) ? data : []))
+      .catch(() => { });
+  }, []);
   return (
     <footer className="bg-dark-bg border-t border-white/5">
 
@@ -129,21 +139,35 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-bold text-sm uppercase tracking-widest mb-6 pb-3 border-b border-white/5">Projects</h4>
             <ul className="space-y-3">
-              {[
-                'Daksh Green',
-                'Dam View Farms',
-                'Motisons Township',
-                'Tirupati Farm House',
-                'Vrindavan Vihar',
-                'Swarn Nagri',
-              ].map(name => (
-                <li key={name}>
-                  <Link href="/project" className="text-gray-500 hover:text-gold-400 transition-colors text-sm flex items-center gap-2 group">
-                    <span className="w-4 h-px bg-gray-700 group-hover:bg-gold-500 transition-colors" />
-                    {name}
-                  </Link>
-                </li>
-              ))}
+              {projects.length > 0 ? (
+                projects.map(p => {
+                  const name = p.hero?.title || p.slug;
+                  return (
+                    <li key={p.slug}>
+                      <Link href={`/project/${p.slug}`} className="text-gray-500 hover:text-gold-400 transition-colors text-sm flex items-center gap-2 group">
+                        <span className="w-4 h-px bg-gray-700 group-hover:bg-gold-500 transition-colors" />
+                        {name}
+                      </Link>
+                    </li>
+                  );
+                })
+              ) : (
+                [
+                  'Daksh Green',
+                  'Dam View Farms',
+                  'Motisons Township',
+                  'Tirupati Farm House',
+                  'Vrindavan Vihar',
+                  'Swarn Nagri',
+                ].map(name => (
+                  <li key={name}>
+                    <Link href="/project" className="text-gray-500 hover:text-gold-400 transition-colors text-sm flex items-center gap-2 group">
+                      <span className="w-4 h-px bg-gray-700 group-hover:bg-gold-500 transition-colors" />
+                      {name}
+                    </Link>
+                  </li>
+                ))
+              )}
             </ul>
           </div>
         </div>
